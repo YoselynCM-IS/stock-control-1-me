@@ -589,6 +589,8 @@ Route::name('codes.')->prefix('codes')->group(function () {
     Route::get('/by_cliente', 'CodeController@by_cliente')->name('by_cliente');
     // Subir codigos
     Route::post('/upload', 'CodeController@upload')->name('upload');
+    // Descargar codigos por remision
+    Route::get('/download_byremision/{remisione_id}', 'CodeController@download_byremision')->name('download_byremision');
     
 });
 

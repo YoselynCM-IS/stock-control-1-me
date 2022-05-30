@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\codes\ByRemisionExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\libros\CodesImport;
 use Illuminate\Http\Request;
@@ -102,5 +103,10 @@ class CodeController extends Controller
         }
         
         return response()->json($datos);
+    }
+
+    // DESCARGAR CODIGOS POR REMISION
+    public function download_byremision($remisione_id){
+        return Excel::download(new ByRemisionExport($remisione_id), 'rem-'.$remisione_id.'-codigos.xlsx');
     }
 }

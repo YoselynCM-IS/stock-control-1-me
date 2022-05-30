@@ -5,22 +5,27 @@
             <b-col sm="4"><h5><b>Remisión No. {{ remision.id }}</b></h5></b-col>
             <b-col sm="2" class="text-right">
                 <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado'"
-                    variant="dark" v-b-modal.modal-cancelar>
+                    variant="dark" v-b-modal.modal-cancelar pill block>
                     <i class="fa fa-close"></i> Cancelar
                 </b-button>
                 <b-badge variant="danger" v-if="remision.estado == 'Cancelado'">Remisión cancelada</b-badge>
             </b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-b-modal.my-comentarios @click="ini_comment()" variant="dark" v-if="role_id !== 4">
+                <b-button v-if="role_id !== 4" v-b-modal.my-comentarios 
+                    @click="ini_comment()" variant="dark" pill block>
                     <i class="fa fa-comment"></i> Comentarios
                 </b-button>
             </b-col>
-            <b-col sm="4" class="text-right">
-                <!-- <a class="btn btn-dark" v-if="role_id !== 2" :href="'/imprimirSalida/' + remision.id">
-                    <i class="fa fa-download"></i> Descargar
-                </a> -->
-                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" :href="`/download_remision/${remision.id}`" variant="dark">
-                    <i class="fa fa-download"></i> Descargar
+            <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                    :href="`/download_remision/${remision.id}`" variant="dark" pill block>
+                    <i class="fa fa-download"></i> Remisión
+                </b-button>
+            </b-col>
+            <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                    :href="`/codes/download_byremision/${remision.id}`" variant="dark" pill block>
+                    <i class="fa fa-download"></i> Códigos
                 </b-button>
             </b-col>
         </b-row>
