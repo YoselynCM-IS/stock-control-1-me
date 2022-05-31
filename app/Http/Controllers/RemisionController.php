@@ -497,22 +497,15 @@ class RemisionController extends Controller
         return $datos;
     }
     
-    // MOSTRAR DETALLES DE REMISIÓN
+    // MOSTRAR DEVOLUCIONES DE REMISION
     // Función utilizada en ListadoComponent, DevoluciónComponent, RemisionesComponent
-    public function show(){
-        $numero = Input::get('numero');
-        $remision = Remisione::whereId($numero)
+    public function obtener_devoluciones(Request $request){
+        $devoluciones = Devolucione::where('remisione_id', $request->remisione_id)
                     ->with([
-                        'datos.libro',
-                        'devoluciones.libro',
-                        'devoluciones.dato',
-                        'fechas.libro',
-                        'depositos',
-                        'comentarios.user'
-                    ])->withCount('depositos')->first(); 
-        // $vendidos = Vendido::where('remisione_id', $remision->id)->with('libro', 'dato', 'pagos')->get();
-        $vendidos = null;
-        return response()->json(['remision' => $remision, 'vendidos' => $vendidos]);
+                        'libro',
+                        'dato.codes'
+                    ])->get();
+        return response()->json($devoluciones);
     }
 
     // CANCELAR REMISIÓN

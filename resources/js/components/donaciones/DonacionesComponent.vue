@@ -559,13 +559,12 @@ import getLibros from '../../mixins/getLibros';
                     this.load = true;
                     axios.post('/donaciones/store', this.regalo).then(response => {
                         this.load = false;
-                        console.log(response.data);
-                        // this.regalos.unshift(response.data);
-                        // this.acumular_unidades();
-                        // this.makeToast('success', 'La donación se guardo correctamente.');
-                        // this.$refs['modal-confirmar-regalo'].hide();
-                        // this.mostrarRegistrar = false;
-                        // this.listadoDonaciones = true;
+                        this.regalos.unshift(response.data);
+                        this.acumular_unidades();
+                        this.makeToast('success', 'La donación se guardo correctamente.');
+                        this.$refs['modal-confirmar-regalo'].hide();
+                        this.mostrarRegistrar = false;
+                        this.listadoDonaciones = true;
                     })
                     .catch(error => {
                         this.load = false;

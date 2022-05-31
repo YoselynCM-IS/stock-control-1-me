@@ -136,10 +136,10 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     Route::get('/details/{id}', 'RemisionController@get_details')->name('details');
     // OBTENER LOS RESPONSABLES
     Route::get('/get_responsables', 'RemisionController@get_responsables')->name('get_responsables');
+    //Buscar remision
+    Route::get('obtener_devoluciones', 'RemisionController@obtener_devoluciones')->name('obtener_devoluciones');
 });
 
-//Buscar remision
-Route::get('lista_datos', 'RemisionController@show')->name('lista_datos');
 // Asignar responsable de la remision
 Route::put('assign_responsable', 'RemisionController@assign_responsable')->name('assign_responsable');
 

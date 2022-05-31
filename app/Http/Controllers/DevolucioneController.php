@@ -30,12 +30,10 @@ class DevolucioneController extends Controller
             $total_devolucion = 0;
             
             // DEVOLUCIONES
-            $prueba = [];
-
             $lista_fechas = [];
             $devoluciones = collect($request->devoluciones);
             $hoy = Carbon::now();
-            $devoluciones->map(function($devolucion) use(&$prueba, &$lista_fechas, $remision, $entregado_por, &$total_devolucion, $hoy){
+            $devoluciones->map(function($devolucion) use(&$lista_fechas, $remision, $entregado_por, &$total_devolucion, $hoy){
                 $unidades_base = $devolucion['unidades_base'];
                 $total_base = $devolucion['total_base'];
 
@@ -71,7 +69,7 @@ class DevolucioneController extends Controller
                         ->increment('piezas', $unidades_base);  
                     
                     // DEVOLUCION DE CODIGOS
-                    $codes = $d->dato->codes()->where('devolucion', 0)->limit($unidades_base)->get();
+                    $codes = $d->dato->codes()->whereIn('code_id', $devolucion['code_dato'])->get();
                     $codes->map(function($code){
                         $code->update(['estado' => 'inventario']);
                         $code->datos()

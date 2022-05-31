@@ -286,6 +286,7 @@
                         <th scope="col">Unidades pendientes</th>
                         <th scope="col">Unidades</th>
                         <th scope="col">Subtotal</th>
+                        <th scope="col"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -295,53 +296,41 @@
                         <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
                         <td>{{ devolucion.unidades_resta | formatNumber }}</td>
                         <td>
-                            <b-input 
-                                :id="`inpDev-${i}`"
-                                type="number" 
-                                v-model="devolucion.unidades_base"
-                                :disabled="load"
+                            <b-input v-if="devolucion.libro.type !== 'digital' || 
+                                    (devolucion.libro.type == 'digital' && devolucion.dato.codes.length == 0)"
+                                :id="`inpDev-${i}`" type="number" 
+                                v-model="devolucion.unidades_base" :disabled="load"
                                 @change="guardarUnidades(devolucion, i)"/>
+                            <label v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
+                                {{ devolucion.unidades_base }}
+                            </label>
                         </td>
                         <td>$ {{ devolucion.total_base | formatNumber }}</td>
+                        <td>
+                            <b-button v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0"
+                                pill small variant="info" @click="selectCodigos(devolucion, i)">
+                                Códigos
+                            </b-button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <!-- INFORMACIÓN ACERCA DEL APARTADO -->
-        <b-modal id="modal-ayudaAP" hide-backdrop hide-footer title="Ayuda">
-            En este apartado solo aparecerán las remisiones que ya fueron marcadas como entregadas y que aun no han sido terminadas de pagar.
-            <hr>
-            <h5 id="titleA"><b>Búsqueda de remisiones</b></h5>
-            <p>
-                <ul>
-                    <li>
-                        <b>Búsqueda por remisión: </b>
-                        Ingresar el número de folio de la remisión que se desea buscar y presionar <label id="ctrlS">Enter</label>.
-                    </li>
-                    <li><b>Búsqueda por cliente: </b> Escribir el nombre del cliente y elegir entre las opciones que aparezcan.</li>
-                </ul>
-            </p>
-            <hr>
-            <h5 id="titleA"><b>Pago</b></h5>
-            <p>
-                Pago en efectivo, ingresando las unidades que se pagaron.<br>
-                En <b id="titleA">Pago entregado por</b> tendrá que seleccionar de quien lo recibió.
-            </p>
-            <hr>
-            <h5 id="titleA"><b>Devolución</b></h5>
-            <p>
-                Devolución de libros, ingresando las unidades que se regresaron.<br>
-                En <b id="titleA">Devolución entregada por</b> tendrá que seleccionar de quien la recibió.
-            </p>
-            <hr>
-            <h5 id="titleA"><b>Donación</b></h5>
-            <p>
-                Donación de libros, ingresando las unidades que se donaron.<br>
-                En <b id="titleA">Donación entregada por</b> tendrá que seleccionar quien la entrego.
-            </p>
-            <hr>
-            <p>Al presionar <b id="titleA">Guardar</b> ya sea en Pago, Devolución o Donación, aparecerá una ventana emergente, donde aparecerán los datos de la remisión y las unidades que ingreso.</p>
-            <b><i class="fa fa-info-circle"></i> Nota: </b>Verificar antes de presionar <b>Confirmar</b> ya que después no se podrán realizar cambios.
+        <!-- MODAL PARA SELECCIONAR CODIGOS -->
+        <b-modal id="modal-select-codes" title="Seleccionar códigos" hide-footer>
+            <b-table :items="codes" :fields="fieldsCodes" responsive
+                :select-mode="selectMode" ref="selectableTable"
+                selectable @row-selected="onRowSelected">
+                <template v-slot:cell(index)="row">
+                    {{ row.index + 1 }}
+                </template>
+            </b-table>
+            <div class="text-right">
+                <b-button :disabled="selected.length == 0" variant="success" 
+                    pill @click="guardarCodes()">
+                    <i class="fa fa-check"></i> Guardar
+                </b-button>
+            </div>
         </b-modal>
     </div>
 </template>
@@ -406,7 +395,15 @@
                 stateR: null,
                 stateU: null,
                 remisionesData: {},
-                cliente_id: null
+                cliente_id: null,
+                selectMode: 'multi',
+                selected: [],
+                fieldsCodes: [
+                    {key: 'index', label: 'N.'}, 
+                    {key: 'codigo', label: 'Código'}, 
+                ],
+                position: null,
+                codes: []
             }
         },
         filters: {
@@ -602,8 +599,31 @@
                 this.pos_remision = i;
                 this.total_devolucion = 0;
                 this.ini_entregado_por();
-                axios.get('/lista_datos', {params: {numero: remision.id}}).then(response => {
-                    this.devoluciones = response.data.remision.devoluciones;
+                axios.get('/remisiones/obtener_devoluciones', {params: {remisione_id: remision.id}}).then(response => {
+                    response.data.forEach(rd => {
+                        let cs = [];
+                        rd.dato.codes.forEach(c => {
+                            if(!c.pivot.devolucion) cs.push(c);
+                        });
+                        this.devoluciones.push({
+                            created_at: rd.created_at,
+                            dato: rd.dato,
+                            dato_id: rd.dato_id,
+                            id: rd.id,
+                            libro: rd.libro,
+                            libro_id: rd.libro_id,
+                            remisione_id: rd.remisione_id,
+                            total: rd.total,
+                            total_base: rd.total_base,
+                            total_resta: rd.total_resta,
+                            unidades: rd.unidades,
+                            unidades_base: rd.unidades_base,
+                            unidades_resta: rd.unidades_resta,
+                            updated_at: rd.updated_at,
+                            codes: cs,
+                            code_dato: []
+                        });
+                    });
                     this.remision = remision;
                     this.acumularFinal();
                     this.mostrarDevolucion = true;
@@ -732,6 +752,30 @@
                     this.load = false;
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
+            },
+            selectCodigos(devolucion, i){
+                this.position = i;
+                this.devoluciones[this.position].unidades_base = 0;
+                this.devoluciones[this.position].total_base = 0;
+                this.codes = devolucion.codes;
+                this.acumularFinal();
+                this.$bvModal.show('modal-select-codes');
+            },
+            onRowSelected(items) {
+                this.selected = items
+            },
+            guardarCodes(){
+                this.devoluciones[this.position].code_dato = [];
+                let devolucion = this.devoluciones[this.position];
+                let unidades_base = 0;
+                this.selected.forEach(e => {
+                    devolucion.code_dato.push(e.id);
+                    unidades_base++;
+                });
+                devolucion.total_base = devolucion.dato.costo_unitario * unidades_base;
+                devolucion.unidades_base = unidades_base;
+                this.acumularFinal();
+                this.$bvModal.hide('modal-select-codes');
             }
         },
     }
@@ -741,8 +785,5 @@
     #listaD{
         position: absolute;
         z-index: 100
-    }
-    #listaD a {
-        /* background-color: #f2f8ff; */
     }
 </style>
