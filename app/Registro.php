@@ -48,6 +48,6 @@ class Registro extends Model
     
     // Muchos a muchos
     public function codes(){
-        return $this->belongsToMany(Code::class);
+        return $this->belongsToMany(Code::class)->withPivot('devolucion');
     }
 }

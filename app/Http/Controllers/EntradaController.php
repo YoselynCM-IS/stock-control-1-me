@@ -207,7 +207,7 @@ class EntradaController extends Controller
     // Función utilizada en EditarEntradasComponent, EntradasComponent
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
-        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes'])->first();
+        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes'])->first(); 
         $entdevoluciones = Entdevolucione::where('entrada_id', $entrada_id)->with('registro.libro')->get();
         return response()->json(['entrada' => $entrada, 'entdevoluciones' => $entdevoluciones]);
     }
@@ -399,6 +399,7 @@ class EntradaController extends Controller
             $lista_entdevoluciones = [];
             $items = collect($request->registros);
             $hoy = Carbon::now();
+
             $items->map(function($item) use(&$lista_entdevoluciones, $entrada, &$total, $hoy){
                 $unidades_base = (int) $item['unidades_base'];
                 $total_base = (double) $item['total_base'];
@@ -412,15 +413,29 @@ class EntradaController extends Controller
                         'creado_por' => auth()->user()->name,
                         'created_at' => $hoy,
                         'updated_at' => $hoy
-                    ];
+                    ]; 
 
                     // DISMINUIR UNIDADES PENDIENTE
-                    \DB::table('registros')->whereId($registro_id)
-                        ->decrement('unidades_pendientes',  $unidades_base);
+                    $registro = Registro::whereId($registro_id)->first();
+                    $registro->update([
+                        'unidades_pendientes' => $registro->unidades_pendientes - $unidades_base
+                    ]);
+                    // \DB::table('registros')->whereId($registro_id)
+                    //     ->decrement('unidades_pendientes',  $unidades_base);
 
                     // DISMINUIR PIEZAS DE LOS LIBROS
                     \DB::table('libros')->whereId($item['libro']['id'])
-                    ->decrement('piezas', $unidades_base);
+                        ->decrement('piezas', $unidades_base);
+
+                    // DEVOLUCION DE CODIGOS
+                    $codes = $registro->codes()->whereIn('code_id', $item['code_registro'])->get();
+                    $codes->map(function($code){
+                        $code->update(['estado' => 'eliminado']);
+                        $code->registros()
+                            ->updateExistingPivot($code->pivot->registro_id, [
+                                'devolucion' => true
+                            ]);
+                    });
                 }
                 $total += $total_base;
             });

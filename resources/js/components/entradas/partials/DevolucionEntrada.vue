@@ -16,10 +16,21 @@
             <template v-slot:cell(costo_unitario)="row">${{ row.item.costo_unitario | formatNumber }}</template>
             <template v-slot:cell(total_base)="row">${{ row.item.total_base | formatNumber }}</template>
             <template v-slot:cell(unidades_base)="row">
-                <b-input :id="`inpEntDev-${row.index}`" type="number" 
+                <b-input v-if="row.item.libro.type !== 'digital' || 
+                                    (row.item.libro.type == 'digital' && row.item.codes.length == 0)"
+                    :id="`inpEntDev-${row.index}`" type="number" 
                     @change="obtenerSubtotal(row.item, row.index)"
                     v-model="row.item.unidades_base">
                 </b-input>
+                <label v-if="row.item.libro.type == 'digital' && row.item.codes.length > 0">
+                    {{ row.item.unidades_base }}
+                </label>
+            </template>
+            <template v-slot:cell(codes)="row">
+                <b-button v-if="row.item.libro.type == 'digital' && row.item.codes.length > 0"
+                    pill small variant="info" @click="selectCodigos(row.item, row.index)">
+                    Códigos
+                </b-button>
             </template>
             <template #thead-top="row">
                 <tr>
@@ -29,6 +40,7 @@
                 </tr>
             </template>
         </b-table>
+        <!-- MODALS -->
         <b-modal ref="modal-confirmarDevolucion" size="xl" title="Resumen de la devolución">
             <label><b>Folio:</b> {{form.folio}}</label><br>
             <label><b>Editorial:</b> {{form.editorial}}</label><br>
@@ -39,6 +51,7 @@
                 <template v-slot:cell(costo_unitario)="row">${{ row.item.costo_unitario | formatNumber }}</template>
                 <template v-slot:cell(total_base)="row">${{ row.item.total_base | formatNumber }}</template>
                 <template v-slot:cell(unidades_base)="row">{{ row.item.unidades_base | formatNumber }}</template>
+                <template v-slot:cell(codes)="row"></template>
                 <template #thead-top="row">
                     <tr>
                         <th colspan="4"></th>
@@ -63,6 +76,22 @@
                 </b-row>
             </div>
         </b-modal>
+        <!-- MODAL PARA SELECCIONAR CODIGOS -->
+        <b-modal id="modal-select-codes" title="Seleccionar códigos" hide-footer>
+            <b-table :items="codes" :fields="fieldsCodes" responsive
+                :select-mode="selectMode" ref="selectableTable"
+                selectable @row-selected="onRowSelected">
+                <template v-slot:cell(index)="row">
+                    {{ row.index + 1 }}
+                </template>
+            </b-table>
+            <div class="text-right">
+                <b-button :disabled="selected.length == 0" variant="success" 
+                    pill @click="guardarCodes()">
+                    <i class="fa fa-check"></i> Guardar
+                </b-button>
+            </div>
+        </b-modal>
     </div>
 </template>
 
@@ -80,9 +109,18 @@ export default {
                 {key: 'titulo', label: 'Libro'}, 
                 {key: 'costo_unitario', label: 'Costo unitario'}, 
                 {key: 'unidades_base', label: 'Unidades'}, 
-                {key: 'total_base', label: 'Subtotal'}
+                {key: 'total_base', label: 'Subtotal'},
+                {key: 'codes', label: ''}
             ],
-            load: false
+            load: false,
+            position: 0,
+            codes: [],
+            selectMode: 'multi',
+            selected: [],
+            fieldsCodes: [
+                {key: 'index', label: 'N.'}, 
+                {key: 'codigo', label: 'Código'}, 
+            ],
         }
     },
     methods: {
@@ -117,16 +155,19 @@ export default {
                 this.makeToast('warning', `Hay ${registro.libro.piezas} en existencia`);
                 this.to_zero(i);
             }
+            this.acumularFinal();
+        },
+        to_zero(i){
+            this.form.registros[i].unidades_base = 0;
+            this.form.registros[i].total_base = 0;
+        },
+        acumularFinal(){
             this.form.todo_unidades = 0;
             this.form.todo_total = 0;
             this.form.registros.forEach(registro => {
                 this.form.todo_unidades += parseInt(registro.unidades_base);
                 this.form.todo_total += parseFloat(registro.total_base);
             });
-        },
-        to_zero(i){
-            this.form.registros[i].unidades_base = 0;
-            this.form.registros[i].total_base = 0;
         },
         // CONFIRMAR DEVOLUCION
         guardarDevolucion(){
@@ -139,6 +180,30 @@ export default {
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 this.load = false;
             });
+        },
+        selectCodigos(devolucion, i){
+            this.position = i;
+            this.form.registros[this.position].unidades_base = 0;
+            this.form.registros[this.position].total_base = 0;
+            this.codes = devolucion.codes;
+            this.acumularFinal();
+            this.$bvModal.show('modal-select-codes');
+        },
+        onRowSelected(items) {
+            this.selected = items
+        },
+        guardarCodes(){
+            this.form.registros[this.position].code_registro = [];
+            let devolucion = this.form.registros[this.position];
+            let unidades_base = 0;
+            this.selected.forEach(e => {
+                devolucion.code_registro.push(e.id);
+                unidades_base++;
+            });
+            devolucion.total_base = devolucion.costo_unitario * unidades_base;
+            devolucion.unidades_base = unidades_base;
+            this.acumularFinal();
+            this.$bvModal.hide('modal-select-codes');
         }
     }
 }

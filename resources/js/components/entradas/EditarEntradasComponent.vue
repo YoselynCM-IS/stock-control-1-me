@@ -799,10 +799,36 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     this.formDev.unidades = response.data.entrada.unidades;
                     this.formDev.total_devolucion = response.data.entrada.total_devolucion;
                     this.formDev.created_at = response.data.entrada.created_at;
-                    this.formDev.registros = response.data.entrada.registros;
+                    this.formDev.registros = [];
                     this.formDev.entdevoluciones = response.data.entdevoluciones;
                     this.formDev.todo_total = 0;
                     this.formDev.todo_unidades = 0;
+
+                    response.data.entrada.registros.forEach(rd => {
+                        let cs = [];
+                        rd.codes.forEach(c => {
+                            if(!c.pivot.devolucion) cs.push(c);
+                        });
+                        this.formDev.registros.push({
+                            codes: rd.codes,
+                            costo_unitario: rd.costo_unitario,
+                            created_at: rd.created_at,
+                            deleted_at: rd.deleted_at,
+                            entrada_id: rd.entrada_id,
+                            id: rd.id,
+                            libro: rd.libro,
+                            libro_id: rd.libro_id,
+                            total: rd.total,
+                            total_base: rd.total_base,
+                            unidades: rd.unidades,
+                            unidades_base: rd.unidades_base,
+                            unidades_pendientes: rd.unidades_pendientes,
+                            unidades_que: rd.unidades_que,
+                            updated_at: rd.updated_at,
+                            codes: cs,
+                            code_registro: []
+                        });
+                    });
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
