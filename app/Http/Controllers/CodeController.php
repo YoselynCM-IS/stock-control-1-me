@@ -6,6 +6,7 @@ use App\Exports\codes\ByRemisionExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\libros\CodesImport;
 use Illuminate\Http\Request;
+use App\Remisione;
 use App\Libro;
 use App\Code;
 use App\Dato;
@@ -48,27 +49,36 @@ class CodeController extends Controller
     }
 
     // OBTENER CODIGOS POR EL CLIENTE AL QUE SE LE VENDIO
-    public function by_cliente(Request $request){
+    public function show_remisiones(Request $request){
         $datos = \DB::table('datos')
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->join('libros', 'datos.libro_id', '=', 'libros.id')
                     ->join('code_dato', 'datos.id', '=', 'code_dato.dato_id')
-                    ->where('remisiones.cliente_id', $request->cliente_id)
+                    ->where('code_dato.code_id', $request->code_id)
+                    // ->where('remisiones.cliente_id', $request->cliente_id)
                     ->whereNotIn('remisiones.estado', ['Cancelado'])
                     ->where('libros.type', 'digital')
-                    ->select('code_dato.code_id as code_id')
+                    ->select('remisiones.id as remisione_id')
+                    // ->select('code_dato.code_id as code_id')
                     ->orderBy('remisiones.id', 'asc')
                     ->get();
 
-        $codes_ids = [];
-        $datos->map(function($dato) use(&$codes_ids){
-            $codes_ids[] = $dato->code_id;
+        $remisiones_ids = [];
+        $datos->map(function($dato) use(&$remisiones_ids){
+            $remisiones_ids[] = $dato->remisione_id;
         });
 
-        $codes = Code::whereIn('id', $codes_ids)
+        $remisiones = Remisione::whereIn('id', $remisiones_ids)
+                                ->with('cliente')->get();
+        return response()->json($remisiones);
+    }
+
+    // BUSCAR POR CODIGO
+    public function by_code(Request $request){
+        $codes = Code::where('codigo', 'like', '%'.$request->code.'%')
                         ->whereNotIn('estado', ['proceso', 'eliminado'])
                         ->orderBy('created_at', 'desc')
-                        ->with('libro')->paginate(2);
+                        ->with('libro')->paginate(50);
         return response()->json($codes);
     }
 

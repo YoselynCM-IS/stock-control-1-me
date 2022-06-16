@@ -585,13 +585,14 @@ Route::name('codes.')->prefix('codes')->group(function () {
     Route::get('/by_libro', 'CodeController@by_libro')->name('by_libro');
     // Obtener codigos por editorial
     Route::get('/by_editorial', 'CodeController@by_editorial')->name('by_editorial');
-    // Obtener codigos por cliente
-    Route::get('/by_cliente', 'CodeController@by_cliente')->name('by_cliente');
+    // Obtener codigo por coincidencia
+    Route::get('/by_code', 'CodeController@by_code')->name('by_code');
     // Subir codigos
     Route::post('/upload', 'CodeController@upload')->name('upload');
     // Descargar codigos por remision
     Route::get('/download_byremision/{remisione_id}', 'CodeController@download_byremision')->name('download_byremision');
-    
+    // Obtener codigos por cliente
+    Route::get('/show_remisiones', 'CodeController@show_remisiones')->name('show_remisiones');
 });
 
 // ********** NO UTILIZADO **********

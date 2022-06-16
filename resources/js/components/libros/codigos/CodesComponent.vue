@@ -5,7 +5,7 @@
                 <b-col>
                     <!-- BUSQUEDA POR EDITORIAL -->
                     <b-form-group label="Editorial:">
-                        <b-form-select v-model="queryEditorial" 
+                        <b-form-select v-model="queryEditorial" :disabled="load"
                             :options="options" @change="get_byeditorial()"></b-form-select>
                     </b-form-group>
                 </b-col>
@@ -25,8 +25,8 @@
                         </div>
                     </b-form-group>
                 </b-col>
-                <b-col>
-                    <!-- BUSQUEDA POR LIBRO -->
+                <!-- BUSQUEDA POR CLIENTE -->
+                <!-- <b-col>
                     <b-form-group label="Cliente:">
                         <b-form-input style="text-transform:uppercase;" :disabled="load"
                             v-model="queryCliente" @keyup="mostrarClientes()">
@@ -38,6 +38,14 @@
                                 {{ cliente.name }}
                             </a>
                         </div>
+                    </b-form-group>
+                </b-col> -->
+                <b-col>
+                    <!-- BUSCAR POR CODIGO -->
+                    <b-form-group label="Código:">
+                        <b-form-input style="text-transform:uppercase;" 
+                            v-model="queryCode" @keyup="mostrar_codes()"
+                        ></b-form-input>
                     </b-form-group>
                 </b-col>
             </b-row>
@@ -63,7 +71,7 @@
                     </b-button>
                 </b-col>
             </b-row>
-            <b-table :items="codes" :fields="fields" responsive>
+            <b-table v-if="!load" :items="codes" :fields="fields" responsive>
                 <template v-slot:cell(index)="data">
                     {{ data.index + 1 }}
                 </template>
@@ -71,7 +79,14 @@
                     <b-badge v-if="data.item.estado == 'inventario'" variant="primary">Disponible</b-badge>
                     <b-badge v-if="data.item.estado == 'ocupado'" variant="danger">Ocupado</b-badge>
                 </template>
+                <template v-slot:cell(clientes)="row">
+                    <b-button variant="info" pill block size="sm" 
+                        @click="show_remisiones(row.item)">
+                        Mostrar
+                    </b-button>
+                </template>
             </b-table>
+            <load-component v-else></load-component>
         </div>
         <div v-else>
             <b-row class="mb-3">
@@ -85,13 +100,33 @@
             </b-row>
             <entrada-codes-component></entrada-codes-component>
         </div>
+        <!-- MODALS -->
+        <b-modal id="modal-showRemisiones" :title="`${detailsCode.libro}`" hide-footer>
+            <h6><b>Código: </b>{{ detailsCode.codigo }}</h6>
+            <b-table v-if="detailsCode.remisiones.length > 0"
+                :items="detailsCode.remisiones" :fields="fieldsRem">
+                <template v-slot:cell(index)="data">
+                    {{ data.index + 1 }}
+                </template>
+                <template v-slot:cell(id)="data">
+                    <a :href="`/remisiones/details/${data.item.id}`" target="blank">
+                        {{ data.item.id }}
+                    </a>
+                </template>
+            </b-table>
+            <b-alert v-else show variant="secondary">
+                <i class="fa fa-warning"></i> No se encontraron remisiones.
+            </b-alert>
+        </b-modal>
     </div>
 </template>
 
 <script>
 import getEditoriales from '../../../mixins/getEditoriales';
 import searchCliente from '../../../mixins/searchCliente';
+import LoadComponent from '../../cortes/partials/LoadComponent.vue';
 export default {
+  components: { LoadComponent },
     mixins: [getEditoriales, searchCliente],
     data(){
         return {
@@ -104,14 +139,25 @@ export default {
                 {key:'codigo', label:'Código'},
                 'tipo',
                 {key:'created_at', label:'Se subio el'},
-                'estado'
+                'estado', 'clientes'
             ],
             showAddEntrada: false,
             queryTitulo: null,
             resultsLibros: [],
             libro_id: null,
             queryEditorial: null,
-            cliente_id: null
+            cliente_id: null,
+            queryCode: null,
+            detailsCode: {
+                libro: null,
+                codigo: null,
+                remisiones: []
+            },
+            fieldsRem: [
+                {key:'index', label:'N.'},
+                {key:'id', label:'Folio'},
+                {key:'cliente.name', label: 'Cliente'}
+            ]
         }
     },
     created: function(){
@@ -121,11 +167,12 @@ export default {
     methods: {
         // OBTENER LOS RESULTADOS PAGINADOS
         get_results(page = 1){
-            if(this.libro_id == null && this.queryEditorial == null && this.cliente_id == null)
+            if(this.libro_id == null && this.queryEditorial == null && this.queryCode == null)
                 this.http_libros(page);
             if(this.libro_id !== null) this.http_bylibro(page);
             if(this.queryEditorial !== null) this.http_byeditorial(page);
-            if(this.cliente_id !== null) this.http_bycliente(page);
+            if(this.queryCode !== null) this.http_bycode(page);
+            // if(this.cliente_id !== null) this.http_bycliente(page);
         },
         // OBTENER TODOS LOS CODIGOS
         http_libros(page = 1){
@@ -157,8 +204,9 @@ export default {
             this.resultsLibros = [];
             this.http_bylibro();
             this.queryEditorial = null;
-            this.cliente_id = null;
-            this.queryCliente = null;
+            this.queryCode = null;
+            // this.cliente_id = null;
+            // this.queryCliente = null;
         },
         // HTTP DE CODIGOS
         http_bylibro(page = 1){
@@ -177,8 +225,9 @@ export default {
             this.http_byeditorial();
             this.libro_id = null;
             this.queryTitulo = null;
-            this.cliente_id = null;
-            this.queryCliente = null;
+            this.queryCode = null;
+            // this.cliente_id = null;
+            // this.queryCliente = null;
         },
         http_byeditorial(page = 1){
             this.load = true;
@@ -191,24 +240,57 @@ export default {
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
             });
         },
-        get_bycliente(cliente){
-            this.cliente_id = cliente.id;
-            this.queryCliente = cliente.name;
-            this.clientes = [];
-            this.http_bycliente();
+        // get_bycliente(cliente){
+        //     this.cliente_id = cliente.id;
+        //     this.queryCliente = cliente.name;
+        //     this.clientes = [];
+        //     this.http_bycliente();
+        //     this.queryEditorial = null;
+        //     this.libro_id = null;
+        //     this.queryTitulo = null;
+        // },
+        // http_bycliente(page = 1){
+        //     this.load = true;
+        //     axios.get(`/codes/by_cliente?page=${page}`, {params: {cliente_id: this.cliente_id}}).then(response => {
+        //         this.codesData = response.data; 
+        //         this.codes = response.data.data;
+        //         this.load = false;
+        //     }).catch(error => {
+        //         this.load = false;
+        //         this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+        //     });
+        // },
+        mostrar_codes(){
             this.queryEditorial = null;
             this.libro_id = null;
             this.queryTitulo = null;
+            this.http_bycode();
         },
-        http_bycliente(page = 1){
+        http_bycode(page = 1){
             this.load = true;
-            axios.get(`/codes/by_cliente?page=${page}`, {params: {cliente_id: this.cliente_id}}).then(response => {
+            axios.get(`/codes/by_code?page=${page}`, {params: {code: this.queryCode}}).then(response => {
                 this.codesData = response.data; 
                 this.codes = response.data.data;
-                this.load = false;
+                this.load = false;   
             }).catch(error => {
                 this.load = false;
-                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+            });
+        },
+        show_remisiones(codigo){
+            this.load = true;
+            this.detailsCode = {
+                libro: null,
+                codigo: null,
+                remisiones: []
+            };
+            axios.get('/codes/show_remisiones', {params: {code_id: codigo.id}}).then(response => {
+                this.detailsCode.libro = codigo.libro.titulo;
+                this.detailsCode.codigo = codigo.codigo;
+                this.detailsCode.remisiones = response.data;
+                this.$bvModal.show('modal-showRemisiones')
+                this.load = false;   
+            }).catch(error => {
+                this.load = false;
             });
         }
     }
