@@ -49,18 +49,6 @@
                     <div v-if="errors && errors.editorial" class="text-danger">{{ errors.editorial[0] }}</div>
                 </div>
             </b-row>
-            <hr>
-            <b-row class="my-1">
-                <b class="col-md-8">Numero de piezas con algún defecto</b><br>
-                <div class="col-md-3">
-                    <b-form-input 
-                        :disabled="loaded"
-                        v-model="libro.defectuosos">
-                    </b-form-input>
-                </div>
-                <div v-if="errors && errors.defectuosos" class="text-danger">{{ errors.defectuosos[0] }}</div>
-            </b-row>
-            <hr>
             <div class="text-right">
                 <b-button type="submit" :disabled="loaded" variant="success">
                     <i class="fa fa-check"></i> {{ !loaded ? 'Actualizar' : 'Actualizando' }} <b-spinner small v-if="loaded"></b-spinner>

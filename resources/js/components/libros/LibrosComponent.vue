@@ -86,6 +86,10 @@
                              size="sm">
                             <i class="fa fa-close"></i>
                         </b-button>
+                        <b-button v-if="data.item.piezas > 0" variant="secondary" 
+                            pill @click="addDefectuosos(data.item)" size="sm">
+                            <i class="fa fa-minus"></i>
+                        </b-button>
                     </div>
                 </template>
             </b-table>
@@ -96,6 +100,21 @@
             <b-modal id="modal-editar" title="Editar libro">
                 <editar-libro-component :formlibro="formlibro" :listEditoriales="listEditoriales" @actualizarLibro="libroModificado"></editar-libro-component>
                 <div slot="modal-footer"></div>
+            </b-modal>
+            <!-- MODAL PARA AGREGAR DEFECTUOSOS -->
+            <b-modal id="modal-defectuosos" :title="form.libro" hide-footer size="sm">
+                <b-form @submit.prevent="saveDefectuosos()">
+                    <b-form-group label="Número de piezas con algún defecto">
+                        <b-form-input v-model="form.defectuosos" :disabled="loaded">
+                        </b-form-input>
+                    </b-form-group>
+                    <div class="text-right mt-2">
+                        <b-button :disabled="form.defectuosos <= 0"
+                            variant="success" type="submit" pill>
+                            <i class="fa fa-check"></i> Guardar
+                        </b-button>
+                    </div>
+                </b-form>
             </b-modal>
         </div>
         <div v-else class="text-center text-info my-2 mt-3">
@@ -174,6 +193,11 @@
                 sTLibro: false,
                 sTIsbn: false,
                 sEditorial: false,
+                form: {
+                    id: null,
+                    libro: null,
+                    defectuosos: 0
+                }
             }
         },
         created: function(){
@@ -315,6 +339,27 @@
                 }).catch(error => {
                     this.load = false;
                 });
+            },
+            addDefectuosos(libro){
+                this.form.id = libro.id;
+                this.form.libro = libro.titulo;
+                this.form.piezas = libro.piezas;
+                this.form.defectuosos = 0;
+                this.$bvModal.show('modal-defectuosos');
+            },
+            saveDefectuosos(){
+                if(this.form.defectuosos <= this.form.piezas){
+                    this.load = true;
+                    axios.put('/libro/save_defectuosos', this.form).then(response => {
+                        swal("OK", "El libro se actualizo correctamente.", "success")
+                            .then((value) => { location.reload(); });
+                        this.load = false;
+                    }).catch(error => {
+                        this.load = false;
+                    });
+                } else {
+                    this.makeToast('warning', 'El número de piezas defectuosas es mayor a las piezas en existencia');
+                }
             }
         }
     }

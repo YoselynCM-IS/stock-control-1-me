@@ -271,12 +271,19 @@ class LibroController extends Controller
                 'titulo' => strtoupper($request->titulo),
                 'autor' => strtoupper($request->autor),
                 'editorial' => $editorial,
-                'defectuosos' => $libro->defectuosos + (int) $request->defectuosos,
                 'created_at' => $fecha,
                 'updated_at' => $fecha
             ];
 
             $libro->update($datos);
+
+            $defectuosos = (int) $request->defectuosos;
+            if($defectuosos > 0){
+                $libro->update([
+                    'defectuosos' => $libro->defectuosos + $defectuosos,
+                    'piezas' => $libro->piezas - $defectuosos
+                ]);
+            }
 
             if($editorial == 'MAJESTIC EDUCATION'){
                 $me_libro = \DB::connection('majesticeducation')->table('libros')
@@ -284,6 +291,23 @@ class LibroController extends Controller
                                 ->update($datos);
             }
 
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($libro);
+    }
+
+    public function save_defectuosos(Request $request){
+        $libro = Libro::whereId($request->id)->first();
+        \DB::beginTransaction();
+        try {
+            $defectuosos = (int) $request->defectuosos;
+            $libro->update([
+                'defectuosos' => $libro->defectuosos + $defectuosos,
+                'piezas' => $libro->piezas - $defectuosos
+            ]);
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();

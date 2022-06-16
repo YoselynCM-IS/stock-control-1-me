@@ -424,6 +424,8 @@ Route::name('libro.')->prefix('libro')->group(function () {
     Route::get('/movimientos_libro', 'LibroController@movimientos_libro')->name('movimientos_libro');
     // MARCAR COMO INACTIVO EL LIBRO
     Route::put('/inactivar', 'LibroController@inactivar')->name('inactivar');
+    // GUARDAR DEFECTUOSOS
+    Route::put('/save_defectuosos', 'LibroController@save_defectuosos')->name('save_defectuosos');
     // OBTENER ENTRADAS Y SALIDAS
     Route::get('/entradas_salidas', 'LibroController@entradas_salidas')->name('entradas_salidas');
     // OBTENER DETALLES DE ENTRADAS Y SALIDAS, DE UN LIBRO
