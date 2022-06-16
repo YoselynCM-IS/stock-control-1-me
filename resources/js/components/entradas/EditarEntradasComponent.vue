@@ -812,7 +812,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     response.data.entrada.registros.forEach(rd => {
                         let cs = [];
                         rd.codes.forEach(c => {
-                            if(!c.pivot.devolucion) cs.push(c);
+                            if(!c.pivot.devolucion && c.estado == 'inventario') cs.push(c);
                         });
                         this.formDev.registros.push({
                             codes: rd.codes,
