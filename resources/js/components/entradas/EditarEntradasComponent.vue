@@ -205,6 +205,10 @@
                                 <template v-slot:cell(index)="data">
                                     {{ data.index + 1 }}
                                 </template>
+                                <template v-slot:cell(devolucion)="data">
+                                    <b-badge v-if="!data.item.pivot.devolucion" variant="light">No</b-badge>
+                                    <b-badge v-else variant="warning">Si</b-badge>
+                                </template>
                             </b-table>
                         </b-col>
                         <b-col sm="3"></b-col>
@@ -490,6 +494,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                 fieldsCodes: [
                     {key:'index', label:'N.'},
                     {key:'codigo', label:'Código'},
+                    {key:'devolucion', label:'Devolución'},
                 ]
             }
         },
