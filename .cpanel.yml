@@ -1,5 +1,5 @@
 deployment:
  tasks:
- - export DEPLOYPATH=/home/tomascmme/public_html/
+ - export DEPLOYPATH=/home/wwmaje/public_html/
  - /bin/cp index.html $DEPLOYPATH
  - /bin/cp style.css $DEPLOYPATH
