@@ -111,7 +111,7 @@
                         </b-button>
                     </b-col>
                     <b-col sm="3" class="text-right">
-                        <b-button v-if="role_id === 1 || role_id === 2 || role_id === 5 || role_id == 6" 
+                        <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
                             variant="success" :disabled="load" target="blank" 
                             :href="`/remisiones/ce_remision/${0}/${false}`">
                             <i class="fa fa-plus"></i> Crear remisión
