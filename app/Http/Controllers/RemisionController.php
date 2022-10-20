@@ -1121,5 +1121,98 @@ class RemisionController extends Controller
         $responsables = \DB::table('responsables')->orderBy('responsable', 'asc')->get();
         return response()->json($responsables);
     }
+
+
+    // HISTORIAL DE REMISIONES
+    // CREAR REMISION
+    public function h_crear_remision(){
+        $remision = 0;
+        $editar = 'false';
+        
+        $clientes = Cliente::orderBy('name', 'asc')->get();
+        $cortes = Corte::orderBy('inicio', 'asc')->get();
+        return view('information.historial.add-edit-remision', compact('remision', 'clientes', 'editar', 'cortes'));
+    }
+
+    // VERIFICAR QUE NO EXISTA EL FOLIO INGRESADO
+    public function check_folio(Request $request){
+        $remision = Remisione::find((int)$request->folio);
+        return response()->json($remision);
+    } 
+
+    // GUARDAR REMISION
+    public function historial_store(Request $request){
+        \DB::beginTransaction();
+        try {
+            $fecha_entrega = $request->fecha_entrega;
+            $corte_id = $request->corte_id;
+            $total = (double) $request->total;
+            $remisione_id = (int) $request->id;
+
+            // CREAR REMISIÓN
+            $remision = Remisione::create([
+                'id' => $remisione_id,
+                'corte_id' => $corte_id,
+                'user_id' => auth()->user()->id,
+                'cliente_id' => $request->cliente['id'],
+                'total' => $total,
+                'total_pagar' => $total,
+                'fecha_entrega' => $fecha_entrega,
+                'estado' => 'Proceso',
+                'fecha_creacion' => $fecha_entrega,
+                'fecha_devolucion' => $fecha_entrega
+            ]);
+
+            // GUARDAR DATOS DE LA REMISION
+            $lista_datos = [];
+            $request_datos = collect($request->datos);
+            $request_datos->map(function($dato) use (&$lista_datos, $remisione_id){
+                $lista_datos[] = [
+                    'remisione_id' => $remisione_id,
+                    'libro_id'  => $dato['libro']['id'],
+                    'costo_unitario' => (float) $dato['costo_unitario'],
+                    'unidades'  => (int) $dato['unidades'],
+                    'total'     => (double) $dato['total']
+                    // 'created_at' => $hoy,
+                    // 'updated_at' => $hoy
+                ];
+            });
+
+            Dato::insert($lista_datos);
+
+
+            // GUARDAR DATOS EN DEVOLUCIONES
+            $lista_devoluciones = [];
+            $datos = Dato::where('remisione_id', $remisione_id)->get();
+            $datos->map(function($dato) use(&$lista_devoluciones){
+                $libro_id = $dato->libro_id;
+                $lista_devoluciones[] = [
+                    'remisione_id' => $dato->remisione_id,
+                    'dato_id'   => $dato->id,
+                    'libro_id' => $libro_id,
+                    'unidades_resta' => $dato->unidades,
+                    'total_resta' => $dato->total
+                    // 'created_at' => $hoy,
+                    // 'updated_at' => $hoy
+                ];
+            });
+
+            Devolucione::insert($lista_devoluciones);
+
+
+            // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
+            $cctotale = $this->get_cctotale($remision);
+            $cctotale->update([
+                'total' => $cctotale->total + $remision->total,
+                'total_pagar' => $cctotale->total_pagar + $remision->total
+            ]);
+            
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json();
+    }
     
 }

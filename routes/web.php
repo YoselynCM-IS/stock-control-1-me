@@ -138,6 +138,13 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     Route::get('/get_responsables', 'RemisionController@get_responsables')->name('get_responsables');
     //Buscar remision
     Route::get('obtener_devoluciones', 'RemisionController@obtener_devoluciones')->name('obtener_devoluciones');
+
+
+    // HISTORIAL
+    // Verificar que no exista el folio
+    Route::get('check_folio', 'RemisionController@check_folio')->name('check_folio');
+    // Crear remision
+    Route::post('/historial_store', 'RemisionController@historial_store')->name('historial_store');
 });
 
 // Asignar responsable de la remision
@@ -572,6 +579,11 @@ Route::name('cortes.')->prefix('cortes')->group(function () {
 Route::get('/information/majestic', function () {
     return view('information.majesticeducation.index');
 })->middleware(['auth'])->name('information.majestic');
+
+Route::name('historial.')->prefix('historial')->group(function () {
+    // CREAR REMISION
+    Route::get('/crear_remision', 'RemisionController@h_crear_remision')->name('crear_remision');
+});
 
 Route::name('salidas.')->prefix('salidas')->group(function () {
     Route::get('/index', 'SalidaController@index')->name('index');
