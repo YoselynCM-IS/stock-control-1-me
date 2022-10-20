@@ -585,6 +585,12 @@ Route::get('/information/majestic', function () {
 })->middleware(['auth'])->name('information.majestic');
 
 Route::name('historial.')->prefix('historial')->group(function () {
+    // VISTA DE REMISIONES
+    Route::get('/remisiones/{corte_id}', 'RemisionController@lista_remisiones')->name('remisiones');
+    // OBTENER LISTADO DE REMISIONES POR PERIODO
+    Route::get('/remisiones_byperiodo', 'RemisionController@remisiones_byperiodo')->name('remisiones_byperiodo');
+
+    // PARA HISTORIAL
     // CREAR REMISION
     Route::get('/crear_remision', 'RemisionController@h_crear_remision')->name('crear_remision');
     // REGISTRAR DEVOLUCIÓN

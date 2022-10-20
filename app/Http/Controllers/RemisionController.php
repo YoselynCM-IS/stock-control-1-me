@@ -1124,6 +1124,28 @@ class RemisionController extends Controller
 
 
     // HISTORIAL DE REMISIONES
+    // LISTA DE REMISIONES
+    public function lista_remisiones($corte_id){
+        return view('information.historial.remisiones', compact('corte_id'));
+    }
+
+    // LISTADO DE REMISIONES POR PERIODO
+    public function remisiones_byperiodo(Request $request){
+        $corte_id = $request->corte_id;
+        if($corte_id == "0"){
+            $remisiones = Remisione::where('corte_id', 4)
+                    ->with(['cliente:id,name'])
+                    ->orderBy('id','desc')
+                    ->paginate(20);
+        } else {
+            $remisiones = Remisione::where('corte_id', $corte_id)
+                    ->with(['cliente:id,name'])
+                    ->orderBy('id','desc')
+                    ->paginate(20);
+        }
+        return response()->json($remisiones);
+    }
+
     // CREAR REMISION
     public function h_crear_remision(){
         $remision = 0;

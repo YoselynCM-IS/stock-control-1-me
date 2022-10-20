@@ -115,6 +115,7 @@ Vue.component('load-component', require('./components/funciones/LoadComponent.vu
 Vue.component('salidas-lista-component', require('./components/salidas/ListaComponent.vue').default);
 
 // HISTORIAL
+Vue.component('remisiones-component', require('./components/historial/RemisionesComponent.vue').default);
 Vue.component('add-edit-remision-component', require('./components/historial/AddEditRemisionComponent.vue').default);
 Vue.component('register-devolucion-component', require('./components/historial/RegisterDevolucionComponent.vue').default);
 

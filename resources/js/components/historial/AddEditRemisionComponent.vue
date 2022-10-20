@@ -427,7 +427,7 @@
                     this.inicializar_guardar();
                     swal("OK", "La remisión se creó correctamente.", "success")
                     .then((value) => {
-                        location.reload();
+                        window.close();
                     });
                 })
                 .catch(error => {
