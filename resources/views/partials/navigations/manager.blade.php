@@ -51,7 +51,9 @@
 		<a class="dropdown-item" href="{{ route('historial.crear_remision') }}">
 			{{ __("Crear remision") }}
 		</a>
-		
+		<a class="dropdown-item" href="">
+			{{ __("Registrar devolución") }}
+		</a>
 	</div>
 </li>
 <li class="nav-item dropdown">

@@ -472,8 +472,12 @@ Route::name('pagos.')->prefix('pagos')->group(function () {
 
 //DEVOLUCIONES
 Route::name('devoluciones.')->prefix('devoluciones')->group(function () {
-    //Concluir remision
+    //REGISTRAR DEVOLUCION
     Route::put('update', 'DevolucioneController@update')->name('update');
+
+    // HISTORIAL
+    // Registrar devolucion
+    Route::put('historial_update', 'DevolucioneController@historial_update')->name('historial_update');
 });
 
 //DONACIONES
@@ -583,6 +587,8 @@ Route::get('/information/majestic', function () {
 Route::name('historial.')->prefix('historial')->group(function () {
     // CREAR REMISION
     Route::get('/crear_remision', 'RemisionController@h_crear_remision')->name('crear_remision');
+    // REGISTRAR DEVOLUCIÓN
+    Route::get('/registrar_devolucion/{remisione_id}', 'RemisionController@h_registrar_devolucion')->name('registrar_devolucion');
 });
 
 Route::name('salidas.')->prefix('salidas')->group(function () {

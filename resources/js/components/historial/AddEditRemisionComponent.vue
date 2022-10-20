@@ -424,7 +424,6 @@
                 this.$refs['modal-confirmar-remision'].hide();
                 axios.post('/remisiones/historial_store', this.remision).then(response => {
                     this.load = false;
-                    console.log(response.data);
                     this.inicializar_guardar();
                     swal("OK", "La remisión se creó correctamente.", "success")
                     .then((value) => {

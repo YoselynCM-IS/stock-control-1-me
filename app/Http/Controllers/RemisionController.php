@@ -1214,5 +1214,12 @@ class RemisionController extends Controller
         }
         return response()->json();
     }
+
+    // REGISTRAR DEVOLUCIÓN
+    public function h_registrar_devolucion($remisione_id){
+        $remision = Remisione::whereId($remisione_id)
+                        ->with('cliente', 'devoluciones.dato.libro')->first();
+        return view('information.historial.registrar-devolucion', compact('remision'));
+    }
     
 }

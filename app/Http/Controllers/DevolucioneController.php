@@ -143,4 +143,84 @@ class DevolucioneController extends Controller
                                 ->with('cliente')->get(); 
         return response()->json($remisiones);
     }
+
+    // HISTORIAL DE REMISIONES
+    // GUARDAR DEVOLUCIÓN DE REMISIÓN
+    public function historial_update(Request $request){
+        try {
+            \DB::beginTransaction();
+            // Buscar remisión
+            $remision = Remisione::whereId($request->remisione_id)->first();
+            $total_devolucion = 0;
+            
+            // DEVOLUCIONES
+            $lista_fechas = [];
+            $devoluciones = collect($request->devoluciones);
+            $devoluciones->map(function($devolucion) use(&$lista_fechas, $remision, $request, &$total_devolucion){
+                $unidades_base = (int)$devolucion['unidades_base'];
+                $total_base = $devolucion['total_base'];
+                if($unidades_base != 0){
+                    // Buscar devolución
+                    $d = Devolucione::find($devolucion['devolucion_id']);
+                    $lista_fechas[] = [
+                        'remisione_id' => $remision->id,
+                        'fecha_devolucion' => $request->fecha_devolucion,
+                        'libro_id' => $d->libro_id,
+                        'unidades' => $unidades_base,
+                        'total' => $total_base,
+                        'entregado_por' => $request->entregado_por,
+                        'creado_por' => auth()->user()->name
+                        // 'created_at' => $hoy,
+                        // 'updated_at' => $hoy
+                    ];
+                    
+                    $unidades = $d->unidades + $unidades_base;
+                    $total = $d->total + $total_base;
+                    $unidades_resta = $d->unidades_resta - $unidades_base;
+                    $total_resta = $d->total_resta - $total_base;
+                    // Actualizar la tabla de devolución
+                    $d->update([
+                        'unidades' => $unidades, 
+                        'unidades_resta' => $unidades_resta,
+                        'total' => $total,
+                        'total_resta' => $total_resta
+                    ]);
+                } 
+                $total_devolucion += $total_base;
+            });
+
+            // Crear registros de fecha de la devolución
+            Fecha::insert($lista_fechas);
+            
+            $total_pagar = $remision->total_pagar - $total_devolucion;
+            $t_devolucion = $remision->total_devolucion + $total_devolucion;
+            
+            // ACTUALIZAR REMISION
+            $remision->update([
+                'total_devolucion' => $t_devolucion,
+                'total_pagar'   => $total_pagar
+            ]);
+            if ((int) $total_pagar === 0) {
+                if ($remision->depositos->count() > 0)
+                    $this->restantes_to_cero($remision);
+                $remision->update(['estado' => 'Terminado']); 
+            }
+
+            // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
+            $cctotale = Cctotale::where([
+                'cliente_id' => $remision->cliente_id,
+                'corte_id'  => $remision->corte_id
+            ])->first();
+            $cctotale->update([
+                'total_devolucion' => $cctotale->total_devolucion + $total_devolucion,
+                'total_pagar' => $cctotale->total_pagar - $total_devolucion
+            ]);
+
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json();
+    }  
 }
