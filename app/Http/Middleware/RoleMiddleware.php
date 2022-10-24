@@ -36,5 +36,8 @@ class RoleMiddleware
         if(auth()->user()->role_id === 6){
             return redirect()->route('manager.remisiones.lista');
         }
+        if(auth()->user()->role_id === 7){
+            return redirect()->route('historial.remisiones.lista', 0);
+        }
     }
 }

@@ -2802,15 +2802,27 @@ class DatabaseSeeder extends Seeder
         //     ]
         // ]);
 
+        // \DB::table('users')->insert([
+        //     0 => [
+        //         'role_id'   => 5,
+        //         'name'      => 'Karen', 
+        //         'user_name' => 'karen-ss',
+        //         'email'     => 'karen@gmail.com',
+        //         'password'  => bcrypt('N3r4K-#2'),
+        //         'created_at' => '2022-09-20 00:00:00',
+        //         'updated_at' => '2022-09-20 00:00:00'
+        //     ]
+        // ]);
+
         \DB::table('users')->insert([
             0 => [
-                'role_id'   => 5,
-                'name'      => 'Karen', 
-                'user_name' => 'karen-ss',
-                'email'     => 'karen@gmail.com',
-                'password'  => bcrypt('N3r4K-#2'),
-                'created_at' => '2022-09-20 00:00:00',
-                'updated_at' => '2022-09-20 00:00:00'
+                'role_id'   => 7,
+                'name'      => 'Historial', 
+                'user_name' => 'historial-1',
+                'email'     => 'historial-1@gmail.com',
+                'password'  => bcrypt('historial'),
+                'created_at' => '2022-10-24 00:00:00',
+                'updated_at' => '2022-10-24 00:00:00'
             ]
         ]);
     }

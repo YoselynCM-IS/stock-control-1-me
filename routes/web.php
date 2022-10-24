@@ -584,7 +584,7 @@ Route::get('/information/majestic', function () {
     return view('information.majesticeducation.index');
 })->middleware(['auth'])->name('information.majestic');
 
-Route::name('historial.')->prefix('historial')->group(function () {
+Route::name('historial.')->prefix('historial')->middleware(['auth'])->group(function () {
     // OBTENER LISTADO DE REMISIONES POR PERIODO
     Route::get('/remisiones_byperiodo', 'RemisionController@remisiones_byperiodo')->name('remisiones_byperiodo');
     

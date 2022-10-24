@@ -86,11 +86,11 @@ class CorteController extends Controller
             $datos = [
                 'visible' => false,
                 'corte_id' => $cctotale->corte_id,
-                'corte' => $cctotale->corte->tipo,
-                'inicio' => $cctotale->corte->inicio,
-                'final' => $cctotale->corte->final,
+                'corte' => $cctotale->tipo,
+                'inicio' => $cctotale->inicio,
+                'final' => $cctotale->final,
                 'cliente_id' => $cctotale->cliente_id,
-                'cliente' => $cctotale->cliente->name,
+                'cliente' => $cctotale->cliente,
                 'total' => $cctotale->total, 
                 'total_devolucion' => $cctotale->total_devolucion, 
                 'total_pagos' => $cctotale->total_pagos,
@@ -334,9 +334,14 @@ class CorteController extends Controller
         $cliente_id = $request->cliente_id;
         $remcliente = Remcliente::where('cliente_id', $cliente_id)
                             ->with('cliente')->first();
-        $cctotales = Cctotale::where('cliente_id', $cliente_id)
-                            ->with('cliente', 'corte')
-                            ->orderBy('corte_id', 'desc')->get();
+        $cctotales = \DB::table('cctotales')
+                        ->select('cctotales.*', 'cortes.tipo', 'cortes.inicio',
+                                'cortes.final', 'clientes.name as cliente'
+                        )->where('cliente_id', $cliente_id)
+                        ->join('cortes', 'cctotales.corte_id', '=', 'cortes.id')
+                        ->join('clientes', 'cctotales.cliente_id', '=', 'clientes.id')
+                        ->orderBy('cortes.inicio', 'desc')
+                        ->get();
         $cortes = $this->org_remisiones($cctotales);
         $data = [
             'cliente_id' => $cliente_id,

@@ -1129,15 +1129,19 @@ class RemisionController extends Controller
         return view('information.historial.remisiones', compact('corte_id'));
     }
 
+    public function search_corte_actual(){
+        $hoy = Carbon::now();
+        $corte = Corte::where('inicio', '<', $hoy)
+                        ->where('final', '>', $hoy)
+                        ->first();  
+        return $corte->id;
+    }
+
     // LISTADO DE REMISIONES POR PERIODO
     public function remisiones_byperiodo(Request $request){
         $corte_id = $request->corte_id;
-        if($corte_id == 0){
-            $hoy = Carbon::now();
-            $corte = Corte::where('inicio', '<', $hoy)
-                            ->where('final', '>', $hoy)
-                            ->first();  
-            $corte_id = $corte->id;
+        if($corte_id == 0){  
+            $corte_id = $this->search_corte_actual();
         }
 
         $remisiones = Remisione::where('corte_id', $corte_id)
@@ -1152,19 +1156,15 @@ class RemisionController extends Controller
         $corte_id = $request->corte_id;
         $cliente_id = $request->cliente_id;
         
-        if($corte_id == "0"){
-            $remisiones = Remisione::where('corte_id', 4)
-                    ->where('cliente_id', $cliente_id)
-                    ->with(['cliente:id,name'])
-                    ->orderBy('id','desc')
-                    ->paginate(20);
-        } else {
-            $remisiones = Remisione::where('corte_id', $corte_id)
-                    ->where('cliente_id', $cliente_id)
-                    ->with(['cliente:id,name'])
-                    ->orderBy('id','desc')
-                    ->paginate(20);
+        if($corte_id == 0){  
+            $corte_id = $this->search_corte_actual();
         }
+
+        $remisiones = Remisione::where('corte_id', $corte_id)
+                    ->where('cliente_id', $cliente_id)
+                    ->with(['cliente:id,name'])
+                    ->orderBy('id','desc')
+                    ->paginate(20);
         return response()->json($remisiones);
     }
 

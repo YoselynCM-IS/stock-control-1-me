@@ -41,7 +41,7 @@
             <b-col sm="10">
                 <!-- PAGINACIÓN -->
                 <pagination size="default" :limit="1" :data="dataRemisiones" 
-                    @pagination-change-page="getRemisiones">
+                    @pagination-change-page="getResults">
                     <span slot="prev-nav"><i class="fa fa-angle-left"></i></span>
                     <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
                 </pagination>
@@ -105,10 +105,17 @@ export default {
         }
     },
     created: function(){
-        this.getRemisiones();
+        this.getResults();
         this.getCortes();
     },
     methods: {
+        getResults(page = 1){
+            if(this.cliente_id == null){
+                this.getRemisiones(page);
+            } else {
+                this.get_remisionesPeriodoCliente(page);
+            }
+        },
         getCortes(){
             this.load = true;
             axios.get('/cortes/get_all').then(response => {
@@ -121,6 +128,7 @@ export default {
             });
         },
         getRemisiones(page = 1){
+            this.load = true;
             axios.get(`/historial/remisiones_byperiodo?page=${page}`, 
                         {params: {corte_id: this.corte_id}}).then(response => {
                 this.dataRemisiones = response.data;
@@ -130,7 +138,6 @@ export default {
             });
         },
         selectCliente(cliente){
-            this.load = true;
             this.cliente_id = cliente.id;
             this.queryCliente = cliente.name;
             this.clientes = [];
@@ -138,6 +145,7 @@ export default {
             this.get_remisionesPeriodoCliente();
         },
         get_remisionesPeriodoCliente(page = 1){
+            this.load = true;
             axios.get(`/historial/remisiones/byperiodo_cliente?page=${page}`, 
                         {params: {corte_id: this.corte_id, cliente_id: this.cliente_id}}).then(response => {
                 this.dataRemisiones = response.data;
