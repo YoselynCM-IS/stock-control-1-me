@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Remdeposito;
 use App\Remcliente;
 use App\Remisione;
@@ -153,5 +154,26 @@ class RemclienteController extends Controller
             '_showDetails' => true,
             'by_cortes' => $lista
         ];
+    }
+
+    // REGISTRAR PAGO POR CORTE Y CLIENTE
+    public function h_registrar_pago($cliente_id, $corte_id){
+        $ci = $corte_id;
+        if($corte_id == 0){
+            $hoy = Carbon::now();
+            $corte = Corte::where('inicio', '<', $hoy)
+                            ->where('final', '>', $hoy)
+                            ->first();  
+            $ci = $corte->id;
+        }
+
+        $cctotale = Cctotale::where('cliente_id', $cliente_id)
+                                ->where('corte_id', $ci)
+                                ->with('cliente', 'corte')
+                                ->first();
+        $remdepositos = Remdeposito::where('remcliente_id', $cctotale->cliente->remcliente->id)
+                                ->where('corte_id', $ci)
+                                ->orderBy('fecha', 'desc')->get();  
+        return view('information.historial.add-pago-corte', compact('cctotale','remdepositos'));
     }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app-simple')
 
 @section('content')
     <add-edit-remision-component 

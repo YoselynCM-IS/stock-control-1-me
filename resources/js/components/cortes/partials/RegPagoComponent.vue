@@ -27,7 +27,7 @@ import setCortes from '../../../mixins/setCortes';
 import FormPagoComponent from './FormPagoComponent.vue';
 export default {
   components: { CheckFavorComponent, FormPagoComponent },
-    props: ['form', 'corte'],
+    props: ['form', 'corte', 'tipo'],
     mixins: [toast,setCortes],
     data(){
         return {
@@ -46,13 +46,11 @@ export default {
                     (this.showYes && this.form.corte_id_favor !== null)){
                     this.state = true;
                     this.load = true; 
-                    axios.post('/cortes/save_payment', this.form).then(response => {
-                        this.$emit('savePayment', true);
-                        this.load = false;
-                    }).catch(error => {
-                        this.load = false;
-                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
-                    });
+                    if(this.tipo == 1){
+                        this.tipo1_guardarPago();
+                    } else {
+                        this.tipo2_guardarPago();
+                    }
                 }
                 else{
                     this.showVerify = true;
@@ -61,6 +59,24 @@ export default {
                 this.state = false;
                 this.makeToast('warning', 'El pago tiene que ser mayor a 0');
             }
+        },
+        tipo1_guardarPago(){
+            axios.post('/cortes/save_payment', this.form).then(response => {
+                this.$emit('savePayment', true);
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+            });
+        },
+        tipo2_guardarPago(){
+            axios.post('/historial/save_payment', this.form).then(response => {
+                this.$emit('savePayment', true);
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+            });
         },
         // RESPUESTA DE CORTE A FAVOR
         answerCheck(answer){

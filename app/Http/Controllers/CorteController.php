@@ -391,6 +391,45 @@ class CorteController extends Controller
         return response()->json();
     }
 
+    // HISTORIAL
+    // Guardar pago para historial
+    public function h_save_payment(Request $request){
+        $corte_id = (int)$request->corte_id;
+        $cliente_id = (int)$request->cliente_id;
+        $corte_id_favor = (int)$request->corte_id_favor;
+        
+        $cctotale = Cctotale::where('cliente_id', $cliente_id)
+                            ->where('corte_id', $corte_id)
+                            ->first();
+        try{
+            \DB::beginTransaction();
+
+            $monto = (float) $request->pago;
+            
+            Remdeposito::create([
+                'remcliente_id' => $cctotale->cliente->remcliente->id,
+                'corte_id' => $corte_id,
+                'pago' => $monto,
+                'fecha' => $request->fecha,
+                'nota' => $request->nota,
+                'ingresado_por' => auth()->user()->name
+            ]);
+
+            $this->validate_favor($corte_id, $cliente_id, $corte_id_favor, $monto);
+
+            $total_pagar = $cctotale->total_pagar - $monto;
+
+            if((float) $total_pagar <= 0){
+                $this->cerrar_remisiones($cliente_id, $corte_id);
+            }
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json();
+    }
+
     // CERRAR REMISIONES
     public function cerrar_remisiones($cliente_id, $corte_id){
         $remisiones = Remisione::where([

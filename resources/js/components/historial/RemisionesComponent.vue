@@ -1,19 +1,50 @@
 <template>
     <div>
-        <b-row class="mb-3">
+        <b-row>
+            <b-col sm="4">
+                <b-form-select v-model="corte_id" :options="options" 
+                    required :disabled="load" autofocus id="input-periodo"
+                    @change="getPeriodoRem()">
+                </b-form-select>
+            </b-col>
             <b-col>
+                <b-row>
+                    <b-col>
+                        <b-form-input v-model="queryCliente" :disabled="load" 
+                            style="text-transform:uppercase;" placeholder="Buscar cliente"
+                            @keyup="mostrarClientes()">
+                        </b-form-input>
+                        <div class="list-group" v-if="clientes.length" id="listP">
+                            <a href="#" v-bind:key="i" class="list-group-item list-group-item-action" 
+                                v-for="(cliente, i) in clientes" @click="selectCliente(cliente)">
+                                {{ cliente.name }}
+                            </a>
+                        </div>
+                    </b-col>
+                    <b-col sm="2">
+                        <b-button variant="primary" pill target="blank"
+                            :disabled="load || !statePeriodo" size="sm" block
+                            :href="`/historial/pagos/registrar/${cliente_id}/${corte_id}`">
+                            Pagos
+                        </b-button>
+                    </b-col>
+                </b-row>
+            </b-col>
+            <b-col sm="2" class="text-right">
+                <b-button variant="success" :disabled="load" target="blank" 
+                    :href="`/historial/crear_remision`" pill>
+                    <i class="fa fa-plus"></i> Crear remisión
+                </b-button>
+            </b-col>
+        </b-row>
+        <b-row class="mb-3 mt-3">
+            <b-col sm="10">
                 <!-- PAGINACIÓN -->
                 <pagination size="default" :limit="1" :data="dataRemisiones" 
                     @pagination-change-page="getRemisiones">
                     <span slot="prev-nav"><i class="fa fa-angle-left"></i></span>
                     <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
                 </pagination>
-            </b-col>
-            <b-col sm="2">
-                <b-button variant="success" :disabled="load" target="blank" 
-                    :href="`/historial/crear_remision`" pill>
-                    <i class="fa fa-plus"></i> Crear remisión
-                </b-button>
             </b-col>
         </b-row>
         <b-table :items="dataRemisiones.data" :fields="fields">
@@ -48,9 +79,11 @@
 
 <script>
 import formatNumber from '../../mixins/formatNumber';
+import searchCliente from '../../mixins/searchCliente';
+import setCortes from '../../mixins/setCortes';
 export default {
     props: ['corte_id'],
-    mixins: [formatNumber],
+    mixins: [formatNumber, searchCliente, setCortes],
     data(){
         return {
             load: false,
@@ -65,13 +98,28 @@ export default {
                 { key: 'total_pagar', label: 'Pagar' },
                 { key: 'detalles', label: 'Detalles' },
                 { key: 'devolucion', label: 'Devolución' }
-            ]
+            ],
+            cliente_id: null,
+            statePeriodo: false,
+            options: [],
         }
     },
     created: function(){
         this.getRemisiones();
+        this.getCortes();
     },
     methods: {
+        getCortes(){
+            this.load = true;
+            axios.get('/cortes/get_all').then(response => {
+                this.options = this.setCortes(response.data, null);
+                this.options.unshift({value: '0', text: 'BUSCAR POR PERIODO', disabled: true});
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+            });
+        },
         getRemisiones(page = 1){
             axios.get(`/historial/remisiones_byperiodo?page=${page}`, 
                         {params: {corte_id: this.corte_id}}).then(response => {
@@ -80,6 +128,27 @@ export default {
             }).catch(error => {
                 this.load = false;
             });
+        },
+        selectCliente(cliente){
+            this.load = true;
+            this.cliente_id = cliente.id;
+            this.queryCliente = cliente.name;
+            this.clientes = [];
+            this.statePeriodo = false;
+            this.get_remisionesPeriodoCliente();
+        },
+        get_remisionesPeriodoCliente(page = 1){
+            axios.get(`/historial/remisiones/byperiodo_cliente?page=${page}`, 
+                        {params: {corte_id: this.corte_id, cliente_id: this.cliente_id}}).then(response => {
+                this.dataRemisiones = response.data;
+                if(response.data.data.length > 0) this.statePeriodo = true;
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+            });
+        },
+        getPeriodoRem(){
+            location.href = `/historial/remisiones/lista/${this.corte_id}`;
         }
     }
 }

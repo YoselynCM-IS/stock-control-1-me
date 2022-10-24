@@ -60,7 +60,7 @@
         <div v-else>
             <b-row>
                 <b-col>
-                    <b-form-group label-cols="4" label-cols-lg="2" label="Perido" label-for="input-periodo">
+                    <b-form-group label-cols="4" label-cols-lg="2" label="Periodo" label-for="input-periodo">
                         <b-form-select v-model="remision.corte_id" :options="options" 
                             required :disabled="load" autofocus id="input-periodo">
                         </b-form-select>

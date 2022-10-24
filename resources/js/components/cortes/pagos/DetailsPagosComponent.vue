@@ -62,7 +62,7 @@
         <!-- MODALS -->
         <b-modal ref="modal-regPago" title="Registrar pago" hide-footer>
             <reg-pago-component :form="form" :corte="corte" 
-                    @savePayment="savePayment"></reg-pago-component>
+                    @savePayment="savePayment" :tipo="1"></reg-pago-component>
         </b-modal>
     </div>
 </template>

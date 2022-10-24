@@ -585,16 +585,27 @@ Route::get('/information/majestic', function () {
 })->middleware(['auth'])->name('information.majestic');
 
 Route::name('historial.')->prefix('historial')->group(function () {
-    // VISTA DE REMISIONES
-    Route::get('/remisiones/{corte_id}', 'RemisionController@lista_remisiones')->name('remisiones');
     // OBTENER LISTADO DE REMISIONES POR PERIODO
     Route::get('/remisiones_byperiodo', 'RemisionController@remisiones_byperiodo')->name('remisiones_byperiodo');
+    
+    Route::name('remisiones.')->prefix('remisiones')->group(function () {
+        // VISTA DE REMISIONES
+        Route::get('/lista/{corte_id}', 'RemisionController@lista_remisiones')->name('lista');
+        // OBTENER LISTADO DE REMISIONES POR PERIODO Y CLIENTE
+        Route::get('/byperiodo_cliente', 'RemisionController@byperiodo_cliente')->name('byperiodo_cliente');
+    });
+    Route::name('pagos.')->prefix('pagos')->group(function () {
+        // REGISTRAR PAGO
+        Route::get('/registrar/{cliente_id}/{corte_id}', 'RemclienteController@h_registrar_pago')->name('registrar');
+    });
 
     // PARA HISTORIAL
     // CREAR REMISION
     Route::get('/crear_remision', 'RemisionController@h_crear_remision')->name('crear_remision');
     // REGISTRAR DEVOLUCIÓN
     Route::get('/registrar_devolucion/{remisione_id}', 'RemisionController@h_registrar_devolucion')->name('registrar_devolucion');
+    // GUARDAR PAGO
+    Route::post('/save_payment', 'CorteController@h_save_payment')->name('save_payment');
 });
 
 Route::name('salidas.')->prefix('salidas')->group(function () {

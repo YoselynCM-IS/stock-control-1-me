@@ -118,6 +118,7 @@ Vue.component('salidas-lista-component', require('./components/salidas/ListaComp
 Vue.component('remisiones-component', require('./components/historial/RemisionesComponent.vue').default);
 Vue.component('add-edit-remision-component', require('./components/historial/AddEditRemisionComponent.vue').default);
 Vue.component('register-devolucion-component', require('./components/historial/RegisterDevolucionComponent.vue').default);
+Vue.component('add-pago-corte-component', require('./components/historial/AddPagoCorteComponent.vue').default);
 
 
 /** NO UTLIZADOS */
