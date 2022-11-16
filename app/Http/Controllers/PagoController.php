@@ -28,7 +28,7 @@ class PagoController extends Controller
                     ->where(function ($query) {
                         $query->where('estado', '=', 'Proceso')
                             ->orWhere('estado', '=', 'Terminado');
-                    })->orderBy('id','desc')
+                    })->orderBy('fecha_creacion','desc')
                     ->with('cliente')->paginate(20);
         return response()->json($remisiones);
     }

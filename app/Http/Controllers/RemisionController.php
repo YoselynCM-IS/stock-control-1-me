@@ -37,7 +37,7 @@ class RemisionController extends Controller
     public function index(){
         $remisiones = Remisione::with(['cliente:id,name'])
                     ->withCount('depositos')
-                    ->orderBy('id','desc')->paginate(20);
+                    ->orderBy('fecha_creacion','desc')->paginate(20);
         return response()->json($remisiones);
     }
 
@@ -61,7 +61,7 @@ class RemisionController extends Controller
         // FIN TOTALES
 
         $remisiones = Remisione::where('cliente_id', $cliente->id)
-                        ->orderBy('id','desc')->with('cliente')
+                        ->orderBy('fecha_creacion','desc')->with('cliente')
                         ->paginate(20);
 
         return response()->json(['remisiones' => $remisiones, 'totales' => $totales]);
@@ -120,12 +120,12 @@ class RemisionController extends Controller
         if ($estado == 1 || $estado == 4) {
             // REMISIONES INICIADAS Y CANCELADAS
             if($cliente_id === null){
-                return Remisione::where('estado',$estado)->orderBy('id','desc')
+                return Remisione::where('estado',$estado)->orderBy('fecha_creacion','desc')
                                 ->with('cliente:id,name')->paginate(20);
             } else {
                 return Remisione::where('estado',$estado)
                             ->where('cliente_id', $cliente_id)
-                            ->orderBy('id','desc')
+                            ->orderBy('fecha_creacion','desc')
                             ->with('cliente:id,name')->paginate(20);
             } 
         }
@@ -134,13 +134,13 @@ class RemisionController extends Controller
             if($cliente_id === null){
                 return Remisione::where('total_pagar', '>', 0)
                     ->where('estado', 'Proceso')
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->with('cliente:id,name')->paginate(20);
             } else {
                 return Remisione::where('cliente_id', $cliente_id)
                     ->where('total_pagar', '>', 0)
                     ->where('estado', 'Proceso')
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->with('cliente:id,name')->paginate(20);
             }
         }
@@ -153,7 +153,7 @@ class RemisionController extends Controller
                         ->where(function ($query) {
                             $query->where('pagos', '>', 0)
                                     ->orWhere('total_devolucion', '>', 0);
-                        })->orderBy('id','desc')
+                        })->orderBy('fecha_creacion','desc')
                         ->with('cliente:id,name')->paginate(20);
         } else {
             return Remisione::where('cliente_id', $cliente_id)
@@ -161,7 +161,7 @@ class RemisionController extends Controller
                         ->where(function ($query) {
                             $query->where('pagos', '>', 0)
                                     ->orWhere('total_devolucion', '>', 0);
-                        })->orderBy('id','desc')
+                        })->orderBy('fecha_creacion','desc')
                         ->with('cliente:id,name')->paginate(20);
         }
     }
@@ -172,14 +172,14 @@ class RemisionController extends Controller
             // REMISIONES INICIADAS Y CANCELADAS
             return Remisione::where('estado',$estado)
                 ->whereBetween('fecha_creacion', [$inicio, $final])
-                ->orderBy('id','desc')
+                ->orderBy('fecha_creacion','desc')
                 ->with('cliente:id,name')->get();
         }
         if ($estado == 2){
             // REMISIONES EN PROCESO
             return Remisione::where('total_pagar', '>', 0)
                 ->whereBetween('fecha_creacion', [$inicio, $final])
-                ->orderBy('id','desc')
+                ->orderBy('fecha_creacion','desc')
                 ->with('cliente:id,name')->get();
         }
     }
@@ -188,12 +188,12 @@ class RemisionController extends Controller
         if ($estado == 1 || $estado == 4) {
             // REMISIONES INICIADAS Y CANCELADAS
             if($cliente_id === null){
-                return Remisione::where('estado',$estado)->orderBy('id','desc')
+                return Remisione::where('estado',$estado)->orderBy('fecha_creacion','desc')
                                 ->with('cliente:id,name')->get();
             } else {
                 return Remisione::where('estado',$estado)
                             ->where('cliente_id', $cliente_id)
-                            ->orderBy('id','desc')
+                            ->orderBy('fecha_creacion','desc')
                             ->with('cliente:id,name')->get();
             } 
         }
@@ -202,13 +202,13 @@ class RemisionController extends Controller
             if($cliente_id === null){
                 return Remisione::where('total_pagar', '>', 0)
                     ->where('estado', 'Proceso')
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->with('cliente:id,name')->get();
             } else {
                 return Remisione::where('cliente_id', $cliente_id)
                     ->where('total_pagar', '>', 0)
                     ->where('estado', 'Proceso')
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->with('cliente:id,name')->get();
             }
         }
@@ -235,7 +235,7 @@ class RemisionController extends Controller
                             $query->where('pagos', '>', 0)
                                     ->orWhere('total_devolucion', '>', 0);
                         })
-                        ->orderBy('id','desc')
+                        ->orderBy('fecha_creacion','desc')
                         ->with('cliente:id,name')->get();
         } else {
             return Remisione::where('cliente_id', $cliente_id)
@@ -244,7 +244,7 @@ class RemisionController extends Controller
                             $query->where('pagos', '>', 0)
                                     ->orWhere('total_devolucion', '>', 0);
                         })
-                        ->orderBy('id','desc')
+                        ->orderBy('fecha_creacion','desc')
                         ->with('cliente:id,name')->get();
         }
     }
@@ -265,7 +265,7 @@ class RemisionController extends Controller
         $final = Input::get('final');
         if($cliente_id === null){
             $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])
-                ->orderBy('id','desc')
+                ->orderBy('fecha_creacion','desc')
                 ->with('cliente')->paginate(20); 
         } else{
             $cliente = Cliente::find($cliente_id);
@@ -273,7 +273,7 @@ class RemisionController extends Controller
             $remisiones = Remisione::where('cliente_id', $cliente->id)
                         ->whereBetween('fecha_creacion', [$inicio, $final])
                         ->withCount('depositos')->with('cliente')
-                        ->orderBy('id','desc')->paginate(20);
+                        ->orderBy('fecha_creacion','desc')->paginate(20);
         }
         return response()->json($remisiones);
     }
@@ -388,13 +388,13 @@ class RemisionController extends Controller
             $remisiones = Remisione::where('cliente_id', $cliente_id)
                             ->whereBetween('fecha_creacion', [$inicio, $final])
                             ->whereNotIn('estado', ['Iniciado', 'Cancelado'])
-                            ->orderBy('id','desc')
+                            ->orderBy('fecha_creacion','desc')
                             ->get();
         }
         else {
             $remisiones = Remisione::where('cliente_id', $cliente_id)
                     ->whereNotIn('estado', ['Iniciado', 'Cancelado'])
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->get();
         }
         $valores = $this->totales($remisiones);
@@ -418,18 +418,18 @@ class RemisionController extends Controller
     public function down_remisiones_pdf($cliente_id, $inicio, $final, $estado){
         if($cliente_id === 'null' && $inicio === '0000-00-00' && $final === '0000-00-00' && $estado === 'null'){
             $remisiones = Remisione::with(['cliente:id,name'])->with('datos.libro')
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->get();
         }
         if($cliente_id !== 'null' && $inicio === '0000-00-00' && $final === '0000-00-00' && $estado === 'null'){
             $remisiones = Remisione::where('cliente_id', $cliente_id)
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->get();
         }
         if($cliente_id !== 'null' && $inicio != '0000-00-00' && $final != '0000-00-00' && $estado === 'null'){
             $remisiones = Remisione::where('cliente_id', $cliente_id)
                             ->whereBetween('fecha_creacion', [$inicio, $final])
-                            ->orderBy('id','desc')
+                            ->orderBy('fecha_creacion','desc')
                             ->get();
         }
         if($cliente_id === 'null' && $inicio != '0000-00-00' && $final != '0000-00-00' && $estado === 'null'){
@@ -746,7 +746,7 @@ class RemisionController extends Controller
     // OBTENER TODAS LAS REMISIONES DE LOS CLIENTES
     // Función utilizada en ListadoComponent
     public function todos(){
-        $remisiones = Remisione::with('cliente:id,name')->orderBy('id','desc')->get();
+        $remisiones = Remisione::with('cliente:id,name')->orderBy('fecha_creacion','desc')->get();
         return response()->json($remisiones);
     } 
 
@@ -961,7 +961,7 @@ class RemisionController extends Controller
             ->where(function ($query) {
                 $query->where('estado', 'Proceso')
                         ->orWhere('estado', 'Terminado');
-            })->orderBy('id','desc')
+            })->orderBy('fecha_creacion','desc')
             ->with('cliente')->paginate(20);
         return response()->json($remisiones);
     }
@@ -1146,7 +1146,7 @@ class RemisionController extends Controller
 
         $remisiones = Remisione::where('corte_id', $corte_id)
                     ->with(['cliente:id,name'])
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->paginate(20);
         return response()->json($remisiones);
     }
@@ -1163,7 +1163,7 @@ class RemisionController extends Controller
         $remisiones = Remisione::where('corte_id', $corte_id)
                     ->where('cliente_id', $cliente_id)
                     ->with(['cliente:id,name'])
-                    ->orderBy('id','desc')
+                    ->orderBy('fecha_creacion','desc')
                     ->paginate(20);
         return response()->json($remisiones);
     }
