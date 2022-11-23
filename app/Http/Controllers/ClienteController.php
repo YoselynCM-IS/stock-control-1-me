@@ -18,7 +18,7 @@ class ClienteController extends Controller
 {
     // OBTENER TODOS LOS CLIENTES
     public function index(){
-        $clientes = Cliente::orderBy('name', 'asc')->paginate(20);
+        $clientes = Cliente::with('user', 'estado')->orderBy('name', 'asc')->paginate(20);
         return response()->json($clientes);
     }
 
@@ -26,14 +26,14 @@ class ClienteController extends Controller
     public function by_name(){
         $cliente = Input::get('cliente');
         $clientes = Cliente::where('name','like','%'.$cliente.'%')
-                ->orderBy('name', 'asc')->paginate(20);
+                ->with('user', 'estado')->orderBy('name', 'asc')->paginate(20);
         return response()->json($clientes);
     }
 
     // OBTENER UN CLIENTE POR ID
     public function show(){
         $cliente_id = Input::get('cliente_id');
-        $cliente = Cliente::find($cliente_id);
+        $cliente = Cliente::whereId($cliente_id)->with('user', 'estado')->first();
         return response()->json($cliente);
     }
     
@@ -49,8 +49,9 @@ class ClienteController extends Controller
 
     // EDITAR DATOS DE CLIENTE
     // Función utilizada en ClientesComponent
-    public function editar(Request $request){
-        $cliente = Cliente::whereId($request->id)->first();
+    public function update(Request $request){
+        $cliente_id = $request->id;
+        $cliente = Cliente::whereId($cliente_id)->first();
         $cliente->name = 'CLIENTE-'.$cliente->name;
         $cliente->save();
         $this->validacion($request);
@@ -64,7 +65,11 @@ class ClienteController extends Controller
                 'direccion' => strtoupper($request->direccion),
                 'condiciones_pago' => strtoupper($request->condiciones_pago),
                 'rfc' => strtoupper($request->rfc),
-                'fiscal' => strtoupper($request->fiscal)
+                'fiscal' => strtoupper($request->fiscal),
+                'tipo' => $request->tipo, 
+                'user_id' => $request->user_id, 
+                'estado_id' => $request->estado_id, 
+                'tel_oficina' => $request->tel_oficina
             ]);
             \DB::commit();
         } catch (Exception $e) {
@@ -88,7 +93,11 @@ class ClienteController extends Controller
                 'direccion' => strtoupper($request->direccion),
                 'condiciones_pago' => strtoupper($request->condiciones_pago),
                 'rfc' => strtoupper($request->rfc),
-                'fiscal' => strtoupper($request->fiscal)
+                'fiscal' => strtoupper($request->fiscal),
+                'tipo' => $request->tipo, 
+                'user_id' => $request->user_id, 
+                'estado_id' => $request->estado_id, 
+                'tel_oficina' => $request->tel_oficina
             ]);
 
             Remcliente::create([
@@ -140,5 +149,16 @@ class ClienteController extends Controller
     public function getTodo(){
         $clientes = Cliente::orderBy('name', 'asc')->get();
         return response()->json($clientes);
+    }
+
+    public function get_estados(){
+        $estados = \DB::table('estados')->orderBy('estado', 'asc')->get();
+        return response()->json($estados);
+    }
+
+    public function get_usuarios(){
+        $users = \DB::table('users')->whereNotIn('role_id', [6])
+                        ->orderBy('name', 'asc')->get();
+        return response()->json($users);
     }
 }

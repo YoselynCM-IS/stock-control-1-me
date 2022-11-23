@@ -48,6 +48,7 @@ return array(
     'App\\Exports\\ULibrosExport' => $baseDir . '/app/Exports/ULibrosExport.php',
     'App\\Exports\\UnidadesExport' => $baseDir . '/app/Exports/UnidadesExport.php',
     'App\\Exports\\VendidosDetallesExport' => $baseDir . '/app/Exports/VendidosDetallesExport.php',
+    'App\\Exports\\codes\\ByRemisionExport' => $baseDir . '/app/Exports/codes/ByRemisionExport.php',
     'App\\Exports\\donaciones\\DonacionExport' => $baseDir . '/app/Exports/donaciones/DonacionExport.php',
     'App\\Exports\\entradas\\EntradaExport' => $baseDir . '/app/Exports/entradas/EntradaExport.php',
     'App\\Exports\\movimientos\\MovDayLibrosExport' => $baseDir . '/app/Exports/movimientos/MovDayLibrosExport.php',

@@ -103,12 +103,8 @@ Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])
 });
 
 //CLIENTES
-//Agregar cliente
-Route::post('/new_client', 'ClienteController@store')->name('new_client');
 //Buscar cliente
 Route::get('/mostrarClientes', 'ClienteController@mostrarClientes')->name('mostrarClientes');
-//Editar informacion de cliente
-Route::put('editar_cliente', 'ClienteController@editar')->name('editar_cliente');
 // DESCARGAR LISTA DE CLIENTES
 Route::get('/descargar_clientes', 'ClienteController@descargar_clientes')->name('descargar_clientes');
 
@@ -510,12 +506,20 @@ Route::name('entradas.')->prefix('entradas')->group(function () {
 Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
 //CLIENTES
 Route::name('clientes.')->prefix('clientes')->group(function () {
+    //Agregar cliente
+    Route::post('/store', 'ClienteController@store')->name('store');
+    //Editar informacion de cliente
+    Route::put('/update', 'ClienteController@update')->name('update');
     //Obtener todos los cliente
     Route::get('/index', 'ClienteController@index')->name('index');
     //Obtener los clientes por coincidencia de nombre
     Route::get('/by_name', 'ClienteController@by_name')->name('by_name');
     // Detalles del cliente
     Route::get('/show', 'ClienteController@show')->name('show'); 
+    // Obtener estados de la republica mexicana
+    Route::get('/get_estados', 'ClienteController@get_estados')->name('get_estados'); 
+    // Obtener los usuarios registrados en sistema
+    Route::get('/get_usuarios', 'ClienteController@get_usuarios')->name('get_usuarios'); 
 });
 
 // MANAGER

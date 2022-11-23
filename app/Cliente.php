@@ -6,11 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 use App\Remcliente;
 use App\Remisione;
 use App\Adeudo;
+use App\Estado;
+use App\User;
 
 class Cliente extends Model
 {
     protected $fillable = [
-        'id', 'name', 'contacto', 'email', 'telefono', 'direccion', 'condiciones_pago', 'rfc', 'fiscal'
+        'id', 'name', 'contacto', 'email', 'telefono', 'direccion', 'condiciones_pago', 'rfc', 'fiscal',
+        'tipo', 'user_id', 'estado_id', 'tel_oficina'
     ];
 
     //Uno a muchos
@@ -29,5 +32,15 @@ class Cliente extends Model
     //Un cliente solo puede tener un remcliente
     public function remcliente(){
         return $this->hasOne(Remcliente::class);
+    }
+
+    // Uno a muchos (inversa)
+    public function user(){
+        return $this->belongsTo(User::class);
+    }
+
+    // Uno a muchos (inversa)
+    public function estado(){
+        return $this->belongsTo(Estado::class);
     }
 }

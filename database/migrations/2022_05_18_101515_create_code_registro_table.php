@@ -13,14 +13,14 @@ class CreateCodeRegistroTable extends Migration
      */
     public function up()
     {
-        Schema::create('code_registro', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('code_id')->nullable();
-            $table->foreign('code_id')->references('id')->on('codes');
-            $table->unsignedBigInteger('registro_id')->nullable();
-            $table->foreign('registro_id')->references('id')->on('registros');
-            $table->timestamps();
-        });
+        // Schema::create('code_registro', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('code_id')->nullable();
+        //     $table->foreign('code_id')->references('id')->on('codes');
+        //     $table->unsignedBigInteger('registro_id')->nullable();
+        //     $table->foreign('registro_id')->references('id')->on('registros');
+        //     $table->timestamps();
+        // });
     }
 
     /**

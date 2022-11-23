@@ -13,15 +13,15 @@ class CreateCodeDatoTable extends Migration
      */
     public function up()
     {
-        Schema::create('code_dato', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('code_id')->nullable();
-            $table->foreign('code_id')->references('id')->on('codes');
-            $table->unsignedBigInteger('dato_id')->nullable();
-            $table->foreign('dato_id')->references('id')->on('datos');
-            $table->boolean('devolucion')->default(false);
-            $table->timestamps();
-        });
+        // Schema::create('code_dato', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('code_id')->nullable();
+        //     $table->foreign('code_id')->references('id')->on('codes');
+        //     $table->unsignedBigInteger('dato_id')->nullable();
+        //     $table->foreign('dato_id')->references('id')->on('datos');
+        //     $table->boolean('devolucion')->default(false);
+        //     $table->timestamps();
+        // });
     }
 
     /**

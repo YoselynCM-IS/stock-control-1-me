@@ -13,15 +13,15 @@ class CreateCodesTable extends Migration
      */
     public function up()
     {
-        Schema::create('codes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('libro_id')->nullable();
-            $table->foreign('libro_id')->references('id')->on('libros');
-            $table->string('codigo')->unique();
-            $table->enum('tipo', ['profesor','alumno'])->default('alumno');
-            $table->enum('estado', ['proceso','inventario', 'ocupado', 'eliminado'])->default('proceso');
-            $table->timestamps();
-        });
+        // Schema::create('codes', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('libro_id')->nullable();
+        //     $table->foreign('libro_id')->references('id')->on('libros');
+        //     $table->string('codigo')->unique();
+        //     $table->enum('tipo', ['profesor','alumno'])->default('alumno');
+        //     $table->enum('estado', ['proceso','inventario', 'ocupado', 'eliminado'])->default('proceso');
+        //     $table->timestamps();
+        // });
     }
 
     /**

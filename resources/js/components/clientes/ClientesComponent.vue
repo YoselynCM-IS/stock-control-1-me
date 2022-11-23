@@ -13,11 +13,14 @@
                 </b-row>
             </b-col>
             <b-col class="text-right" sm="2">
-                <b-button href="/descargar_clientes" variant="dark"><i class="fa fa-download"></i> Lista</b-button>
+                <b-button href="/descargar_clientes" variant="dark" pill><i class="fa fa-download"></i> Lista</b-button>
             </b-col>
             <!-- AGREGAR NUEVO CLIENTE -->
             <b-col class="text-right" sm="3">
-                <b-button v-if="(role_id === 1 || role_id === 2 || role_id == 6)" variant="success" v-b-modal.modal-nuevoCliente><i class="fa fa-plus"></i> Agregar cliente</b-button>
+                <b-button v-if="(role_id === 1 || role_id === 2 || role_id == 6)" 
+                            variant="success" @click="newCliente()" pill>
+                    <i class="fa fa-plus"></i> Agregar cliente
+                </b-button>
             </b-col>
         </b-row>
         <hr>
@@ -35,17 +38,16 @@
                     {{ row.index + 1 }}
                 </template>
                 <template v-slot:cell(editar)="row">
-                    <b-button 
-                        v-if="role_id === 1 || role_id === 2 || role_id == 6" 
-                        v-b-modal.modal-editarCliente 
-                        variant="warning" 
-                        style="color: white;"
+                    <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                        v-b-modal.modal-editarCliente variant="warning" 
+                        style="color: white;" pill
                         @click="editarCliente(row.item, row.index)">
                         <i class="fa fa-pencil"></i>
                     </b-button>
                 </template>
                 <template v-slot:cell(detalles)="row">
-                    <b-button variant="info" v-b-modal.modal-detalles @click="showDetails(row.item)">Detalles</b-button>
+                    <b-button variant="info" v-b-modal.modal-detalles pill
+                        @click="showDetails(row.item)">Detalles</b-button>
                 </template>
             </b-table>
             <b-alert v-else show variant="secondary">
@@ -55,134 +57,82 @@
         <load-component v-else></load-component>
         <!-- MODALS -->
         <!-- MODAL PARA MOSTRAR LOS DETALLES DEL CLIENTE -->
-        <b-modal id="modal-detalles" :title="`${form.name ? form.name:''}`" hide-footer>
-            <div v-if="!loadDetails">
-                <label><b>Contacto:</b> {{ form.contacto }}</label><br>
-                <label><b>Dirección:</b> {{ form.direccion }}</label><br>
-                <label><b>RFC:</b> {{ form.rfc }}</label><br>
-                <label><b>Dirección fiscal:</b> {{ form.fiscal }}</label><br>
-                <label><b>Correo:</b> {{ form.email }}</label><br>
-                <label><b>Telefono:</b> {{ form.telefono }}</label><br>
-                <label><b>Condiciones de pago:</b> {{ form.condiciones_pago }}</label>
+        <b-modal id="modal-detalles" title="Información del cliente" hide-footer size="xl">
+            <div v-if="!loadDetails" class="mb-5">
+                <b-row>
+                    <b-col>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Tipo de cliente:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.tipo}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right">
+                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'PLANTEL') ? 'Plantel':'Distribuidor'}}:</b>
+                            </b-col>
+                            <div class="col-md-7">{{datosCliente.name}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right">
+                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'PLANTEL') ? 'Coordinador':'Comunicarse con'}}:</b>
+                            </b-col>
+                            <div class="col-md-7">{{datosCliente.contacto}}</div>
+                        </b-row>
+                    </b-col>
+                    <b-col>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Responsable del cliente:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.user ? datosCliente.user.name:''}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Condiciones de pago:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.condiciones_pago}}</div>
+                        </b-row>
+                    </b-col>
+                </b-row>
+                <b-row>
+                    <b-col>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Dirección:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.direccion}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Estado:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.estado ? datosCliente.estado.estado:''}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Teléfono:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.telefono}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Teléfono (oficina):</b></b-col>
+                            <div class="col-md-7">{{datosCliente.tel_oficina}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Correo electrónico:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.email}}</div>
+                        </b-row>
+                    </b-col>
+                    <b-col>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>Dirección fiscal:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.fiscal}}</div>
+                        </b-row>
+                        <b-row class="my-1">
+                            <b-col align="right"><b>RFC:</b></b-col>
+                            <div class="col-md-7">{{datosCliente.rfc}}</div>
+                        </b-row>
+                    </b-col>
+                </b-row>
             </div>
             <load-component v-else></load-component>
         </b-modal>
         <!-- MODAL PARA AGREGAR CLIENTE -->
-        <b-modal id="modal-editarCliente" title="Editar cliente">
-            <b-form @submit.prevent="onUpdate()">
-                <b-row class="my-1">
-                    <b-col align="right">Nombre</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-name"
-                            style="text-transform:uppercase;"
-                            v-model="form.name"
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Contacto</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-name"
-                            style="text-transform:uppercase;"
-                            v-model="form.contacto"
-                            :disabled="loaded">
-                        </b-form-input>
-                        <div v-if="errors && errors.contacto" class="text-danger">{{ errors.contacto[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Dirección</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-direccion"
-                            style="text-transform:uppercase;"
-                            v-model="form.direccion" 
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                <b-col align="right">RFC</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-rfc"
-                            style="text-transform:uppercase;"
-                            v-model="form.rfc"
-                            :disabled="loaded">
-                        </b-form-input>
-                        <div v-if="errors && errors.rfc" class="text-danger">{{ errors.rfc[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Dirección fiscal</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-fiscal"
-                            style="text-transform:uppercase;"
-                            v-model="form.fiscal" 
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.fiscal" class="text-danger">{{ errors.fiscal[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Correo electrónico</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-email"
-                            v-model="form.email"
-                            type="email"
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.email" class="text-danger">{{ errors.email[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Teléfono</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-telefono"
-                            v-model="form.telefono" 
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
-                    </div>
-                </b-row>
-                <b-row class="my-1">
-                    <b-col align="right">Condiciones de pago</b-col>
-                    <div class="col-md-7">
-                        <b-form-input 
-                            id="input-condiciones_pago"
-                            style="text-transform:uppercase;"
-                            v-model="form.condiciones_pago" 
-                            :disabled="loaded"
-                            required>
-                        </b-form-input>
-                        <div v-if="errors && errors.condiciones_pago" class="text-danger">{{ errors.condiciones_pago[0] }}</div>
-                    </div>
-                </b-row>
-                <hr>
-                <div align="right">
-                    <b-button type="submit" :disabled="loaded" variant="success">
-                        <i class="fa fa-check"></i> {{ !loaded ? 'Actualizar' : 'Actualizando' }} <b-spinner small v-if="loaded"></b-spinner>
-                    </b-button>
-                </div>
-            </b-form>
-            <div slot="modal-footer"></div>
+        <b-modal id="modal-editarCliente" title="Editar cliente" hide-footer size="xl">
+            <new-client-component :form="form" :edit="edit" @actualizarClientes="actClientes"></new-client-component>
         </b-modal>
         <!-- MODAL PARA AGREGAR UN CLIENTE -->
-        <b-modal id="modal-nuevoCliente" title="Agregar cliente" hide-footer>
-            <new-client-component @actualizarClientes="actClientes"></new-client-component>
+        <b-modal id="modal-nuevoCliente" title="Nuevo cliente" hide-footer size="xl">
+            <new-client-component :form="form" :edit="edit" @actualizarClientes="actClientes"></new-client-component>
         </b-modal>
     </div>
 </template>
@@ -196,30 +146,38 @@
                 clientes: [],
                 fields: [
                     {key: 'index', label: 'N.'},
-                    {key: 'name', label: 'Nombre'},
+                    {key: 'tipo', label: 'Tipo'},
+                    {key: 'estado.estado', label: 'Estado'},
+                    {key: 'name', label: 'Cliente'},
                     {key: 'email', label: 'Correo'},
                     {key: 'telefono', label: 'Teléfono'},
-                    'contacto',
+                    {key: 'user.name', label: 'Responsable'},
                     {key: 'detalles', label: ''},
                     {key: 'editar', label: ''}
                 ],
                 form: {
-                    id: 0,
-                    name: '',
+                    tipo: null,
+                    name: null,
                     contacto: null,
-                    email: '',
-                    telefono: 0,
-                    direccion: '',
-                    condiciones_pago: ''
-
+                    user_id: null,
+                    condiciones_pago: null,
+                    direccion: null,
+                    estado_id: null,
+                    telefono: null,
+                    tel_oficina: null,
+                    email: null,
+                    fiscal: null,
+                    rfc: null
                 },
+                datosCliente: {},
                 loaded: false,
                 errors: {},
                 posicion: null,
                 queryCliente: '',
                 loadRegisters: false,
                 sTName: false,
-                loadDetails: false
+                loadDetails: false,
+                edit: false
             }
         },
         mounted: function(){
@@ -259,9 +217,8 @@
             },
             showDetails(cliente){
                 this.loadDetails = true;
-                this.form = {};
                 axios.get('/clientes/show', {params: {cliente_id: cliente.id}}).then(response => {
-                    this.assign_datos(response.data);
+                    this.datosCliente = response.data;
                     this.loadDetails = false;
                 }).catch(error => {
                     this.loadDetails = false;
@@ -272,6 +229,8 @@
             editarCliente(cliente, i){
                 this.posicion = i;
                 this.form = {};
+                this.edit = true;
+                console.log(cliente.tipo);
                 this.assign_datos(cliente);
             },
             assign_datos(cliente){
@@ -284,34 +243,40 @@
                 this.form.condiciones_pago = cliente.condiciones_pago;
                 this.form.rfc = cliente.rfc;
                 this.form.fiscal = cliente.fiscal;
+                this.form.tipo = cliente.tipo;
+                this.form.user_id = cliente.user_id;
+                this.form.estado_id = cliente.estado_id;
+                this.form.tel_oficina = cliente.tel_oficina;
             },
             // AGREGAR CLIENTE A LA LISTA (EVENTO)
             actClientes(cliente){
-                this.clientes.unshift(cliente);
-                this.$bvModal.hide('modal-nuevoCliente');
-                this.makeToast('success', 'El cliente se agrego correctamente.');
-            },
-            // ACTUALIZAR DATOS DE CLIENTE
-            onUpdate(){
-                this.loaded = true;
-                axios.put('/editar_cliente', this.form).then(response => {
-                    this.loaded = false;
-                    this.clientes[this.posicion].name = response.data.name;
-                    this.clientes[this.posicion].contacto = response.data.contacto;
-                    this.clientes[this.posicion].email = response.data.email;
-                    this.clientes[this.posicion].telefono = response.data.telefono;
+                if(!this.edit){
+                    this.$bvModal.hide('modal-nuevoCliente');
+                    swal("OK", "El cliente se guardo correctamente.", "success")
+                        .then((value) => { location.reload(); });
+                } else {
                     this.$bvModal.hide('modal-editarCliente');
-                    this.makeToast('success', 'Cliente actualizado correctamente.');
-                })
-                .catch(error => {
-                    this.loaded = false;
-                    if (error.response.status === 422) {
-                        this.errors = error.response.data.errors || {};
-                    }
-                    else{
-                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
-                    }
-                });
+                    swal("OK", "El cliente se actualizo correctamente.", "success")
+                        .then((value) => { location.reload(); });
+                }
+            },
+            newCliente(){
+                this.edit = false;
+                this.form = {
+                    tipo: null,
+                    name: null,
+                    contacto: null,
+                    user_id: null,
+                    condiciones_pago: null,
+                    direccion: null,
+                    estado_id: null,
+                    telefono: null,
+                    tel_oficina: null,
+                    email: null,
+                    fiscal: null,
+                    rfc: null
+                };
+                this.$bvModal.show('modal-editarCliente');
             },
             makeToast(variant = null, descripcion) {
                 this.$bvToast.toast(descripcion, {
