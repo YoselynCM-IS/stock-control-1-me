@@ -24,6 +24,7 @@ return array(
     'App\\Entdevolucione' => $baseDir . '/app/Entdevolucione.php',
     'App\\Enteditoriale' => $baseDir . '/app/Enteditoriale.php',
     'App\\Entrada' => $baseDir . '/app/Entrada.php',
+    'App\\Estado' => $baseDir . '/app/Estado.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Exports\\ClienteVendidosExport' => $baseDir . '/app/Exports/ClienteVendidosExport.php',
     'App\\Exports\\ClientesExport' => $baseDir . '/app/Exports/ClientesExport.php',

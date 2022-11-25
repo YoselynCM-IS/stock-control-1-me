@@ -40,14 +40,22 @@
                 <template v-slot:cell(editar)="row">
                     <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
                         v-b-modal.modal-editarCliente variant="warning" 
-                        style="color: white;" pill
+                        style="color: white;" pill size="sm" block
                         @click="editarCliente(row.item, row.index)">
                         <i class="fa fa-pencil"></i>
                     </b-button>
                 </template>
                 <template v-slot:cell(detalles)="row">
                     <b-button variant="info" v-b-modal.modal-detalles pill
-                        @click="showDetails(row.item)">Detalles</b-button>
+                        @click="showDetails(row.item)" size="sm" block>
+                        <i class="fa fa-info"></i>
+                    </b-button>
+                </template>
+                <template v-slot:cell(libros)="row">
+                    <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" block
+                        variant="dark" pill size="sm" @click="showLibros(row.item)">
+                        <i class="fa fa-book"></i>
+                    </b-button>
                 </template>
             </b-table>
             <b-alert v-else show variant="secondary">
@@ -134,6 +142,10 @@
         <b-modal id="modal-nuevoCliente" title="Nuevo cliente" hide-footer size="xl">
             <new-client-component :form="form" :edit="edit" @actualizarClientes="actClientes"></new-client-component>
         </b-modal>
+        <!-- MODAL PARA RELACIONAR LIBROS VENDIDOS A ESE CLIENTE -->
+        <b-modal id="modal-showLibros" title="Libros" hide-footer size="xl">
+            <libros-cliente-component :cliente_id="cliente_id"></libros-cliente-component>
+        </b-modal>
     </div>
 </template>
 
@@ -153,6 +165,7 @@
                     {key: 'telefono', label: 'Teléfono'},
                     {key: 'user.name', label: 'Responsable'},
                     {key: 'detalles', label: ''},
+                    {key: 'libros', label: ''},
                     {key: 'editar', label: ''}
                 ],
                 form: {
@@ -177,7 +190,8 @@
                 loadRegisters: false,
                 sTName: false,
                 loadDetails: false,
-                edit: false
+                edit: false,
+                cliente_id: null
             }
         },
         mounted: function(){
@@ -230,7 +244,6 @@
                 this.posicion = i;
                 this.form = {};
                 this.edit = true;
-                console.log(cliente.tipo);
                 this.assign_datos(cliente);
             },
             assign_datos(cliente){
@@ -284,6 +297,10 @@
                     variant: variant,
                     solid: true
                 })
+            },
+            showLibros(cliente){
+                this.$bvModal.show('modal-showLibros');
+                this.cliente_id = cliente.id;
             }
         }
     }

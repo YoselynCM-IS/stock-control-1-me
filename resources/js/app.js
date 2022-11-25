@@ -71,6 +71,7 @@ Vue.component('pedidos-component', require('./components/pedidos/PedidosComponen
 // CLIENTES
 Vue.component('clientes-component', require('./components/clientes/ClientesComponent.vue').default);
 Vue.component('new-client-component', require('./components/clientes/NewClientComponent.vue').default);
+Vue.component('libros-cliente-component', require('./components/clientes/LibrosClienteComponent.vue').default);
 
 // ENTRADAS
 Vue.component('editar-entradas-component', require('./components/entradas/EditarEntradasComponent.vue').default);

@@ -7,6 +7,7 @@ use App\Remcliente;
 use App\Remisione;
 use App\Adeudo;
 use App\Estado;
+use App\Libro;
 use App\User;
 
 class Cliente extends Model
@@ -43,4 +44,10 @@ class Cliente extends Model
     public function estado(){
         return $this->belongsTo(Estado::class);
     }
+
+    // Muchos a muchos
+    public function libros(){
+        return $this->belongsToMany(Libro::class)->withPivot('costo_unitario');
+    }
+
 }

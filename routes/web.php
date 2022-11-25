@@ -519,7 +519,16 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     // Obtener estados de la republica mexicana
     Route::get('/get_estados', 'ClienteController@get_estados')->name('get_estados'); 
     // Obtener los usuarios registrados en sistema
-    Route::get('/get_usuarios', 'ClienteController@get_usuarios')->name('get_usuarios'); 
+    Route::get('/get_usuarios', 'ClienteController@get_usuarios')->name('get_usuarios');
+    // Guardar libro relacionado al cliente
+    Route::post('/save_libro', 'ClienteController@save_libro')->name('save_libro'); 
+    // Actualizar libro relacionado al cliente
+    Route::put('/update_libro', 'ClienteController@update_libro')->name('update_libro');
+    // Borrar libro relacionado al cliente
+    Route::delete('/delete_libro', 'ClienteController@delete_libro')->name('delete_libro');
+    // Obtener los libros registrados en el cliente
+    Route::get('/get_libros', 'ClienteController@get_libros')->name('get_libros');
+    
 });
 
 // MANAGER

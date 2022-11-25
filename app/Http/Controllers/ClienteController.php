@@ -161,4 +161,30 @@ class ClienteController extends Controller
                         ->orderBy('name', 'asc')->get();
         return response()->json($users);
     }
+
+    public function save_libro(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
+        $cliente->libros()->attach($request->libro_id, ['costo_unitario' => (float) $request->costo_unitario]);
+        return response()->json($cliente);
+    }
+
+    public function update_libro(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
+        $costo_unitario = (float) $request->costo_unitario;
+        $cliente->libros()->updateExistingPivot($request->libro_id, [
+            'costo_unitario' => $costo_unitario
+        ]);
+        return response()->json($costo_unitario);
+    }
+
+    public function get_libros(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
+        return response()->json($cliente->libros);
+    }
+
+    public function delete_libro(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
+        $cliente->libros()->detach($request->libro_id);
+        return response()->json($cliente);
+    }
 }

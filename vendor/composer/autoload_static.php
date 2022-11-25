@@ -623,6 +623,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Entdevolucione' => __DIR__ . '/../..' . '/app/Entdevolucione.php',
         'App\\Enteditoriale' => __DIR__ . '/../..' . '/app/Enteditoriale.php',
         'App\\Entrada' => __DIR__ . '/../..' . '/app/Entrada.php',
+        'App\\Estado' => __DIR__ . '/../..' . '/app/Estado.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Exports\\ClienteVendidosExport' => __DIR__ . '/../..' . '/app/Exports/ClienteVendidosExport.php',
         'App\\Exports\\ClientesExport' => __DIR__ . '/../..' . '/app/Exports/ClientesExport.php',
