@@ -5,50 +5,18 @@
                 <b-col>
                     <b-row class="my-1">
                         <b-col align="right">Tipo de cliente</b-col>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <b-form-select v-model="form.tipo" :options="tipos" required
                                 :disabled="loaded" autofocus
                             ></b-form-select>
                         </div>
                     </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Plantel':'Distribuidor'}}</b-col>
-                        <div class="col-md-7">
-                            <b-form-input 
-                                id="input-name"
-                                style="text-transform:uppercase;"
-                                v-model="form.name"
-                                :disabled="loaded"
-                                required>
-                            </b-form-input>
-                            <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
-                        </div>
-                    </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Coordinador':'Comunicarse con'}}</b-col>
-                        <div class="col-md-7">
-                            <b-form-input 
-                                id="input-name"
-                                style="text-transform:uppercase;"
-                                v-model="form.contacto"
-                                :disabled="loaded">
-                            </b-form-input>
-                            <div v-if="errors && errors.contacto" class="text-danger">{{ errors.contacto[0] }}</div>
-                        </div>
-                    </b-row>
+                    <datos-parte-1 :form="form" :loaded="loaded" :errors="errors"></datos-parte-1>
                 </b-col>
                 <b-col>
                     <b-row class="my-1">
-                        <b-col align="right">Responsable del cliente</b-col>
-                        <div class="col-md-7">
-                            <b-form-select v-model="form.user_id" :options="usuarios" required
-                                :disabled="loaded"
-                            ></b-form-select>
-                        </div>
-                    </b-row>
-                    <b-row class="my-1">
                         <b-col align="right">Condiciones de pago</b-col>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <b-form-input 
                                 id="input-condiciones_pago"
                                 style="text-transform:uppercase;"
@@ -65,7 +33,7 @@
                 <b-col>
                     <b-row class="my-1">
                         <b-col align="right">Dirección</b-col>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <b-form-input 
                                 id="input-direccion"
                                 style="text-transform:uppercase;"
@@ -76,56 +44,12 @@
                             <div v-if="errors && errors.direccion" class="text-danger">{{ errors.direccion[0] }}</div>
                         </div>
                     </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">Estado</b-col>
-                        <div class="col-md-7">
-                            <b-form-select v-model="form.estado_id" :options="estados" required
-                                :disabled="loaded"
-                            ></b-form-select>
-                        </div>
-                    </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">Teléfono</b-col>
-                        <div class="col-md-7">
-                            <b-form-input 
-                                id="input-telefono"
-                                v-model="form.telefono" 
-                                :disabled="loaded"
-                                required>
-                            </b-form-input>
-                            <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
-                        </div>
-                    </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">Teléfono (oficina)</b-col>
-                        <div class="col-md-7">
-                            <b-form-input 
-                                id="input-telefono"
-                                v-model="form.tel_oficina" 
-                                :disabled="loaded"
-                                required>
-                            </b-form-input>
-                            <div v-if="errors && errors.tel_oficina" class="text-danger">{{ errors.tel_oficina[0] }}</div>
-                        </div>
-                    </b-row>
-                    <b-row class="my-1">
-                        <b-col align="right">Correo electrónico</b-col>
-                        <div class="col-md-7">
-                            <b-form-input 
-                                id="input-email"
-                                v-model="form.email"
-                                type="email"
-                                :disabled="loaded"
-                                required>
-                            </b-form-input>
-                            <div v-if="errors && errors.email" class="text-danger">{{ errors.email[0] }}</div>
-                        </div>
-                    </b-row>
+                    <datos-parte-2 :form="form" :loaded="loaded" :errors="errors"></datos-parte-2>
                 </b-col>
                 <b-col>
                     <b-row class="my-1">
                         <b-col align="right">Dirección fiscal</b-col>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <b-form-input 
                                 id="input-fiscal"
                                 style="text-transform:uppercase;"
@@ -138,7 +62,7 @@
                     </b-row>
                     <b-row class="my-1">
                         <b-col align="right">RFC</b-col>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <b-form-input 
                                 id="input-rfc"
                                 style="text-transform:uppercase;"
@@ -146,6 +70,18 @@
                                 :disabled="loaded">
                             </b-form-input>
                             <div v-if="errors && errors.rfc" class="text-danger">{{ errors.rfc[0] }}</div>
+                        </div>
+                    </b-row>
+                    <b-row class="my-1">
+                        <b-col align="right">Teléfono (oficina)</b-col>
+                        <div class="col-md-9">
+                            <b-form-input 
+                                id="input-telefono"
+                                v-model="form.tel_oficina" 
+                                :disabled="loaded"
+                                required>
+                            </b-form-input>
+                            <div v-if="errors && errors.tel_oficina" class="text-danger">{{ errors.tel_oficina[0] }}</div>
                         </div>
                     </b-row>
                 </b-col>
@@ -165,7 +101,10 @@
 </template>
 
 <script>
+import DatosParte1 from './partials/DatosParte1.vue';
+import DatosParte2 from './partials/DatosParte2.vue';
     export default {
+        components: { DatosParte1, DatosParte2 },
         props: ['form', 'edit'],
         data() {
             return {
@@ -176,44 +115,10 @@
                     { value: null, text: 'Selecciona una opción', disabled: true},
                     { value: 'PLANTEL', text: 'PLANTEL' },
                     { value: 'DISTRIBUIDOR', text: 'DISTRIBUIDOR' }
-                ],
-                estados: [],
-                usuarios: []
+                ]
             }
         },
-        created: function(){
-            this.getEstados();
-            this.getUsuarios();
-        },
         methods: {
-            getEstados(){
-                this.loaded = true;
-                axios.get('/clientes/get_estados').then(response => {
-                    let edos = response.data;
-                    this.estados.push({ value: null, text: 'Selecciona una opción', disabled: true});
-                    edos.forEach(e => {
-                        this.estados.push({ value: e.id, text: e.estado });
-                    });
-                    this.loaded = false;
-                }).catch(error => {
-                    this.loaded = true;
-                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
-                });
-            },
-            getUsuarios(){
-                this.loaded = true;
-                axios.get('/clientes/get_usuarios').then(response => {
-                    let users = response.data;
-                    this.usuarios.push({ value: null, text: 'Selecciona una opción', disabled: true});
-                    users.forEach(u => {
-                        this.usuarios.push({ value: u.id, text: u.name });
-                    });
-                    this.loaded = false;
-                }).catch(error => {
-                    this.loaded = true;
-                    this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
-                });
-            },
             // GUARDAR NUEVO CLIENTE
             onSubmit() {
                 this.loaded = true;

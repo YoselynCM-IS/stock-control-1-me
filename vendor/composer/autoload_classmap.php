@@ -58,6 +58,7 @@ return array(
     'App\\Exports\\salidas\\SalidaExport' => $baseDir . '/app/Exports/salidas/SalidaExport.php',
     'App\\Fecha' => $baseDir . '/app/Fecha.php',
     'App\\Foto' => $baseDir . '/app/Foto.php',
+    'App\\Http\\Controllers\\ActividadeController' => $baseDir . '/app/Http/Controllers/ActividadeController.php',
     'App\\Http\\Controllers\\AdministradorController' => $baseDir . '/app/Http/Controllers/AdministradorController.php',
     'App\\Http\\Controllers\\AlmacenController' => $baseDir . '/app/Http/Controllers/AlmacenController.php',
     'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => $baseDir . '/app/Http/Controllers/Auth/ForgotPasswordController.php',

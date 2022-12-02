@@ -121,6 +121,9 @@ Vue.component('add-edit-remision-component', require('./components/historial/Add
 Vue.component('register-devolucion-component', require('./components/historial/RegisterDevolucionComponent.vue').default);
 Vue.component('add-pago-corte-component', require('./components/historial/AddPagoCorteComponent.vue').default);
 
+// ACTIVIDADES
+Vue.component('actividades-component', require('./components/actividades/ActividadesComponent').default);
+Vue.component('new-actividad-component', require('./components/actividades/NewActividadComponent').default);
 
 /** NO UTLIZADOS */
 Vue.component('pagos-remisiones', require('./components/nu/PagosRemisiones.vue').default);

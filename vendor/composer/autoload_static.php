@@ -657,6 +657,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Exports\\salidas\\SalidaExport' => __DIR__ . '/../..' . '/app/Exports/salidas/SalidaExport.php',
         'App\\Fecha' => __DIR__ . '/../..' . '/app/Fecha.php',
         'App\\Foto' => __DIR__ . '/../..' . '/app/Foto.php',
+        'App\\Http\\Controllers\\ActividadeController' => __DIR__ . '/../..' . '/app/Http/Controllers/ActividadeController.php',
         'App\\Http\\Controllers\\AdministradorController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdministradorController.php',
         'App\\Http\\Controllers\\AlmacenController' => __DIR__ . '/../..' . '/app/Http/Controllers/AlmacenController.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',

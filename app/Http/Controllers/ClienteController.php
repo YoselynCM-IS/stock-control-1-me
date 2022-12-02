@@ -43,8 +43,12 @@ class ClienteController extends Controller
     // - DevolucionComponent - ListadoComponent - PagosComponent - RemisionComponent - RemisionesComponent
     public function mostrarClientes(){
         $queryCliente = Input::get('queryCliente');
-        $clientes = Cliente::where('name','like','%'.$queryCliente.'%')->orderBy('name', 'asc')->get();
+        $clientes = $this->get_likename($queryCliente)->get();
         return response()->json($clientes);
+    }
+
+    public function get_likename($queryCliente){
+        return Cliente::where('name','like','%'.$queryCliente.'%')->orderBy('name', 'asc');
     }
 
     // EDITAR DATOS DE CLIENTE
@@ -186,5 +190,11 @@ class ClienteController extends Controller
         $cliente = Cliente::find($request->cliente_id);
         $cliente->libros()->detach($request->libro_id);
         return response()->json($cliente);
+    }
+
+    public function by_tipo(Request $request){
+        $clientes = $this->get_likename($request->queryCliente)
+                        ->where('tipo', $request->tipo)->get();
+        return response()->json($clientes);
     }
 }

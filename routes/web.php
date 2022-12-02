@@ -528,7 +528,8 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     Route::delete('/delete_libro', 'ClienteController@delete_libro')->name('delete_libro');
     // Obtener los libros registrados en el cliente
     Route::get('/get_libros', 'ClienteController@get_libros')->name('get_libros');
-    
+    // Obtener clientes por tipo
+    Route::get('/by_tipo', 'ClienteController@by_tipo')->name('by_tipo');
 });
 
 // MANAGER
@@ -619,6 +620,27 @@ Route::name('historial.')->prefix('historial')->middleware(['auth'])->group(func
     Route::get('/registrar_devolucion/{remisione_id}', 'RemisionController@h_registrar_devolucion')->name('registrar_devolucion');
     // GUARDAR PAGO
     Route::post('/save_payment', 'CorteController@h_save_payment')->name('save_payment');
+});
+
+Route::name('information.')->prefix('information')->middleware(['auth'])->group(function () {
+    Route::name('actividades.')->prefix('actividades')->group(function () {
+        // REGISTRAR PAGO
+        Route::get('/get_tipocliente/{tipo}', 'ActividadeController@get_tipocliente')->name('get_tipocliente');
+    });
+}); 
+
+Route::name('actividades.')->prefix('actividades')->group(function () {
+    // GUARDAR ACTIVIDAD
+    Route::post('/store', 'ActividadeController@store')->name('store');
+    // OBTENER ACTIVIDADES POR TIPO Y ESTADO
+    Route::get('/by_tipo_estado', 'ActividadeController@by_tipo_estado')->name('by_tipo_estado');
+    // OBTENER ACTIVIDADES POR CLIENTE, ESTADO Y TIPO
+    Route::get('/by_cliente_tipo_estado', 'ActividadeController@by_cliente_tipo_estado')->name('by_cliente_tipo_estado');
+    // MARCAR ACTIVIDADES COMO COMPLETADAS
+    Route::put('/mark_actividades', 'ActividadeController@mark_actividades')->name('mark_actividades');
+    // OBTENER ACTIVIDADES CREADAS POR EL USUARIO EN SESION
+    Route::get('/by_userid_tipo_estado', 'ActividadeController@by_userid_tipo_estado')->name('by_userid_tipo_estado');
+    
 });
 
 Route::name('salidas.')->prefix('salidas')->group(function () {

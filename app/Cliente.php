@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Remcliente;
+use App\Actividade;
 use App\Remisione;
 use App\Adeudo;
 use App\Estado;
@@ -48,6 +49,10 @@ class Cliente extends Model
     // Muchos a muchos
     public function libros(){
         return $this->belongsToMany(Libro::class)->withPivot('costo_unitario');
+    }
+
+    public function actividades(){
+        return $this->hasMany(Actividade::class);
     }
 
 }

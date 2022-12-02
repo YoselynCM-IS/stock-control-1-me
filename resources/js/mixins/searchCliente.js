@@ -16,5 +16,14 @@ export default {
                 this.clientes = [];
             }
         },
+        mostrarClientesByTipo(tipo){
+            if(this.queryCliente.length > 0){
+                axios.get('/clientes/by_tipo', {params: {queryCliente: this.queryCliente, tipo: tipo}}).then(response => {
+                    this.clientes = response.data;
+                }); 
+            } else {
+                this.clientes = [];
+            }
+        }
     },
 }

@@ -1,0 +1,35 @@
+<template>
+    <div>
+        <b-row class="my-1">
+            <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Plantel':'Distribuidor'}}</b-col>
+            <div class="col-md-9">
+                <b-form-input 
+                    id="input-name"
+                    style="text-transform:uppercase;"
+                    v-model="form.name"
+                    :disabled="loaded"
+                    required>
+                </b-form-input>
+                <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
+            </div>
+        </b-row>
+        <b-row class="my-1">
+            <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Coordinador':'Comunicarse con'}}</b-col>
+            <div class="col-md-9">
+                <b-form-input 
+                    id="input-name"
+                    style="text-transform:uppercase;"
+                    v-model="form.contacto"
+                    :disabled="loaded">
+                </b-form-input>
+                <div v-if="errors && errors.contacto" class="text-danger">{{ errors.contacto[0] }}</div>
+            </div>
+        </b-row>
+    </div>
+</template>
+
+<script>
+export default {
+    props: ['form', 'loaded', 'errors']
+}
+</script>
