@@ -79,9 +79,8 @@
 
 <script>
 import toast from './../../mixins/toast';
-import getLibros from './../../mixins/getLibros';
 export default {
-    mixins: [toast,getLibros],
+    mixins: [toast],
     data(){
         return {
             form: {

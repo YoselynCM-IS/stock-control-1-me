@@ -125,11 +125,7 @@ export default {
             this.dismissCountDown = dismissCountDown
         },
         mostrarLibros(){
-            if(this.queryTitulo.length > 0){
-                this.getLibros(this.queryTitulo);
-            } else{
-                this.resultslibros = [];
-            }
+            this.getLibros(this.queryTitulo);
         },
         datosLibro(libro){
             this.form.libro_id = libro.id;

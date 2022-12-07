@@ -6,11 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Actividade' => $baseDir . '/app/Actividade.php',
     'App\\Cctotale' => $baseDir . '/app/Cctotale.php',
     'App\\Cliente' => $baseDir . '/app/Cliente.php',
     'App\\Code' => $baseDir . '/app/Code.php',
     'App\\Comentario' => $baseDir . '/app/Comentario.php',
-    'App\\Compra' => $baseDir . '/app/Compra.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Corte' => $baseDir . '/app/Corte.php',
     'App\\Custom\\Http\\Request' => $baseDir . '/app/Custom/Http/Request.php',
@@ -28,7 +28,6 @@ return array(
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
     'App\\Exports\\ClienteVendidosExport' => $baseDir . '/app/Exports/ClienteVendidosExport.php',
     'App\\Exports\\ClientesExport' => $baseDir . '/app/Exports/ClientesExport.php',
-    'App\\Exports\\ComprasExport' => $baseDir . '/app/Exports/ComprasExport.php',
     'App\\Exports\\DonacionesExport' => $baseDir . '/app/Exports/DonacionesExport.php',
     'App\\Exports\\EAccountExport' => $baseDir . '/app/Exports/EAccountExport.php',
     'App\\Exports\\EditorialVendidosExport' => $baseDir . '/app/Exports/EditorialVendidosExport.php',
@@ -69,7 +68,6 @@ return array(
     'App\\Http\\Controllers\\CapturaController' => $baseDir . '/app/Http/Controllers/CapturaController.php',
     'App\\Http\\Controllers\\ClienteController' => $baseDir . '/app/Http/Controllers/ClienteController.php',
     'App\\Http\\Controllers\\CodeController' => $baseDir . '/app/Http/Controllers/CodeController.php',
-    'App\\Http\\Controllers\\CompraController' => $baseDir . '/app/Http/Controllers/CompraController.php',
     'App\\Http\\Controllers\\ContadorController' => $baseDir . '/app/Http/Controllers/ContadorController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\CorteController' => $baseDir . '/app/Http/Controllers/CorteController.php',
@@ -102,6 +100,7 @@ return array(
     'App\\Order' => $baseDir . '/app/Order.php',
     'App\\Payment' => $baseDir . '/app/Payment.php',
     'App\\Pedido' => $baseDir . '/app/Pedido.php',
+    'App\\Peticione' => $baseDir . '/app/Peticione.php',
     'App\\Prodevolucione' => $baseDir . '/app/Prodevolucione.php',
     'App\\Promotion' => $baseDir . '/app/Promotion.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',

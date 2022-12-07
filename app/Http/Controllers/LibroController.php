@@ -608,17 +608,17 @@ class LibroController extends Controller
                     ->get();
         }
         if($categoria === 'PEDIDOS'){
-            $datos = \DB::table('pedidos')
-                    ->join('libros', 'pedidos.libro_id', '=', 'libros.id')
-                    ->select(
-                        // 'libro_id as libro_id',
-                        'libros.titulo as libro',
-                        \DB::raw('SUM(unidades) as unidades'),
-                        \DB::raw('SUM(total) as total')
-                    )->whereBetween('pedidos.created_at', [$fecha1, $fecha2])
-                    ->orderBy('libros.titulo', 'asc')
-                    ->groupBy('libro_id', 'libros.titulo')
-                    ->get();
+            // $datos = \DB::table('pedidos')
+            //         ->join('libros', 'pedidos.libro_id', '=', 'libros.id')
+            //         ->select(
+            //             // 'libro_id as libro_id',
+            //             'libros.titulo as libro',
+            //             \DB::raw('SUM(unidades) as unidades'),
+            //             \DB::raw('SUM(total) as total')
+            //         )->whereBetween('pedidos.created_at', [$fecha1, $fecha2])
+            //         ->orderBy('libros.titulo', 'asc')
+            //         ->groupBy('libro_id', 'libros.titulo')
+            //         ->get();
         }
         if($categoria === 'PROMOCIONES'){
             $datos = \DB::table('departures')

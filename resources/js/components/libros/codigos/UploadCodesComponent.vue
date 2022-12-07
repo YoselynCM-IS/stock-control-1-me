@@ -41,7 +41,6 @@
 </template>
 
 <script>
-// import getLibros from '../../../mixins/getLibros';
 import toast from '../../../mixins/toast';
 export default {
     props: ['editorial'],

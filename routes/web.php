@@ -366,24 +366,6 @@ Route::get('/downEditorialEX/{editorial}/{fecha1}/{fecha2}', 'VendidoController@
 // Descargar reporte detallado de libros vendidos
 Route::get('/downDetalladoEX/{fecha1}/{fecha2}', 'VendidoController@downDetalladoEX')->name('downDetalladoEX');
 
-
-// PEDIDOS
-// Mostrar detalles de la compra
-Route::get('detalles_compra', 'CompraController@detalles_compra')->name('detalles_compra');
-// Buscar compra por numero de pedido
-Route::get('buscar_n_pedido', 'CompraController@buscar_n_pedido')->name('buscar_n_pedido');
-// Buscar compras por usuario
-Route::get('buscar_usuario_p', 'CompraController@buscar_usuario_p')->name('buscar_usuario_p');
-// Buscar compras por fecha
-Route::get('buscar_fecha_p', 'CompraController@buscar_fecha_p')->name('buscar_fecha_p');
-// Descargar reporte
-Route::get('/download_compra/{usuario}/{inicio}/{final}/{tipo}', 'CompraController@download_compra')->name('download_compra');
-// Marcar la entrega del pedido
-Route::put('marcar_pedido', 'CompraController@marcar_pedido')->name('marcar_pedido');
-// Descargar nota
-Route::get('/download_pedido/{id}', 'CompraController@download_pedido')->name('download_pedido');
-
-
 // DESCARGAR LA CUENTA GENERAL DE LAS EDITORIALES
 Route::get('/descargar_gralEdit', 'EntradaController@descargar_gralEdit')->name('descargar_gralEdit'); 
 
@@ -395,15 +377,24 @@ Route::get('get_remcliente', 'RemisionController@get_remcliente')->name('get_rem
 
 // MOSTRAR EDITORIALES
 Route::get('show_editoriales', 'OficinaController@show_editoriales')->name('show_editoriales');
-// GUARDAR PEDIDO
+
 Route::name('pedido.')->prefix('pedido')->group(function () {
-    Route::post('guardar', 'PedidoController@store')->name('guardar');
-    Route::put('change_status', 'PedidoController@change_status')->name('change_status');
-    Route::put('cancelar_pedido', 'PedidoController@cancelar_pedido')->name('cancelar_pedido');
-    Route::get('detalles', 'PedidoController@show')->name('detalles');
-    Route::get('get_provider', 'PedidoController@get_provider')->name('get_provider');
-    Route::get('get_date', 'PedidoController@get_date')->name('get_date');
     Route::get('index', 'PedidoController@index')->name('index');
+    Route::post('store', 'PedidoController@store')->name('store');
+    Route::get('/show/{pedido_id}', 'PedidoController@show')->name('show');
+    Route::get('/preparar/{pedido_id}', 'PedidoController@preparar')->name('preparar');
+    Route::put('/preparado', 'PedidoController@preparado')->name('preparado');
+    Route::put('/despachar', 'PedidoController@despachar')->name('despachar');
+    Route::put('/cancelar', 'PedidoController@cancelar')->name('cancelar');
+    Route::get('/by_provider', 'PedidoController@by_provider')->name('by_provider');
+});
+
+Route::name('order.')->prefix('order')->group(function () {
+    Route::get('index', 'OrderController@index')->name('index');
+    Route::get('/show/{order_id}', 'OrderController@show')->name('show');
+    Route::put('change_status', 'OrderController@change_status')->name('change_status');
+    Route::put('cancelar', 'OrderController@cancelar')->name('cancelar');
+    Route::put('add_costo', 'OrderController@add_costo')->name('add_costo');
 });
 
 //REMCLIENTE
@@ -551,7 +542,6 @@ Route::name('manager.')->prefix('manager')
     });
     Route::name('otros.')->prefix('otros')->group(function () {
         Route::get('/notas', 'ManagerController@notas')->name('notas');
-        Route::get('/pedidos', 'ManagerController@pedidos')->name('pedidos');
         Route::get('/promociones', 'ManagerController@promociones')->name('promociones');
         Route::get('/donaciones', 'ManagerController@donaciones')->name('donaciones');
     });
@@ -627,6 +617,12 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
         // REGISTRAR PAGO
         Route::get('/get_tipocliente/{tipo}', 'ActividadeController@get_tipocliente')->name('get_tipocliente');
     });
+
+    Route::name('pedidos.')->prefix('pedidos')->group(function () {
+        // REGISTRAR PAGO
+        Route::get('/cliente', 'PedidoController@cliente')->name('cliente');
+        Route::get('/proveedor', 'OrderController@proveedor')->name('proveedor');
+    });
 }); 
 
 Route::name('actividades.')->prefix('actividades')->group(function () {
@@ -670,8 +666,6 @@ Route::name('codes.')->prefix('codes')->group(function () {
 // ********** NO UTILIZADO **********
 //Llenar tabla de vendidos
 Route::put('vendidos_remision', 'RemisionController@registrar_vendidos')->name('vendidos_remision');
-// Guardar nuevo pedido
-Route::post('guardar_compra', 'CompraController@store')->name('guardar_compra');
 // CATEGORIES
 Route::name('categories.')->prefix('categories')->group(function () {
     Route::post('/store', 'CategorieController@store')->name('store');

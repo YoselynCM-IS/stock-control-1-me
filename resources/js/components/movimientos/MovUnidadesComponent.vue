@@ -491,12 +491,7 @@ import getLibros from './../../mixins/getLibros';
                 })
             },
             mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                    this.getLibros(this.queryTitulo);
-                } 
-                else{
-                    this.resultslibros = [];
-                }
+                this.getLibros(this.queryTitulo);
             },
             obtenerLibro(libro){
                 this.load = true;

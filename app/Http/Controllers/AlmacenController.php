@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use App\Promotion;
 use App\Remisione;
 use App\Entrada;
-use App\Compra;
 use App\Regalo;
 use App\Libro;
 use App\Note;

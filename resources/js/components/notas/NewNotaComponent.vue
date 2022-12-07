@@ -1047,9 +1047,7 @@ import getLibros from '../../mixins/getLibros';
             }, 
             // MOSTRAR COINCIDENCIAS DE LIBROS
             mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                    this.getLibros(this.queryTitulo);
-                } 
+                this.getLibros(this.queryTitulo);
             },
             // SELECCIONAR LIBRO
             datosLibro(libro){

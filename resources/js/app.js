@@ -66,7 +66,14 @@ Vue.component('upload-codes-component', require('./components/libros/codigos/Upl
 Vue.component('codes-component', require('./components/libros/codigos/CodesComponent.vue').default);
 
 // PEDIDOS
-Vue.component('pedidos-component', require('./components/pedidos/PedidosComponent.vue').default);
+Vue.component('pedido-school-component', require('./components/pedidos/PedidoSchoolComponent.vue').default);
+Vue.component('details-pedido-component', require('./components/pedidos/DetailsPedidoComponent').default);
+Vue.component('preparar-pedido-component', require('./components/pedidos/PrepararPedidoComponent').default);
+
+// ORDERS
+Vue.component('orders-component', require('./components/orders/OrdersComponent.vue').default);
+Vue.component('add-costos-order-component', require('./components/orders/AddCostosOrderComponent.vue').default);
+Vue.component('details-order-component', require('./components/orders/DetailsOrderComponent.vue').default);
 
 // CLIENTES
 Vue.component('clientes-component', require('./components/clientes/ClientesComponent.vue').default);
@@ -111,6 +118,8 @@ Vue.component('details-pagos-component', require('./components/cortes/pagos/Deta
 // FUNCIONES
 Vue.component('check-connection-component', require('./components/funciones/CheckConnectionComponent.vue').default);
 Vue.component('load-component', require('./components/funciones/LoadComponent.vue').default);
+Vue.component('no-registros-component', require('./components/funciones/NoRegistrosComponent.vue').default);
+
 
 // SALIDAS
 Vue.component('salidas-lista-component', require('./components/salidas/ListaComponent.vue').default);

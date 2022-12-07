@@ -13,7 +13,6 @@ use App\Promotion;
 use App\Remisione;
 use App\Entrada;
 use App\Cliente;
-use App\Compra;
 use App\Regalo;
 use App\Order;
 use App\Libro;

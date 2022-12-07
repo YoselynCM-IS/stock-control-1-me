@@ -605,11 +605,11 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
     );
 
     public static $classMap = array (
+        'App\\Actividade' => __DIR__ . '/../..' . '/app/Actividade.php',
         'App\\Cctotale' => __DIR__ . '/../..' . '/app/Cctotale.php',
         'App\\Cliente' => __DIR__ . '/../..' . '/app/Cliente.php',
         'App\\Code' => __DIR__ . '/../..' . '/app/Code.php',
         'App\\Comentario' => __DIR__ . '/../..' . '/app/Comentario.php',
-        'App\\Compra' => __DIR__ . '/../..' . '/app/Compra.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Corte' => __DIR__ . '/../..' . '/app/Corte.php',
         'App\\Custom\\Http\\Request' => __DIR__ . '/../..' . '/app/Custom/Http/Request.php',
@@ -627,7 +627,6 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Exports\\ClienteVendidosExport' => __DIR__ . '/../..' . '/app/Exports/ClienteVendidosExport.php',
         'App\\Exports\\ClientesExport' => __DIR__ . '/../..' . '/app/Exports/ClientesExport.php',
-        'App\\Exports\\ComprasExport' => __DIR__ . '/../..' . '/app/Exports/ComprasExport.php',
         'App\\Exports\\DonacionesExport' => __DIR__ . '/../..' . '/app/Exports/DonacionesExport.php',
         'App\\Exports\\EAccountExport' => __DIR__ . '/../..' . '/app/Exports/EAccountExport.php',
         'App\\Exports\\EditorialVendidosExport' => __DIR__ . '/../..' . '/app/Exports/EditorialVendidosExport.php',
@@ -668,7 +667,6 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Http\\Controllers\\CapturaController' => __DIR__ . '/../..' . '/app/Http/Controllers/CapturaController.php',
         'App\\Http\\Controllers\\ClienteController' => __DIR__ . '/../..' . '/app/Http/Controllers/ClienteController.php',
         'App\\Http\\Controllers\\CodeController' => __DIR__ . '/../..' . '/app/Http/Controllers/CodeController.php',
-        'App\\Http\\Controllers\\CompraController' => __DIR__ . '/../..' . '/app/Http/Controllers/CompraController.php',
         'App\\Http\\Controllers\\ContadorController' => __DIR__ . '/../..' . '/app/Http/Controllers/ContadorController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\CorteController' => __DIR__ . '/../..' . '/app/Http/Controllers/CorteController.php',
@@ -701,6 +699,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Order' => __DIR__ . '/../..' . '/app/Order.php',
         'App\\Payment' => __DIR__ . '/../..' . '/app/Payment.php',
         'App\\Pedido' => __DIR__ . '/../..' . '/app/Pedido.php',
+        'App\\Peticione' => __DIR__ . '/../..' . '/app/Peticione.php',
         'App\\Prodevolucione' => __DIR__ . '/../..' . '/app/Prodevolucione.php',
         'App\\Promotion' => __DIR__ . '/../..' . '/app/Promotion.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',

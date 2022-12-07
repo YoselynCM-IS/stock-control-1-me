@@ -107,9 +107,7 @@
                 });
             },
             mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                    this.getLibros(this.queryTitulo);
-                } else{ this.resultslibros = []; }
+                this.getLibros(this.queryTitulo);
             },
             obtenerLibro(libro){
                 axios.get('/administrador/detallesULibro', {params: {libro_id: libro.id}}).then(response => {

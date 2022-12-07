@@ -3,22 +3,30 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Compra;
-use App\Libro;
+use App\Peticione;
+use App\Cliente;
+Use App\User;
 
 class Pedido extends Model
 {
-    protected $fillable = ['compra_id', 'libro_id', 'costo_unitario', 'unidades', 'total'];
+    protected $fillable = [
+        'user_id',
+        'cliente_id', 
+        'total_quantity',
+        'total_solicitar',
+        'estado',
+        'comentarios'
+    ];
 
-    //Uno a muchos (Inversa)
-    //Un pedido solo puede pertenecer a una compra
-    public function compra(){
-        return $this->belongsTo(Compra::class);
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 
-    //Uno a muchos (Inversa)
-    //Un pedido solo puede tener un libro
-    public function libro(){
-        return $this->belongsTo(Libro::class);
+    public function cliente(){
+        return $this->belongsTo(Cliente::class);
+    }
+
+    public function peticiones(){
+        return $this->hasMany(Peticione::class);
     }
 }

@@ -31,7 +31,7 @@
                     </template>
                 </template>
             </b-table>
-            <no-registros-componente v-else></no-registros-componente>  
+            <no-registros-component v-else></no-registros-component>  
         </div>
         <load-component v-else></load-component>
     </div>
@@ -40,11 +40,10 @@
 <script>
 import setTipoAct from '../../../mixins/setTipoAct';
 import LoadComponent from '../../cortes/partials/LoadComponent.vue';
-import NoRegistrosComponente from '../../funciones/NoRegistrosComponente.vue';
 export default {
     props: ['actividades', 'tipo', 'load', 'misActs', 'estado'],
     mixins: [setTipoAct],
-    components: {LoadComponent, NoRegistrosComponente},
+    components: {LoadComponent},
     data(){
         return {
             fields: [

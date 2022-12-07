@@ -482,12 +482,7 @@
             },
             // MOSTRAR LIBROS POR COINCIDENCIA
             mostrarLibros(){
-                if(this.queryTitulo.length > 0){
-                    this.getLibros(this.queryTitulo);
-                } 
-                else{
-                    this.resultslibros = [];
-                }
+                this.getLibros(this.queryTitulo);
             },
             // ASIGNAR DATOS DE LIBRO SELECCIONADO
             datosLibro(libro){

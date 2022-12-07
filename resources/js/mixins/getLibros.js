@@ -1,14 +1,29 @@
 export default {
     data(){
         return {
-            resultslibros: []
+            resultslibros: [],
+            queryISBN: null,
+            resultsISBNs: []
         }
     },
     methods: {
         getLibros(titulo){
-            axios.get('/mostrarLibros', {params: {queryTitulo: titulo}}).then(response => {
-                this.resultslibros = response.data;
-            }).catch(error => { });
+            if(titulo.length > 0){
+                axios.get('/mostrarLibros', {params: {queryTitulo: titulo}}).then(response => {
+                    this.resultslibros = response.data;
+                }).catch(error => { });
+            } else{
+                this.resultslibros = [];
+            }
+        },
+        buscarISBN(){
+            if(this.queryISBN.length > 0){
+                axios.get('/buscarISBN', {params: {isbn: this.queryISBN}}).then(response => {
+                    this.resultsISBNs = response.data;
+                }).catch(error => { });
+            } else{
+                this.resultsISBNs = [];
+            }
         }
     },
 }

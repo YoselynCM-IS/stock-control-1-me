@@ -8,7 +8,6 @@ use App\Remisione;
 use App\Promotion;
 use App\Entrada;
 use App\Cliente;
-use App\Compra;
 use App\Libro;
 use App\Regalo;
 use App\Remcliente;

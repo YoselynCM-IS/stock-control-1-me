@@ -1,0 +1,111 @@
+<template>
+    <div>
+        <div v-if="!openPedido">
+            <b-row>
+                <b-col>
+                    <!-- PAGINACIÓN -->
+                    <pagination size="default" :limit="1" :data="pedidos" 
+                        @pagination-change-page="getResults">
+                        <span slot="prev-nav"><i class="fa fa-angle-left"></i></span>
+                        <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
+                    </pagination>
+                </b-col>
+                <b-col sm="2" class="text-right">
+                    <b-button variant="success" pill @click="newPedido()" 
+                        :disabled="load">
+                        <i class="fa fa-plus-circle"></i> Nuevo pedido
+                    </b-button>
+                </b-col>
+            </b-row>
+            <div v-if="!load">
+                <b-table v-if="pedidos.data.length"
+                    class="mt-2" :items="pedidos.data" :fields="fields"
+                    :tbody-tr-class="rowClass">
+                    <template v-slot:cell(index)="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template v-slot:cell(estado)="row">
+                        <estado-pedido :id="row.item.id" :comentarios="row.item.comentarios" :estado="row.item.estado"></estado-pedido>
+                    </template>
+                    <template v-slot:cell(details)="row">
+                        <b-button :href="`/pedido/show/${row.item.id}`" 
+                            target="blank" variant="info" pill size="sm">
+                            <i class="fa fa-info-circle"></i>
+                        </b-button>
+                    </template>
+                </b-table>
+                <no-registros-component v-else></no-registros-component>
+            </div>
+            <load-component v-else></load-component>
+        </div>
+        <div v-if="openPedido">
+            <b-row>
+                <b-col sm="10">
+                    <h4><b>Nuevo pedido</b></h4>
+                </b-col>
+                <b-col>
+                    <b-button pill block variant="secondary" @click="openPedido = false" 
+                        :disabled="load">
+                        <i class="fa fa-reply"></i> Volver
+                    </b-button>
+                </b-col>
+            </b-row><hr>
+            <new-pedido-component></new-pedido-component>
+        </div>
+    </div>
+</template>
+
+<script>
+import NewPedidoComponent from './NewPedidoComponent.vue';
+import EstadoPedido from './partials/EstadoPedido.vue';
+export default {
+  components: { NewPedidoComponent, EstadoPedido },
+    data(){
+        return {
+            load: false,
+            openPedido: false,
+            pedidos: {},
+            fields: [
+                {key: 'index', label: 'N.'},
+                {key: 'cliente.name', label: 'Cliente'},
+                {key: 'total_quantity', label: 'Unidades'},
+                {key: 'user.name', label: 'Creado por'},
+                {key: 'created_at', label: 'Creado el'},
+                {key: 'details', label: 'Detalles'},
+                {key: 'estado', label: 'Estado'}
+            ]
+        }
+    },
+    created: function(){
+        this.getResults();
+    },
+    methods: {
+        getResults(page = 1){
+            this.http_pedidos(page);
+        },
+        http_pedidos(page = 1){
+            this.load = true;
+            axios.get(`/pedido/index?page=${page}`).then(response => {
+                this.pedidos = response.data;
+                this.load = false;
+            }).catch(error => {
+                this.load = true;
+            });
+        },
+        newPedido(){
+            // this.editar = false;
+            this.openPedido = true;
+        },
+        rowClass(item, type){
+            if (!item) return
+            if (item.estado == 'cancelado') return 'table-danger';
+            if (item.estado == 'de inventario') return 'table-success';
+            if (item.estado == 'en orden') return 'table-primary';
+        },
+    }
+}
+</script>
+
+<style>
+
+</style>

@@ -4,11 +4,14 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Element;
+use App\Pedido;
 
 class Order extends Model
 {
     protected $fillable = [
         'id',
+        'pedido_id',
+        'cliente_id',
         'identifier', 
         'date',
         'provider',
@@ -22,5 +25,9 @@ class Order extends Model
 
     public function elements(){
         return $this->hasMany(Element::class);
+    }
+
+    public function pedido(){
+        return $this->belongsTo(Pedido::class);
     }
 }

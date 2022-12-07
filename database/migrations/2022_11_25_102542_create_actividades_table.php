@@ -13,18 +13,18 @@ class CreateActividadesTable extends Migration
      */
     public function up()
     {
-        Schema::create('actividades', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->unsignedBigInteger('cliente_id');
-            $table->foreign('cliente_id')->references('id')->on('clientes');
-            $table->enum('tipo', ['cita', 'recordatorio', 'anotacion']);
-            $table->text('descripcion');
-            $table->enum('estado', ['pendiente', 'completado']);
-            $table->date('fecha_recordatorio');
-            $table->timestamps();
-        });
+        // Schema::create('actividades', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('user_id');
+        //     $table->foreign('user_id')->references('id')->on('users');
+        //     $table->unsignedBigInteger('cliente_id');
+        //     $table->foreign('cliente_id')->references('id')->on('clientes');
+        //     $table->enum('tipo', ['cita', 'recordatorio', 'anotacion']);
+        //     $table->text('descripcion');
+        //     $table->enum('estado', ['pendiente', 'completado']);
+        //     $table->date('fecha_recordatorio');
+        //     $table->timestamps();
+        // });
     }
 
     /**
