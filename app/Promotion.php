@@ -10,6 +10,7 @@ class Promotion extends Model
 {
     protected $fillable = [
         'id', 
+        'cliente_id',
         'folio',
         'plantel',
         'descripcion', 

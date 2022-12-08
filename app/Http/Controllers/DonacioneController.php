@@ -27,6 +27,7 @@ class DonacioneController extends Controller
         \DB::beginTransaction();
         try{
             $regalo = Regalo::create([
+                'cliente_id' => $request->cliente_id,
                 'plantel' => strtoupper($request->plantel),
                 'descripcion' => strtoupper($request->descripcion),
                 'unidades' => (int) $request->unidades,

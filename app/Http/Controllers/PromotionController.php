@@ -70,6 +70,7 @@ class PromotionController extends Controller
                 $folio = 'A-P'.$num;
             }
             $promotion = Promotion::create([
+                'cliente_id' => $request->cliente_id,
                 'folio' => $folio,
                 'plantel' => strtoupper($request->plantel),
                 'descripcion' => strtoupper($request->descripcion),

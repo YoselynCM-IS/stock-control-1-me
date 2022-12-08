@@ -9,6 +9,7 @@ class Regalo extends Model
 {
     protected $fillable = [
         'id', 
+        'cliente_id',
         'plantel',
         'descripcion', 
         'unidades',  

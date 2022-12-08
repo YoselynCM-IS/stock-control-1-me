@@ -175,9 +175,17 @@
             </b-row>
             <hr>
             <b-row class="col-md-10">
-                <b-col sm="2"><label><b>Plantel</b>: <b id="txtObligatorio">*</b></label></b-col>
+                <b-col sm="2"><label><b>Cliente</b>: <b id="txtObligatorio">*</b></label></b-col>
                 <b-col>
-                    <b-input style="text-transform:uppercase;" type="text" autofocus v-model="regalo.plantel" :state="state"></b-input>
+                    <b-input v-model="queryCliente" @keyup="mostrarClientes()" autofocus
+                        style="text-transform:uppercase;" :disabled="load" required :state="state">
+                    </b-input>
+                    <div class="list-group" v-if="clientes.length" id="listP">
+                        <a href="#" v-bind:key="i" class="list-group-item list-group-item-action" 
+                            v-for="(cliente, i) in clientes" @click="selectCliente(cliente)">
+                            {{ cliente.name }}
+                        </a>
+                    </div>
                 </b-col>
             </b-row>
             <b-row class="col-md-10">
@@ -309,9 +317,10 @@
 <script>
 import setResponsables from '../../mixins/setResponsables'
 import getLibros from '../../mixins/getLibros';
+import searchCliente from '../../mixins/searchCliente';
     export default {
         props: ['role_id'],
-        mixins: [setResponsables,getLibros],
+        mixins: [setResponsables,getLibros,searchCliente],
         data() {
             return {
                 regalosData: {},
@@ -348,6 +357,7 @@ import getLibros from '../../mixins/getLibros';
                 },
                 regalo: {
                     id: null,
+                    cliente_id: null,
                     plantel: '',
                     descripcion: '',
                     unidades: 0,
@@ -509,6 +519,7 @@ import getLibros from '../../mixins/getLibros';
                 this.eliminarTemporal();
                 this.regalo = {
                     id: null,
+                    cliente_id: null,
                     plantel: '',
                     descripcion: '',
                     unidades: 0,
@@ -539,7 +550,7 @@ import getLibros from '../../mixins/getLibros';
             },
             // MODAL PARA CONFIRMAR LA DONACION
             confirmarDonacion(){
-                if(this.regalo.plantel.length > 4){
+                if(this.queryCliente.length > 4){
                     this.state = true;
                     if(this.regalo.donaciones.length > 0){
                         this.$refs['modal-confirmar-regalo'].show();
@@ -549,12 +560,12 @@ import getLibros from '../../mixins/getLibros';
                 }
                 else{
                     this.state = false;
-                    this.makeToast('warning', 'Campo obligatorio, mayor a 4 caracteres.');
+                    this.makeToast('warning', 'Campo obligatorio, elegir cliente.');
                 }
             },
             // GUARDAR LA DONACION
             guardarDonacion(){
-                if(this.regalo.plantel.length > 4){
+                if(this.queryCliente.length > 4){
                     this.state = true;
                     this.load = true;
                     axios.post('/donaciones/store', this.regalo).then(response => {
@@ -573,7 +584,7 @@ import getLibros from '../../mixins/getLibros';
                 }
                 else{
                     this.state = false;
-                    this.makeToast('warning', 'Campo obligatorio, mayor a 4 caracteres.');
+                    this.makeToast('warning', 'Campo obligatorio, elegir cliente.');
                 }
             },
             // ELIMINAR REGISTRO DEL ARRAY
@@ -681,6 +692,12 @@ import getLibros from '../../mixins/getLibros';
                     variant: variant,
                     solid: true
                 })
+            },
+            selectCliente(cliente){
+                this.queryCliente = cliente.name;
+                this.regalo.cliente_id = cliente.id;
+                this.regalo.plantel = cliente.name;
+                this.clientes = [];
             }
         }
     }

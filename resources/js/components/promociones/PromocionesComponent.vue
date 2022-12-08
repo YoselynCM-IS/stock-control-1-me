@@ -211,9 +211,17 @@
             <b-row>
                 <b-col>
                     <b-row>
-                        <b-col sm="3"><label><b>Plantel</b>: <b id="txtObligatorio">*</b></label></b-col>
+                        <b-col sm="3"><label><b>Cliente</b>: <b id="txtObligatorio">*</b></label></b-col>
                         <b-col>
-                            <b-input style="text-transform:uppercase;" type="text" autofocus v-model="promocion.plantel" :state="state"></b-input>
+                            <b-input v-model="queryCliente" @keyup="mostrarClientes()" autofocus
+                                style="text-transform:uppercase;" :disabled="load" required :state="state">
+                            </b-input>
+                            <div class="list-group" v-if="clientes.length" id="listP">
+                                <a href="#" v-bind:key="i" class="list-group-item list-group-item-action" 
+                                    v-for="(cliente, i) in clientes" @click="selectCliente(cliente)">
+                                    {{ cliente.name }}
+                                </a>
+                            </div>
                         </b-col>
                     </b-row>
                     <b-row>
@@ -437,9 +445,10 @@
 <script>
 import setResponsables from '../../mixins/setResponsables';
 import getLibros from '../../mixins/getLibros';
+import searchCliente from '../../mixins/searchCliente';
     export default {
         props: ['role_id'],
-        mixins: [setResponsables,getLibros],
+        mixins: [setResponsables,getLibros,searchCliente],
         data() {
             return {
                 listadoPromociones: true,
@@ -490,6 +499,7 @@ import getLibros from '../../mixins/getLibros';
                 promocion: {
                     id: null,
                     folio: '',
+                    cliente_id: null,
                     plantel: '',
                     descripcion: '',
                     unidades: 0,
@@ -636,6 +646,7 @@ import getLibros from '../../mixins/getLibros';
                     this.eliminarTemporal();
                     this.promocion = {
                         id: null,
+                        cliente_id: null,
                         folio: '',
                         plantel: '',
                         descripcion: '',
@@ -667,7 +678,7 @@ import getLibros from '../../mixins/getLibros';
             },
             // MODAL PARA CONFIRMAR LA PROMOCIÓN
             confirmarPromocion(){
-                if(this.promocion.plantel.length > 3){
+                if(this.queryCliente.length > 3){
                     this.state = true;
                     if(this.promocion.entregado_por !== null){
                         this.stateResp = true;
@@ -683,12 +694,12 @@ import getLibros from '../../mixins/getLibros';
                 }
                 else{
                     this.state = false;
-                    this.makeToast('warning', 'Campo obligatorio, mayor a 4 caracteres.');
+                    this.makeToast('warning', 'Campo obligatorio, elegir cliente.');
                 }
             },
             // GUARDAR LA PROMOCIÓN
             guardarPromocion(){
-                if(this.promocion.plantel.length > 3){
+                if(this.queryCliente.length > 3){
                     this.state = true;
                     if(this.promocion.entregado_por !== null){
                         this.stateResp = true;
@@ -714,7 +725,7 @@ import getLibros from '../../mixins/getLibros';
                 }
                 else{
                     this.state = false;
-                    this.makeToast('warning', 'Campo obligatorio, mayor a 4 caracteres.');
+                    this.makeToast('warning', 'Campo obligatorio, elegir cliente.');
                 }
             },
             // ELIMINAR REGISTRO DEL ARRAY
@@ -911,6 +922,12 @@ import getLibros from '../../mixins/getLibros';
                     this.load = false;
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
+            },
+            selectCliente(cliente){
+                this.queryCliente = cliente.name;
+                this.promocion.cliente_id = cliente.id;
+                this.promocion.plantel = cliente.name;
+                this.clientes = [];
             }
         }
     }
