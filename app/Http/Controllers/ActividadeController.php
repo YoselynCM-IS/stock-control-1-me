@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Actividade;
 use App\Cliente;
+use App\Reporte;
 
 class ActividadeController extends Controller
 {
@@ -26,24 +27,32 @@ class ActividadeController extends Controller
             if($cliente_id == null){
                 $cliente = Cliente::create([
                     'tipo' => 'PROSPECTO',
-                    'name' => $request->prospecto['name'],
-                    'contacto' => $request->prospecto['contacto'],
+                    'name' => strtoupper($request->prospecto['name']),
+                    'contacto' => strtoupper($request->prospecto['contacto']),
                     'email' => $request->prospecto['email'],
                     'telefono' => $request->prospecto['telefono'],
                     'estado_id' => $request->prospecto['estado_id'],
                     'user_id' => $request->prospecto['user_id']
                 ]);
                 $cliente_id = $cliente->id;
+
+                $reporte = 'creo al '.$cliente->tipo.' '.$cliente->name;
+                $this->create_report($cliente_id, $reporte, 'clientes');
             }
             
+            $tipo = $request->tipo;
+            $descripcion = $request->descripcion;
             $actividad = Actividade::create([
                 'user_id' => auth()->user()->id, 
                 'cliente_id' => $cliente_id, 
-                'tipo' => $request->tipo, 
-                'descripcion' => $request->descripcion, 
+                'tipo' => $tipo, 
+                'descripcion' => $descripcion, 
                 'estado' => 'pendiente', 
                 'fecha_recordatorio' => $request->fecha_recordatorio
             ]);
+
+            $reporte = 'creo la actividad '.$actividad->tipo.': '.$actividad->descripcion.' para '.$actividad->cliente->name;
+            $this->create_report($actividad->id, $reporte, 'actividades');
 
             \DB::commit();
         } catch (Exception $e) {
@@ -78,6 +87,9 @@ class ActividadeController extends Controller
             $actividades->map(function($actividad) use (&$prueba){
                 Actividade::whereId($actividad['id'])
                                 ->update(['estado' => 'completado']);
+
+                $reporte = 'marco como completado la actividad '.$actividad['tipo'].': '.$actividad['descripcion'].' para '.$actividad['cliente_name'];
+                $this->create_report($actividad['id'], $reporte, 'actividades');
             });
             \DB::commit();
         } catch (Exception $e) {
@@ -104,5 +116,15 @@ class ActividadeController extends Controller
                     ->where('actividades.tipo', $request->tipo)
                     ->where('actividades.estado', $request->estado)
                     ->orderBy('actividades.created_at', 'desc');
+    }
+
+    public function create_report($id_table, $reporte, $name_table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'cliente', 
+            'reporte' => $reporte,
+            'name_table' => $name_table,
+            'id_table' => $id_table
+        ]);
     }
 }

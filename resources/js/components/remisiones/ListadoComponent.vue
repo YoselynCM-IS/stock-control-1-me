@@ -216,7 +216,7 @@
     import rowClass from '../../mixins/rowClass';
     moment.locale('es');
     export default {
-        props: ['role_id', 'listresponsables'],
+        props: ['role_id'],
         mixins: [formatNumber,rowClass],
         data() {
             return {

@@ -113,7 +113,7 @@ import DatosParte2 from './partials/DatosParte2.vue';
                 loaded: false,
                 tipos: [
                     { value: null, text: 'Selecciona una opción', disabled: true},
-                    { value: 'PLANTEL', text: 'PLANTEL' },
+                    { value: 'CLIENTE', text: 'CLIENTE' },
                     { value: 'DISTRIBUIDOR', text: 'DISTRIBUIDOR' }
                 ]
             }

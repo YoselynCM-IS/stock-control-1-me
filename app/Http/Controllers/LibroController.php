@@ -24,6 +24,7 @@ use App\Note;
 use App\Promotion;
 use App\Regalo;
 use App\Entdevolucione;
+use App\Reporte;
 use App\Mail\movimientos\LibrosDay;
 use Illuminate\Support\Facades\Mail;
 
@@ -223,6 +224,9 @@ class LibroController extends Controller
                     ->insert($datos);
             }
 
+            $reporte = 'creo el libro '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo.' de '.$libro->editorial;
+            $this->create_report($libro->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -247,7 +251,8 @@ class LibroController extends Controller
     public function update(Request $request){
         $editorial = $request->editorial;
         $libro = Libro::whereId($request->id)->first();
-        
+        $libro_anterior = $libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
+            
         if($editorial == 'MAJESTIC EDUCATION'){
             $me_libro = \DB::connection('majesticeducation')->table('libros')
                             ->where('titulo', $libro->titulo)
@@ -291,6 +296,10 @@ class LibroController extends Controller
                                 ->update($datos);
             }
 
+            $libro_nuevo = $libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
+            $reporte = 'edito el libro '.$libro_anterior.' a '.$libro_nuevo;
+            $this->create_report($libro->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -308,6 +317,10 @@ class LibroController extends Controller
                 'defectuosos' => $libro->defectuosos + $defectuosos,
                 'piezas' => $libro->piezas - $defectuosos
             ]);
+
+            $reporte = 'registro la salida (libros defectuosos) de '.$defectuosos.' unidades - '.$libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
+            $this->create_report($libro->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -949,9 +962,14 @@ class LibroController extends Controller
     public function inactivar(Request $request){
         \DB::beginTransaction();
         try {
-            Libro::whereId($request->libro_id)->update([
+            $libro = Libro::find($request->libro_id);
+            $libro->update([
                 'estado' => 'inactivo'
             ]);
+
+            $reporte = 'desactivo el libro '.$libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
+            $this->create_report($libro->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -1225,5 +1243,27 @@ class LibroController extends Controller
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->get();
         return response()->json($libros);
+    }
+
+    public function by_titulo_nu(Request $request){
+        $cliente_libro = \DB::table('cliente_libro')
+                    ->where('cliente_id', $request->cliente_id)->pluck('libro_id');
+        $libros = \DB::table('libros')
+                    ->select('id', 'type', 'ISBN', 'titulo', 'editorial', 'piezas', 'defectuosos')
+                    ->whereNotIn('id', $cliente_libro)
+                    ->where('titulo','like','%'.$request->queryTitulo.'%')
+                    ->where('estado', 'activo')
+                    ->orderBy('titulo', 'asc')->get();
+        return response()->json($libros);
+    }
+
+    public function create_report($libro_id, $reporte){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'libro', 
+            'reporte' => $reporte,
+            'name_table' => 'libros', 
+            'id_table' => $libro_id
+        ]);
     }
 }

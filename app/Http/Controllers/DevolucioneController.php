@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use App\Remisione;
 use App\Cctotale;
 use App\Vendido;
+use App\Reporte;
 use App\Cliente;
 use App\Libro;
 use App\Fecha;
@@ -30,17 +31,17 @@ class DevolucioneController extends Controller
             $total_devolucion = 0;
             
             // DEVOLUCIONES
-            $lista_fechas = [];
             $devoluciones = collect($request->devoluciones);
             $hoy = Carbon::now();
-            $devoluciones->map(function($devolucion) use(&$lista_fechas, $remision, $entregado_por, &$total_devolucion, $hoy){
+            $devoluciones->map(function($devolucion) use($remision, $entregado_por, &$total_devolucion, $hoy){
                 $unidades_base = $devolucion['unidades_base'];
                 $total_base = $devolucion['total_base'];
 
                 if($unidades_base != 0){
                     // Buscar devolución
                     $d = Devolucione::find($devolucion['id']);
-                    $lista_fechas[] = [
+                    // Crear registros de fecha de la devolución
+                    $fecha = Fecha::create([
                         'remisione_id' => $remision->id,
                         'fecha_devolucion' => $hoy->format('Y-m-d'),
                         'libro_id' => $d->libro->id,
@@ -50,7 +51,10 @@ class DevolucioneController extends Controller
                         'creado_por' => auth()->user()->name,
                         'created_at' => $hoy,
                         'updated_at' => $hoy
-                    ];
+                    ]);
+
+                    $reporte = 'registro la devolución (remision) de '.$unidades_base.' unidades - '.$d->libro->editorial.': '.$d->libro->type.' '.$d->libro->ISBN.' / '.$d->libro->titulo.' para '.$d->remisione_id.' / '.$d->remisione->cliente->name;
+                    $this->create_report($fecha->id, $reporte, 'libro', 'fechas');
                     
                     $unidades = $d->unidades + $unidades_base;
                     $total = $d->total + $total_base;
@@ -81,9 +85,6 @@ class DevolucioneController extends Controller
 
                 $total_devolucion += $total_base;
             });
-
-            // Crear registros de fecha de la devolución
-            Fecha::insert($lista_fechas);
             
             $total_pagar = $remision->total_pagar - $total_devolucion;
             $t_devolucion = $remision->total_devolucion + $total_devolucion;
@@ -115,6 +116,9 @@ class DevolucioneController extends Controller
                 'total_pagar' => $remcliente->total_pagar - $total_devolucion
             ]);
 
+            $reporte = 'registro la devolución de la remisión '.$remision->id.' de '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'fechas');
+
             \DB::commit();
 
         } catch (Exception $e) {
@@ -123,6 +127,16 @@ class DevolucioneController extends Controller
         }
         return response()->json($remision);
     } 
+
+    public function create_report($id_table, $reporte, $type, $name_table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => $type, 
+            'reporte' => $reporte,
+            'name_table' => $name_table, 
+            'id_table' => $id_table
+        ]);
+    }
 
     // ACTUALIZAR LAS UNIDADES RESTANTES DE LAS REMISIONES
     // SOLO SI EN LA REMISIÓN SE REALIZO UN DEPOSITO

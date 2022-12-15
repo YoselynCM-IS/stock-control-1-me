@@ -46,7 +46,7 @@
                     <b-collapse id="collapse-1" v-model="corte.visible" class="mt-2">
                         <b-tabs content-class="mt-3" fill>
                             <b-tab title="Remisiones" active>
-                                <table-remisiones :remisiones="corte.remisiones" :showTitle="false"></table-remisiones>
+                                <table-remisiones :remisiones="corte.remisiones" :showTitle="false" :role_id="role_id"></table-remisiones>
                             </b-tab>
                             <b-tab title="Pagos">
                                 <table-pagos :cortePagar="corte.total_pagar"

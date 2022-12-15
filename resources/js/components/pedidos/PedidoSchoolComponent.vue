@@ -11,7 +11,8 @@
                     </pagination>
                 </b-col>
                 <b-col sm="2" class="text-right">
-                    <b-button variant="success" pill @click="newPedido()" 
+                    <b-button v-if="role_id == 6 || role_id == 7"
+                        variant="success" pill @click="newPedido()" 
                         :disabled="load">
                         <i class="fa fa-plus-circle"></i> Nuevo pedido
                     </b-button>
@@ -59,6 +60,7 @@
 import NewPedidoComponent from './NewPedidoComponent.vue';
 import EstadoPedido from './partials/EstadoPedido.vue';
 export default {
+    props: ['role_id'],
   components: { NewPedidoComponent, EstadoPedido },
     data(){
         return {

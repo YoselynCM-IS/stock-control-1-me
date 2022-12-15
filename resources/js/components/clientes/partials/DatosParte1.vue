@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row class="my-1">
-            <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Plantel':'Distribuidor'}}</b-col>
+            <b-col align="right">{{(form.tipo == null || form.tipo == 'CLIENTE') ? 'Plantel':'Distribuidor'}}</b-col>
             <div class="col-md-9">
                 <b-form-input 
                     id="input-name"
@@ -14,7 +14,7 @@
             </div>
         </b-row>
         <b-row class="my-1">
-            <b-col align="right">{{(form.tipo == null || form.tipo == 'PLANTEL') ? 'Coordinador':'Comunicarse con'}}</b-col>
+            <b-col align="right">{{(form.tipo == null || form.tipo == 'CLIENTE') ? 'Coordinador':'Comunicarse con'}}</b-col>
             <div class="col-md-9">
                 <b-form-input 
                     id="input-name"

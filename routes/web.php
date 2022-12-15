@@ -444,6 +444,8 @@ Route::name('libro.')->prefix('libro')->group(function () {
     Route::get('/by_editorial_type_isbn', 'LibroController@by_editorial_type_isbn')->name('by_editorial_type_isbn');
     // Buscar libros por tipo
     Route::get('/by_type', 'LibroController@by_type')->name('by_type');
+    // Buscar por titulo, no utilizados en la lista de los clientes
+    Route::get('/by_titulo_nu', 'LibroController@by_titulo_nu')->name('by_titulo_nu');
 });
 
 // PAGOS
@@ -525,7 +527,7 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
 
 // MANAGER
 Route::name('manager.')->prefix('manager')
-    ->middleware(['auth', 'role:manager'])->group(function () {
+    ->middleware(['auth', 'role:Manager'])->group(function () {
     Route::name('cortes.')->prefix('cortes')->group(function () {
         Route::get('/lista', 'ManagerController@lista_cortes')->name('lista');
         Route::get('/pagos', 'ManagerController@cortes_pagos')->name('pagos');
@@ -622,6 +624,16 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
         // REGISTRAR PAGO
         Route::get('/cliente', 'PedidoController@cliente')->name('cliente');
         Route::get('/proveedor', 'OrderController@proveedor')->name('proveedor');
+    });
+    
+    Route::name('clientes.')->prefix('clientes')->group(function () {
+        // REGISTRAR PAGO
+        Route::get('/lista', 'ClienteController@lista')->name('lista');
+    });
+
+    Route::name('remisiones.')->prefix('remisiones')->group(function () {
+        // REGISTRAR PAGO
+        Route::get('/lista', 'RemisionController@lista')->name('lista');
     });
 }); 
 

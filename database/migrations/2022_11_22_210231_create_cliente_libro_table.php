@@ -13,15 +13,15 @@ class CreateClienteLibroTable extends Migration
      */
     public function up()
     {
-        // Schema::create('cliente_libro', function (Blueprint $table) {
-        //     $table->bigIncrements('id');
-        //     $table->unsignedBigInteger('cliente_id');
-        //     $table->foreign('cliente_id')->references('id')->on('clientes');
-        //     $table->unsignedBigInteger('libro_id')->nullable();
-        //     $table->foreign('libro_id')->references('id')->on('libros');
-        //     $table->float('costo_unitario', 8, 2);
-        //     $table->timestamps();
-        // });
+        Schema::create('cliente_libro', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->unsignedBigInteger('cliente_id');
+            $table->foreign('cliente_id')->references('id')->on('clientes');
+            $table->unsignedBigInteger('libro_id')->nullable();
+            $table->foreign('libro_id')->references('id')->on('libros');
+            $table->float('costo_unitario', 8, 2);
+            $table->timestamps();
+        });
     }
 
     /**

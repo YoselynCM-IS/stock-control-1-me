@@ -11,6 +11,7 @@ use App\Remcliente;
 use App\Remisione;
 use App\Deposito;
 use App\Cctotale;
+use App\Reporte;
 use App\Corte;
 use App\Foto;
 
@@ -367,8 +368,7 @@ class CorteController extends Controller
             \DB::beginTransaction();
 
             $monto = (float) $request->pago;
-            
-            Remdeposito::create([
+            $remdeposito = Remdeposito::create([
                 'remcliente_id' => $remcliente->id,
                 'corte_id' => $corte_id,
                 'pago' => $monto,
@@ -388,6 +388,9 @@ class CorteController extends Controller
             if((float) $total_pagar <= 0){
                 $this->cerrar_remisiones($cliente_id, $corte_id);
             }
+
+            $reporte = 'registro un pago del cliente '.$remcliente->cliente->name.' PAGO: '.$remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota;
+            $this->create_report($remdeposito->id, $reporte, 'remdepositos');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -475,6 +478,12 @@ class CorteController extends Controller
             ]);
 
             $remision->update([ 'corte_id' => $corte_id ]);
+
+            $corte_anterior = 'Temporada '.$anterior->corte->tipo.' '.$anterior->corte->inicio.' - '.$anterior->corte->final;
+            $corte_nuevo = 'Temporada '.$nuevo->corte->tipo.' '.$nuevo->corte->inicio.' - '.$nuevo->corte->final;
+            $reporte = 'movió la remisión '.$corte_anterior.': '.$remision->id.' / '.$remision->cliente->name.' a '.$corte_nuevo;
+            $this->create_report($nuevo->id, $reporte, 'cctotales');            
+
             return response()->json(true);
         }
         return response()->json(false);
@@ -483,6 +492,7 @@ class CorteController extends Controller
     // MOVER PAGO
     public function move_pago(Request $request){
         $remdeposito = Remdeposito::find($request->pago_id);
+        $corte_anterior = 'Temporada '.$remdeposito->corte->tipo.' '.$remdeposito->corte->inicio.' - '.$remdeposito->corte->final;
         $pago = $remdeposito->pago;
         $corte_id = (int)$request->corte_id;
         $cliente_id = (int)$request->cliente_id;
@@ -497,6 +507,12 @@ class CorteController extends Controller
 
             $this->validate_favor($corte_id, $cliente_id, $corte_id_favor, $pago);
             $remdeposito->update([ 'corte_id' => $corte_id ]);
+
+            
+            $corte_nuevo = 'Temporada '.$remdeposito->corte->tipo.' '.$remdeposito->corte->inicio.' - '.$remdeposito->corte->final;
+            $reporte = 'movió el pago del cliente '.$remdeposito->remcliente->cliente->name.': '.$corte_anterior.' -- '.$remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota.' a '.$corte_nuevo;
+            $this->create_report($remdeposito->id, $reporte, 'remdepositos');
+
             return response()->json(true);
         }
         return response()->json(false);
@@ -507,6 +523,7 @@ class CorteController extends Controller
         $remdeposito = Remdeposito::find($request->id);
         $remcliente = Remcliente::find($remdeposito->remcliente_id);
 
+        $pago_anterior = $remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota;
         $pago = (float) $request->pago;
         $cliente_id = $remcliente->cliente_id;
         $corte_id = $remdeposito->corte_id;
@@ -540,6 +557,10 @@ class CorteController extends Controller
             if((float) $cctotale->total_pagar == 0){
                 $this->cerrar_remisiones($cliente_id, $corte_id);
             }
+
+            $pago_nuevo = $remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota;
+            $reporte = 'edito el pago del cliente '.$remcliente->cliente->name.': '.$pago_anterior.' a '.$pago_nuevo;
+            $this->create_report($remdeposito->id, $reporte, 'remdepositos');
         \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -569,6 +590,9 @@ class CorteController extends Controller
                 'total_pagos' => $remcliente->total_pagos - $remdeposito->pago,
                 'total_pagar' => $remcliente->total_pagar + $remdeposito->pago
             ]);
+
+            $reporte = 'elimino un pago del cliente '.$remcliente->cliente->name.' PAGO: '.$remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota;
+            $this->create_report($remdeposito->id, $reporte, 'remdepositos');
 
             // REMDEPOSITO
             $remdeposito->delete();
@@ -617,10 +641,23 @@ class CorteController extends Controller
                 'public_url' => $response['url'],
                 'creado_por' => auth()->user()->name
             ]);
+
+            $reporte = 'subió un comprobante de pago del cliente '.$remdeposito->remcliente->cliente->name.' PAGO: '.$remdeposito->fecha.' / $'.$remdeposito->pago.' / '.$remdeposito->nota;
+            $this->create_report($remdeposito->id, $reporte, 'remdepositos');
             \DB::commit();
         }  catch (Exception $e) {
             \DB::rollBack();
         }
         return response()->json($foto);
+    }
+
+    public function create_report($remdeposito_id, $reporte, $tabla){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'cliente', 
+            'reporte' => $reporte,
+            'name_table' => $tabla, 
+            'id_table' => $remdeposito_id
+        ]);
     }
 }

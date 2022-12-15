@@ -677,6 +677,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Http\\Controllers\\ManagerController' => __DIR__ . '/../..' . '/app/Http/Controllers/ManagerController.php',
         'App\\Http\\Controllers\\NoteController' => __DIR__ . '/../..' . '/app/Http/Controllers/NoteController.php',
         'App\\Http\\Controllers\\OficinaController' => __DIR__ . '/../..' . '/app/Http/Controllers/OficinaController.php',
+        'App\\Http\\Controllers\\OrderController' => __DIR__ . '/../..' . '/app/Http/Controllers/OrderController.php',
         'App\\Http\\Controllers\\PagoController' => __DIR__ . '/../..' . '/app/Http/Controllers/PagoController.php',
         'App\\Http\\Controllers\\PedidoController' => __DIR__ . '/../..' . '/app/Http/Controllers/PedidoController.php',
         'App\\Http\\Controllers\\PromotionController' => __DIR__ . '/../..' . '/app/Http/Controllers/PromotionController.php',

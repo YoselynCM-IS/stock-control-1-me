@@ -3,7 +3,8 @@
         <b-row>
             <b-col></b-col>
             <b-col sm="2" class="text-right">
-                <b-button variant="success" pill @click="addLibro()" block
+                <b-button v-if="role_id === 1 || role_id === 6 || role_id == 7"
+                    variant="success" pill @click="addLibro()" block
                     :disabled="load">
                     <i class="fa fa-plus"></i> Agregar libro
                 </b-button>
@@ -15,7 +16,7 @@
                 <b-row>
                     <b-col>
                         <b-input style="text-transform:uppercase;"
-                            v-model="queryTitulo" autofocus
+                            v-model="form.libro_titulo" autofocus
                             placeholder="BUSCAR LIBRO" :disabled="edit || load"
                             @keyup="mostrarLibros()"
                         ></b-input>
@@ -61,14 +62,16 @@
                     {{ row.index + 1 }}
                 </template>
                 <template v-slot:cell(actions)="row">
-                    <b-button variant="warning" pill size="sm" class="text-white"
-                        @click="editLibro(row.item, row.index)" :disabled="load">
-                        <i class="fa fa-pencil"></i>
-                    </b-button>
-                    <b-button variant="danger" pill size="sm"
-                        @click="deleteLibro(row.item, row.index)" :disabled="load">
-                        <i class="fa fa-close"></i>
-                    </b-button>
+                    <div v-if="role_id === 1 || role_id === 6 || role_id == 7">
+                        <b-button variant="warning" pill size="sm" class="text-white"
+                            @click="editLibro(row.item, row.index)" :disabled="load">
+                            <i class="fa fa-pencil"></i>
+                        </b-button>
+                        <b-button variant="danger" pill size="sm"
+                            @click="deleteLibro(row.item, row.index)" :disabled="load">
+                            <i class="fa fa-close"></i>
+                        </b-button>
+                    </div>
                 </template>
             </b-table>
             <b-alert v-else show variant="secondary">
@@ -80,16 +83,14 @@
 </template>
 
 <script>
-import getLibros from '../../mixins/getLibros';
 export default {
-    props: ['cliente_id'],
-    mixins: [getLibros],
+    props: ['cliente_id', 'role_id'],
     data(){
         return {
-            queryTitulo: null,
             form: {
                 cliente_id: null,
                 libro_id: null,
+                libro_titulo: null,
                 costo_unitario: 0
             },
             showAddLibro: false,
@@ -105,7 +106,8 @@ export default {
             edit: false,
             position: null,
             deleteConfirm: false,
-            load:false
+            load:false,
+            resultslibros: []
         }
     },
     created: function(){
@@ -125,11 +127,19 @@ export default {
             this.dismissCountDown = dismissCountDown
         },
         mostrarLibros(){
-            this.getLibros(this.queryTitulo);
+            if(this.form.libro_titulo.length > 0){
+                axios.get('/libro/by_titulo_nu', {params: {
+                    queryTitulo: this.form.libro_titulo, cliente_id: this.cliente_id}})
+                .then(response => {
+                    this.resultslibros = response.data;
+                }).catch(error => { });
+            } else{
+                this.resultslibros = [];
+            }
         },
         datosLibro(libro){
             this.form.libro_id = libro.id;
-            this.queryTitulo = libro.titulo;
+            this.form.libro_titulo = libro.titulo;
             this.resultslibros = [];
         },
         addLibro(){
@@ -137,8 +147,8 @@ export default {
             this.deleteConfirm = false;
             this.form.cliente_id = this.cliente_id;
             this.form.libro_id = null;
+            this.form.libro_titulo = null;
             this.form.costo_unitario = 0;
-            this.queryTitulo = null;
             this.edit = false;
         },
         saveLibro(){
@@ -166,13 +176,13 @@ export default {
         editLibro(libro, position){
             this.showAddLibro = true;
             this.datos_libro(libro);
-            this.queryTitulo = libro.titulo;
             this.edit = true;
             this.position = position;
         },
         datos_libro(libro){
             this.form.cliente_id = this.cliente_id;
             this.form.libro_id = libro.id;
+            this.form.libro_titulo = libro.titulo;
             this.form.costo_unitario = libro.pivot.costo_unitario;
         },
         deleteLibro(libro, position){
@@ -183,7 +193,9 @@ export default {
         },
         confirmDelete(){
             this.load = true;
-            axios.delete('/clientes/delete_libro', {params: {cliente_id: this.form.cliente_id, libro_id: this.form.libro_id}}).then(response => {
+            axios.delete('/clientes/delete_libro', {params: {cliente_id: this.form.cliente_id, 
+                    libro_id: this.form.libro_id, libro_titulo: this.form.libro_titulo,
+                    costo_unitario: this.form.costo_unitario}}).then(response => {
                 this.libros.splice(this.position, 1);
                 this.deleteConfirm = false;
                 this.load = false;

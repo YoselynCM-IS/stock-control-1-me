@@ -17,7 +17,7 @@ class Comentario extends Model
 
     //Uno a muchos (inversa)
     //Un comentario solo puede pertencer a una remisión
-    public function remision(){
+    public function remisione(){
         return $this->belongsTo(Remisione::class);
     }
 

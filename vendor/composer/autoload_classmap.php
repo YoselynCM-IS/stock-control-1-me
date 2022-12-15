@@ -78,6 +78,7 @@ return array(
     'App\\Http\\Controllers\\ManagerController' => $baseDir . '/app/Http/Controllers/ManagerController.php',
     'App\\Http\\Controllers\\NoteController' => $baseDir . '/app/Http/Controllers/NoteController.php',
     'App\\Http\\Controllers\\OficinaController' => $baseDir . '/app/Http/Controllers/OficinaController.php',
+    'App\\Http\\Controllers\\OrderController' => $baseDir . '/app/Http/Controllers/OrderController.php',
     'App\\Http\\Controllers\\PagoController' => $baseDir . '/app/Http/Controllers/PagoController.php',
     'App\\Http\\Controllers\\PedidoController' => $baseDir . '/app/Http/Controllers/PedidoController.php',
     'App\\Http\\Controllers\\PromotionController' => $baseDir . '/app/Http/Controllers/PromotionController.php',

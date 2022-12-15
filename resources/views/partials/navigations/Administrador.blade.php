@@ -3,7 +3,7 @@
 		Remisiones <span class="caret"></span>
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
-		<a class="dropdown-item" href="{{ route('administrador.remisiones') }}">
+		<a class="dropdown-item" href="{{ route('information.remisiones.lista') }}">
 			{{ __('Remisiones') }}
 		</a>
 		<a class="dropdown-item" href="{{ route('administrador.pagos') }}">
@@ -67,9 +67,17 @@
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
 		<a class="dropdown-item" href="{{ route('administrador.notas') }}">{{ __("Notas") }}</a>
-		<a class="dropdown-item" href="{{ route('administrador.pedidos') }}">{{ __("Pedidos") }}</a>
 		<a class="dropdown-item" href="{{ route('administrador.promociones') }}">{{ __("Promociones") }}</a>
 		<a class="dropdown-item" href="{{ route('administrador.donaciones') }}">{{ __("Donaciones") }}</a>
+	</div>
+</li>
+<li class="nav-item dropdown">
+	<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+		Pedidos <span class="caret"></span>
+	</a>
+	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
+		<a class="dropdown-item" href="{{ route('information.pedidos.cliente') }}">{{ __("Cliente") }}</a>
+		<a class="dropdown-item" href="{{ route('information.pedidos.proveedor') }}">{{ __("Proveedor") }}</a>
 	</div>
 </li>
 <li>

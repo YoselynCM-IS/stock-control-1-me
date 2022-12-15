@@ -97,7 +97,8 @@ export default {
             load: false,
             temporal: {},
             position: null,
-            errors: {}
+            errors: {},
+            resultslibros: []
         }
     },
     methods: {

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Peticione;
 use App\Element;
+use App\Reporte;
 use App\Pedido;
 use App\Order;
 
@@ -51,6 +52,10 @@ class PedidoController extends Controller
                     'quantity' => (int) $peticione['quantity']
                 ]);
             });
+
+            $reporte = 'creo un pedido del cliente '.$pedido->cliente->name;
+            $this->create_report($pedido->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -115,15 +120,20 @@ class PedidoController extends Controller
             $order_ids = collect();
             $editoriales->map(function($editorial) use(&$order_ids, $fecha_actual, $pedido){
                 $provider_count = Order::where('provider', $editorial)->count();
+                $identifier = 'PED '.($provider_count + 1).'-'.$fecha_actual->format('Y');
                 $order = Order::create([
                     'pedido_id' => $pedido->id,
                     'cliente_id' => $pedido->cliente_id,
                     'destination' => $pedido->cliente->name,
-                    'identifier' => 'PED '.($provider_count + 1).'-'.$fecha_actual->format('Y'),
+                    'identifier' => $identifier,
                     'date' => $fecha_actual->format('Y-m-d'),
                     'provider' => $editorial,
                     'creado_por' => auth()->user()->name
                 ]);
+
+                $reporte = 'preparo un pedido del cliente '.$pedido->cliente->name.' PEDIDO AL PROVEEDOR: '.$identifier;
+                $this->create_report($pedido->id, $reporte);
+
                 $order_ids->push([
                     'order_id' => $order->id,
                     'editorial' => $order->provider
@@ -180,6 +190,10 @@ class PedidoController extends Controller
             ]);
 
             $this->create_peticiones($request->peticiones);
+
+            $reporte = 'preparo un pedido del cliente '.$pedido->cliente->name.' DISPONIBLE EN INVENTARIO';
+            $this->create_report($pedido->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -191,9 +205,14 @@ class PedidoController extends Controller
     public function cancelar(Request $request){
         \DB::beginTransaction();
         try {
-            Pedido::whereId($request->pedido_id)->update([
+            $pedido = Pedido::find($request->pedido_id);
+            $pedido->update([
                 'estado' => 'cancelado',
             ]);
+
+            $reporte = 'cancelo un pedido del cliente '.$pedido->cliente->name;
+            $this->create_report($pedido->id, $reporte);
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -206,5 +225,15 @@ class PedidoController extends Controller
         $pedidos = Order::where('provider', $request->provider)
                     ->orderBy('created_at', 'desc')->paginate(20);
         return response()->json($pedidos);
+    }
+
+    public function create_report($pedido_id, $reporte){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'cliente', 
+            'reporte' => $reporte,
+            'name_table' => 'pedidos', 
+            'id_table' => $pedido_id
+        ]);
     }
 }

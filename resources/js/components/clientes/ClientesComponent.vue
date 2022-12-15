@@ -52,7 +52,7 @@
                     </b-button>
                 </template>
                 <template v-slot:cell(libros)="row">
-                    <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" block
+                    <b-button block
                         variant="dark" pill size="sm" @click="showLibros(row.item)">
                         <i class="fa fa-book"></i>
                     </b-button>
@@ -75,13 +75,13 @@
                         </b-row>
                         <b-row class="my-1">
                             <b-col align="right">
-                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'PLANTEL') ? 'Plantel':'Distribuidor'}}:</b>
+                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'CLIENTE') ? 'Cliente':'Distribuidor'}}:</b>
                             </b-col>
                             <div class="col-md-7">{{datosCliente.name}}</div>
                         </b-row>
                         <b-row class="my-1">
                             <b-col align="right">
-                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'PLANTEL') ? 'Coordinador':'Comunicarse con'}}:</b>
+                                <b>{{(datosCliente.tipo == null || datosCliente.tipo == 'CLIENTE') ? 'Coordinador':'Comunicarse con'}}:</b>
                             </b-col>
                             <div class="col-md-7">{{datosCliente.contacto}}</div>
                         </b-row>
@@ -144,7 +144,7 @@
         </b-modal>
         <!-- MODAL PARA RELACIONAR LIBROS VENDIDOS A ESE CLIENTE -->
         <b-modal id="modal-showLibros" title="Libros" hide-footer size="xl">
-            <libros-cliente-component :cliente_id="cliente_id"></libros-cliente-component>
+            <libros-cliente-component :cliente_id="cliente_id" :role_id="role_id"></libros-cliente-component>
         </b-modal>
     </div>
 </template>

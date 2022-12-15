@@ -3,22 +3,25 @@
 		Remisiones <span class="caret"></span>
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
-		<a class="dropdown-item" href="{{ route('oficina.remisiones') }}">
-			{{ __('Remisiones') }}
+		<a class="dropdown-item" href="{{ route('information.remisiones.lista') }}">
+			{{ __('Lista') }}
 		</a>
 		<a class="dropdown-item" href="{{ route('oficina.cerrar') }}">
 			{{ __('Devoluciones / Cerrar') }}
-		</a>
-		<a class="dropdown-item" href="{{ route('oficina.fecha-adeudo') }}">
-			{{ __('Fecha de adeudos') }}
 		</a>
 	</div>
 </li>
 <li>
 	<a class="nav-link" href="{{ route('oficina.pagos') }}">{{ __("Pagos") }}</a>
 </li>
-<li>
-	<a class="nav-link" href="{{ route('oficina.pedidos') }}">{{ __("Pedidos") }}</a>
+<li class="nav-item dropdown">
+	<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+		Pedidos <span class="caret"></span>
+	</a>
+	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
+		<a class="dropdown-item" href="{{ route('information.pedidos.cliente') }}">{{ __("Cliente") }}</a>
+		<a class="dropdown-item" href="{{ route('information.pedidos.proveedor') }}">{{ __("Proveedor") }}</a>
+	</div>
 </li>
 <li class="nav-item dropdown">
 	<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -33,9 +36,6 @@
 		</a>
 	</div>
 </li>
-<li>
-	<a class="nav-link" href="{{ route('oficina.salidas') }}">{{ __("Salidas") }}</a>
-</li>
 <li class="nav-item dropdown">
 	<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
 		Libros <span class="caret"></span>
@@ -46,7 +46,7 @@
 	</div>
 </li>
 <li>
-	<a class="nav-link" href="{{ route('oficina.clientes') }}">{{ __("Clientes") }}</a>
+	<a class="nav-link" href="{{ route('information.clientes.lista') }}">{{ __("Clientes") }}</a>
 </li>
 <li class="nav-item dropdown">
 	<a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -59,10 +59,13 @@
 		<a class="dropdown-item" href="{{ route('oficina.donaciones') }}">
 			{{ __('Donaciones') }}
 		</a>
-		<a class="dropdown-item" href="{{ route('oficina.entradas-salidas') }}">
-			{{ __("Entradas / Salidas") }}
+		<a class="dropdown-item" href="{{ route('oficina.salidas') }}">
+			{{ __('Salidas') }}
 		</a>
 	</div>
+</li>
+<li>
+	<a class="nav-link" href="{{ route('information.actividades.get_tipocliente', 'CLIENTE') }}">{{ __("Actividades") }}</a>
 </li>
 <li>
 	<a class="nav-link" href="{{ route('information.majestic') }}" target="_blank">{{ __("MAJESTIC") }}</a>

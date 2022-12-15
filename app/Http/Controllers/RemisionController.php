@@ -21,6 +21,7 @@ use App\Deposito;
 use App\Cctotale;
 use App\Vendido;
 use App\Cliente;
+use App\Reporte;
 use App\Libro;
 use App\Fecha;
 use App\Corte;
@@ -33,6 +34,11 @@ use DB;
 
 class RemisionController extends Controller
 {
+    // VISTA PARA LOS PEDIDOS DE LOS CLIENTES
+    public function lista(){
+        return view('information.remisiones.lista');
+    }
+
     // MOSTRAR TODAS LAS REMISIONES
     public function index(){
         $remisiones = Remisione::with(['cliente:id,name'])
@@ -525,6 +531,9 @@ class RemisionController extends Controller
                     $code->update(['estado' => 'inventario']);
                 });
                 $dato->codes()->detach();
+
+                $reporte = 'registro la cancelación (remisión) de '.$dato->unidades.' unidades - '.$dato->libro->editorial.': '.$dato->libro->type.' '.$dato->libro->ISBN.' / '.$dato->libro->titulo.' para '.$dato->remisione_id.' / '.$dato->remisione->cliente->name;
+                $this->create_report($dato->id, $reporte, 'libro', 'datos');
             });
 
             // BORRAR LOS REGISTROS DE DEVOLUCION
@@ -545,6 +554,9 @@ class RemisionController extends Controller
             ]);
 
             $remision->update(['estado' => 'Cancelado']);
+
+            $reporte = 'cancelo la remisión '.$remision->id.' de '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -614,6 +626,8 @@ class RemisionController extends Controller
                 ]);
             }
             
+            $reporte = 'creo la remisión '.$remision->id.' para '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -667,6 +681,9 @@ class RemisionController extends Controller
             // DISMINUIR PIEZAS DE LOS LIBROS
             \DB::table('libros')->whereId($libro_id)
                                 ->decrement('piezas',  $dato->unidades);
+
+            $reporte = 'registro la salida (remision) de '.$dato->unidades.' unidades - '.$dato->libro->editorial.': '.$dato->libro->type.' '.$dato->libro->ISBN.' / '.$dato->libro->titulo.' para '.$dato->remisione_id.' / '.$dato->remisione->cliente->name;
+            $this->create_report($dato->id, $reporte, 'libro', 'datos');
         });
 
         // CREAR REGISTROS DE DEVOLUCION
@@ -770,6 +787,10 @@ class RemisionController extends Controller
                 'user_id' => auth()->user()->id,
                 'comentario' => $request->comentario
             ]);
+
+            $reporte = 'agrego un comentario a la remisión '.$comentario->remisione_id.' / '.$comentario->remisione->cliente->name.' COMENTARIO: '.$comentario->comentario;
+            $this->create_report($comentario->remisione_id, $reporte, 'cliente', 'remisiones');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -789,6 +810,9 @@ class RemisionController extends Controller
         \DB::beginTransaction();
         try {
             $remision->update(['responsable' => $request->responsable]);
+
+            $reporte = 'asigno como responsable de la entrega a '.$remision->responsable.' Entrega de la remisión '.$remision->id.' / '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -1006,6 +1030,9 @@ class RemisionController extends Controller
                 'estado' => 'Terminado',
                 'cerrado_por' => auth()->user()->name
             ]);
+
+            $reporte = 'cerro la remisión '.$remision->id.' de '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -1264,6 +1291,16 @@ class RemisionController extends Controller
         $remision = Remisione::whereId($remisione_id)
                         ->with('cliente', 'devoluciones.dato.libro')->first();
         return view('information.historial.registrar-devolucion', compact('remision'));
+    }
+
+    public function create_report($id_table, $reporte, $type, $table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => $type, 
+            'reporte' => $reporte,
+            'name_table' => $table, 
+            'id_table' => $id_table
+        ]);
     }
     
 }

@@ -10,6 +10,7 @@ use App\Prodevolucione;
 use App\Promotion;
 use App\Departure;
 use Carbon\Carbon;
+use App\Reporte;
 use App\Libro;
 use Excel;
 use PDF;
@@ -83,7 +84,7 @@ class PromotionController extends Controller
             $departures->map(function($departure) use($promotion, &$unidades){
                 $u = (int) $departure['unidades'];
                 $libro_id = $departure['id'];
-                Departure::create([
+                $d = Departure::create([
                     'promotion_id' => $promotion->id,
                     'libro_id' => $libro_id,
                     'unidades' => $u,
@@ -92,11 +93,18 @@ class PromotionController extends Controller
                 $libro = Libro::whereId($libro_id)->first();
                 $libro->update(['piezas' => $libro->piezas - $u]);
                 $unidades += $u;
+
+                $reporte = 'registro la salida (promoción) de '.$d->unidades.' unidades - '.$libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo.' para '.$d->promotion->folio.' / '.$d->promotion->plantel;
+                $this->create_report($d->id, $reporte, 'libro', 'departures');
             });
             $promotion->update([
                 'unidades' => $unidades,
                 'unidades_pendientes' => $unidades
             ]);
+
+            $reporte = 'creo la promoción '.$promotion->folio.' para '.$promotion->plantel;
+            $this->create_report($promotion->id, $reporte, 'cliente', 'promotions');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -158,13 +166,20 @@ class PromotionController extends Controller
 
             $promotion->departures->map(function($departure){
                 \DB::table('libros')->whereId($departure->libro_id)
-                        ->increment('piezas', $departure->unidades);    
+                        ->increment('piezas', $departure->unidades);
+                        
+                $reporte = 'registro la cancelación (promoción) de '.$departure->unidades.' unidades - '.$departure->libro->editorial.': '.$departure->libro->type.' '.$departure->libro->ISBN.' / '.$departure->libro->titulo.' para '.$departure->promotion->folio.' / '.$departure->promotion->plantel;
+                $this->create_report($departure->id, $reporte, 'libro', 'departures');
             });
 
             $promotion->update([
                 'estado' => 'Cancelado',
                 'unidades_pendientes' => 0
             ]);
+
+            $reporte = 'cancelo la promoción '.$promotion->folio.' de '.$promotion->plantel;
+            $this->create_report($promotion->id, $reporte, 'cliente', 'promotions');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -185,7 +200,7 @@ class PromotionController extends Controller
                     $departure = Departure::find($d['departure_id']);
                     $libro_id = $departure->libro_id;
 
-                    Prodevolucione::create([
+                    $pd = Prodevolucione::create([
                         'promotion_id' => $departure->promotion_id, 
                         'libro_id' => $libro_id, 
                         'unidades' => $unidades_devolucion,
@@ -200,6 +215,9 @@ class PromotionController extends Controller
                     // AUMENTAR PIEZAS DE LOS LIBROS DEVUELTOS
                     \DB::table('libros')->whereId($libro_id)
                         ->increment('piezas', $unidades_devolucion); 
+
+                    $reporte = 'registro la devolución (promoción) de '.$pd->unidades.' unidades - '.$departure->libro->editorial.': '.$departure->libro->type.' '.$departure->libro->ISBN.' / '.$departure->libro->titulo.' para '.$departure->promotion->folio.' / '.$departure->promotion->plantel;
+                    $this->create_report($pd->id, $reporte, 'libro', 'prodevoluciones');
                 }
             });
             
@@ -210,10 +228,24 @@ class PromotionController extends Controller
                 'unidades_devolucion' => $unidades_devolucion,
                 'unidades_pendientes' => $unidades_pendientes
             ]);
+
+            $reporte = 'registro la devolución de la promoción '.$promotion->folio.' de '.$promotion->plantel;
+            $this->create_report($promotion->id, $reporte, 'cliente', 'prodevoluciones');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
         }
         return response()->json(true);
+    }
+
+    public function create_report($promotion_id, $reporte, $type, $name_table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => $type, 
+            'reporte' => $reporte,
+            'name_table' => $name_table,
+            'id_table' => $promotion_id
+        ]);
     }
 }

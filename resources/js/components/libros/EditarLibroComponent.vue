@@ -82,6 +82,7 @@
                 types: [
                     { value: null, text: 'Seleccionar opción', disabled: true },
                     { value: 'venta', text: 'Venta' },
+                    { value: 'digital', text: 'Digital' },
                     { value: 'promocion', text: 'Promoción' }
                 ]
             }

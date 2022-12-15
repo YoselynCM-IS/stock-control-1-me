@@ -2,29 +2,31 @@
     <div>
         <div v-if="!openCostos">
             <b-row>
-                <b-col sm="5">
+                <b-col sm="4">
                     <h5><b>Pedido</b> {{ pedido.identifier }}</h5>
                 </b-col>
-                <b-col class="text-right">
-                    <div v-if="(pedido.total_bill > 0)">
-                        <b-button v-if="pedido.status == 'espera' && (role_id === 1 || role_id == 2 || role_id == 6)" variant="danger"
-                            pill :disabled="load" @click="openCancelar = true">
-                            <i class="fa fa-close"></i> Cancelar
-                        </b-button>
-                        <b-button v-if="pedido.status == 'espera' && (role_id === 1 || role_id == 2 || role_id == 3 || role_id == 6)" variant="primary" 
-                            pill @click="act_status()" :disabled="load">
-                            <i class="fa fa-refresh"></i> Actualizar estado
-                        </b-button>
-                    </div>
-                </b-col>
-                <b-col sm="1">
+                <b-col sm="2">
                     <estado-order :id="pedido.id" :status="pedido.status" :observations="pedido.observations"></estado-order>
                 </b-col>
                 <b-col sm="2">
-                    <b-button v-if="(pedido.total_bill == 0 && pedido.status == 'espera')" 
+                    <b-button v-if="pedido.status == 'espera' && (role_id === 1 || role_id == 2 || role_id == 6)" variant="danger"
+                        pill :disabled="load" @click="openCancelar = true">
+                        <i class="fa fa-close"></i> Cancelar
+                    </b-button>
+                </b-col>
+                <b-col sm="2">
+                    <b-button v-if="(pedido.total_bill == 0 && pedido.status == 'espera') && (role_id === 1 || role_id == 2 || role_id == 6)" 
                         @click="addCostos()" pill variant="success" block>
                         <i class="fa fa-dollar"></i> Agregar costos
                     </b-button>
+                </b-col>
+                <b-col sm="2">
+                    <div v-if="(pedido.total_bill > 0)">
+                        <b-button v-if="pedido.status == 'espera' && (role_id == 3 || role_id == 6)" variant="primary" 
+                            pill @click="act_status()" :disabled="load">
+                            <i class="fa fa-refresh"></i> Actualizar
+                        </b-button>
+                    </div>
                 </b-col>
             </b-row>
             <datos-order :order="pedido"></datos-order>
@@ -139,12 +141,10 @@ export default {
             this.openCostos = true;
         },
         cancelar_pedido(){
+            this.load = true;
             axios.put('/order/cancelar', this.pedido).then(response => {
-                this.pedido.status = response.data.status;
-                this.pedidos[this.position].status = response.data.status;
-                this.openCancelar = false;
-                this.makeToast('warning', 'El pedido ha sido cancelado');
-                this.position = null;
+                swal("OK", "El pedido ha sido cancelado", "warning")
+                        .then((value) => { location.reload(); });
                 this.load = false;
             }).catch(error => {
                 this.load = false;
@@ -159,11 +159,8 @@ export default {
         change_status(){
             this.load = true;
             axios.put('/order/change_status', this.pedidoStatus).then(response => {
-                this.pedido.status = response.data.status;
-                this.pedidos[this.position].status = response.data.status;
-                this.openStatus = false;
-                this.makeToast('success', 'El estado del pedido se actualizo correctamente');
-                this.position = null;
+                swal("OK", "El estado del pedido se actualizo correctamente", "success")
+                        .then((value) => { location.reload(); });
                 this.load = false;
             }).catch(error => {
                 this.load = false;

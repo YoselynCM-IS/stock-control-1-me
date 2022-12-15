@@ -39,27 +39,28 @@ class LoginController extends Controller
     }
 
     public function redirectPath(){
-        if(auth()->user()->role_id == 1){
-            return '/administrador/remisiones';
-        }
-        if(auth()->user()->role_id == 2){
-            return '/oficina/remisiones';
-        }
-        if(auth()->user()->role_id == 3){
-            return '/almacen/remisiones';
-        }
-        if(auth()->user()->role_id == 4){
-            return '/contador/remisiones';
-        }
-        if(auth()->user()->role_id == 5){
-            return '/captura/remisiones';
-        }
-        if(auth()->user()->role_id == 6){
-            return '/manager/remisiones/lista';
-        }
-        if(auth()->user()->role_id == 7){
-            return '/historial/remisiones/lista/0';
-        }
+        return '/information/remisiones/lista';
+        // if(auth()->user()->role_id == 1){
+        //     return '/administrador/remisiones';
+        // }
+        // if(auth()->user()->role_id == 2){
+        //     return '/oficina/remisiones';
+        // }
+        // if(auth()->user()->role_id == 3){
+        //     return '/almacen/remisiones';
+        // }
+        // if(auth()->user()->role_id == 4){
+        //     return '/contador/remisiones';
+        // }
+        // if(auth()->user()->role_id == 5){
+        //     return '/information/remisiones/lista';
+        // }
+        // if(auth()->user()->role_id == 6){
+        //     return '/manager/remisiones/lista';
+        // }
+        // if(auth()->user()->role_id == 7){
+        //     return '/historial/remisiones/lista/0';
+        // }
     } 
     //METODOS SOBREESCRITOS
     public function username(){

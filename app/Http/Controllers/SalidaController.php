@@ -7,6 +7,7 @@ use App\Exports\salidas\SalidaExport;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Sregistro;
+use App\Reporte;
 use App\Salida;
 
 class SalidaController extends Controller
@@ -45,6 +46,9 @@ class SalidaController extends Controller
             $salida->update(['unidades' => $count]);
             Sregistro::insert($lista);
 
+            $reporte = 'creo la salida '.$salida->folio;
+            $this->create_report($salida->id, $reporte);
+            
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -55,7 +59,7 @@ class SalidaController extends Controller
 
     // OBTENER TODAS LAS SALIDAS
     public function index(){
-        $salidas = Salida::orderBy('folio', 'desc')->paginate(20);
+        $salidas = Salida::orderBy('created_at', 'desc')->paginate(20);
         return response()->json($salidas);
     }
 
@@ -69,5 +73,15 @@ class SalidaController extends Controller
     // DESCARGAR EN EXCEL NOTA DE SALIDA
     public function download($id){
         return Excel::download(new SalidaExport($id), 'salida.xlsx');
+    }
+
+    public function create_report($salida_id, $reporte){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'proveedor', 
+            'reporte' => $reporte,
+            'name_table' => 'salidas', 
+            'id_table' => $salida_id
+        ]);
     }
 }

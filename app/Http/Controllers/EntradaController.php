@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use App\Repayment;
 use App\Registro;
 use App\Entrada;
+use App\Reporte;
 use App\Salida;
 use App\Libro;
 use App\Code;
@@ -53,6 +54,10 @@ class EntradaController extends Controller
             
             $entrada->update(['unidades' => $unidades]);
             $get_entrada = Entrada::whereId($entrada->id)->first();
+
+            $reporte = 'creo la entrada '.$entrada->folio.' de '.$entrada->editorial;
+            $this->create_report($entrada->id, $reporte, 'proveedor', 'entradas');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -93,6 +98,9 @@ class EntradaController extends Controller
                     'unidades_pendientes'  => $unidades_base
                 ]);
 
+                $reporte = 'registro la entrada (entrada) de '.$registro->unidades.' códigos - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$entrada->folio.' / '.$entrada->editorial;
+                $this->create_report($registro->id, $reporte, 'libro', 'registros');
+
                 $codes = collect($item['codes']);
                 $code_registro = [];
                 $codes->map(function($code) use (&$l, &$code_registro){
@@ -107,6 +115,9 @@ class EntradaController extends Controller
                     ->increment('piezas', $unidades_base);
             });
 
+            $reporte = 'creo la entrada de códigos '.$entrada->folio.' de '.$entrada->editorial;
+            $this->create_report($entrada->id, $reporte, 'proveedor', 'entradas');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -117,13 +128,13 @@ class EntradaController extends Controller
 
     public function save_registros($request_items, $entrada){
         $unidades = 0;
-        $lista_entradas = [];
         $entradas = collect($request_items);
         $hoy = Carbon::now();
-        $entradas->map(function($item) use(&$lista_entradas, $entrada, &$unidades, $hoy){
+        $entradas->map(function($item) use($entrada, &$unidades, $hoy){
             $unidades_base = (int) $item['unidades'];
             $libro_id = $item['id'];
-            $lista_entradas[] = [
+            // CREAR LISTA DE REGISTROS
+            $registro = Registro::create([
                 'entrada_id' => $entrada->id,
                 'libro_id'  => $libro_id,
                 'unidades'  => $unidades_base,
@@ -131,7 +142,10 @@ class EntradaController extends Controller
                 'unidades_pendientes'  => $unidades_base,
                 'created_at' => $hoy,
                 'updated_at' => $hoy
-            ];
+            ]);
+
+            $reporte = 'registro la entrada (entrada) de '.$registro->unidades.' unidades - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$entrada->folio.' / '.$entrada->editorial;
+            $this->create_report($registro->id, $reporte, 'libro', 'registros');
 
             // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
             \DB::table('libros')->whereId($libro_id)
@@ -139,9 +153,6 @@ class EntradaController extends Controller
             
             $unidades += $unidades_base;
         });
-
-        // CREAR LISTA DE REGISTROS
-        Registro::insert($lista_entradas);
 
         return $unidades;
     }
@@ -244,6 +255,10 @@ class EntradaController extends Controller
                     'total_pendiente' => $editorial->total_pendiente + $entrada->total
                 ]);
             }
+
+            $reporte = 'registro los costos de la entrada '.$entrada->folio.' de '.$entrada->editorial;
+            $this->create_report($entrada->id, $reporte, 'proveedor', 'entradas');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -396,16 +411,15 @@ class EntradaController extends Controller
         \DB::beginTransaction();
         try {
             $total = 0;
-            $lista_entdevoluciones = [];
             $items = collect($request->registros);
             $hoy = Carbon::now();
 
-            $items->map(function($item) use(&$lista_entdevoluciones, $entrada, &$total, $hoy){
+            $items->map(function($item) use($entrada, &$total, $hoy){
                 $unidades_base = (int) $item['unidades_base'];
                 $total_base = (double) $item['total_base'];
                 $registro_id = $item['id'];
                 if($unidades_base > 0){
-                    $lista_entdevoluciones[] = [
+                    $entdevolucione = Entdevolucione::create([
                         'entrada_id' => $entrada->id,
                         'registro_id' => $registro_id,
                         'unidades' => $unidades_base,
@@ -413,13 +427,17 @@ class EntradaController extends Controller
                         'creado_por' => auth()->user()->name,
                         'created_at' => $hoy,
                         'updated_at' => $hoy
-                    ]; 
+                    ]);
 
                     // DISMINUIR UNIDADES PENDIENTE
                     $registro = Registro::whereId($registro_id)->first();
                     $registro->update([
                         'unidades_pendientes' => $registro->unidades_pendientes - $unidades_base
                     ]);
+
+                    $reporte = 'registro la devolución (entrada) de '.$entdevolucione->unidades.' unidades - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$entrada->folio.' / '.$entrada->editorial;
+                    $this->create_report($entdevolucione->id, $reporte, 'libro', 'entdevoluciones');
+
                     // \DB::table('registros')->whereId($registro_id)
                     //     ->decrement('unidades_pendientes',  $unidades_base);
 
@@ -440,8 +458,6 @@ class EntradaController extends Controller
                 $total += $total_base;
             });
 
-            Entdevolucione::insert($lista_entdevoluciones);
-
             $entrada->update([
                 'total_devolucion' => $entrada->total_devolucion + $total
             ]);
@@ -450,6 +466,10 @@ class EntradaController extends Controller
                 'total_devolucion' => $editorial->total_devolucion + $total,
                 'total_pendiente' => $editorial->total_pendiente - $total
             ]);
+
+            $reporte = 'registro la devolución de la entrada '.$entrada->folio.' de '.$entrada->editorial;
+            $this->create_report($entrada->id, $reporte, 'proveedor', 'entdevoluciones');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -488,6 +508,10 @@ class EntradaController extends Controller
                 'nota' => $request->nota,
                 'ingresado_por' => auth()->user()->name
             ]);
+
+            $reporte = 'registro un pago al proveedor '.$editorial->editorial.' PAGO: '.$deposito->fecha.' / $'.$deposito->pago.' / '.$deposito->nota;
+            $this->create_report($deposito->id, $reporte, 'proveedor', 'entdepositos');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -499,6 +523,8 @@ class EntradaController extends Controller
     // ACTUALIZAR PAGO
     public function update_pago(Request $request){
         $entdeposito = Entdeposito::find($request->id);
+
+        $pago_anterior = $entdeposito->fecha.' / $'.$entdeposito->pago.' / '.$entdeposito->nota;
         $pago = (double) $request->pago;
         $enteditorial = Enteditoriale::find($entdeposito->enteditoriale_id);
 
@@ -515,6 +541,11 @@ class EntradaController extends Controller
                 'fecha' => $request->fecha,
                 'nota' => $request->nota,
             ]);
+
+            $pago_nuevo = $entdeposito->fecha.' / $'.$entdeposito->pago.' / '.$entdeposito->nota;
+            $reporte = 'edito el pago al proveedor '.$enteditorial->editorial.': '.$pago_anterior.' a '.$pago_nuevo;
+            $this->create_report($entdeposito->id, $reporte, 'proveedor', 'entdepositos');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -535,6 +566,10 @@ class EntradaController extends Controller
                 'total_pagos' => $enteditorial->total_pagos - $entdeposito->pago,
                 'total_pendiente' => $enteditorial->total_pendiente + $entdeposito->pago
             ]);
+
+            $reporte = 'elimino un pago al proveedor '.$enteditorial->editorial.' PAGO: '.$entdeposito->fecha.' / $'.$entdeposito->pago.' / '.$entdeposito->nota;
+            $this->create_report($entdeposito->id, $reporte, 'proveedor', 'entdepositos');
+
             $entdeposito->delete();
             \DB::commit();
         } catch (Exception $e) {
@@ -589,18 +624,25 @@ class EntradaController extends Controller
             $this->create_me_entrada($folio, $entrada->editorial, $registros->sum('unidades_que'), $fecha);
 
             $me_entrada = $this->get_me_entrada($folio);
-
             $reg_datos = [];
             $registros->map(function($registro) use(&$reg_datos, $me_entrada, $fecha){
                 $unidades_que = $registro->unidades_que;
                 $me_libro = $this->get_me_libro($registro->libro->titulo);
                 $reg_datos[] = $this->set_me_datos($me_entrada->id, $me_libro->id, $unidades_que, $fecha);
                 $this->set_me_libro_increment($me_libro->id, $unidades_que);
+
+                $reporte = 'registro la salida (entrada) de '.$unidades_que.' unidades - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$registro->entrada->folio.': QUERÉTARO / MAJESTIC EDUCATION';
+                $this->create_report($registro->id, $reporte, 'libro', 'registros');
+                
             });
 
             $this->set_me_registros($reg_datos);
             
             $entrada->update(['lugar' => 'QUE']);
+
+            $reporte = 'envió libros de la entrada '.$entrada->folio.' a QUERÉTARO / MAJESTIC EDUCATION';
+            $this->create_report($entrada->id, $reporte, 'proveedor', 'entradas');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -673,14 +715,31 @@ class EntradaController extends Controller
                 // DISMINUIR PIEZAS DE LOS LIBROS
                 \DB::table('libros')->whereId($registro->libro_id)
                     ->decrement('piezas', $unidades);
+
+                $reporte = 'registro la salida (salida) de '.$registro->unidades.' unidades - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$registro->salida->folio.': QUERÉTARO / MAJESTIC EDUCATION';
+                $this->create_report($registro->id, $reporte, 'libro', 'sregistros');
             });
             $this->set_me_registros($reg_datos);
             $salida->update(['estado' => 'enviado']);
+
+            $reporte = 'envió la salida '.$salida->folio.' a QUERÉTARO / MAJESTIC EDUCATION';
+            $this->create_report($salida->id, $reporte, 'proveedor', 'salidas');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
             return response()->json($exception->getMessage());
         }
         return response()->json(true);
+    }
+
+    public function create_report($entrada_id, $reporte, $type, $tabla){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => $type,  
+            'reporte' => $reporte,
+            'name_table' => $tabla, 
+            'id_table' => $entrada_id
+        ]);
     }
 }

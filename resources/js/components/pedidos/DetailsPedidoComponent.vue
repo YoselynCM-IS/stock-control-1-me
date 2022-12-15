@@ -8,13 +8,14 @@
                 <estado-pedido :id="pedido.id" :comentarios="pedido.comentarios" :estado="pedido.estado"></estado-pedido>
             </b-col>
             <b-col sm="2">
-                <b-button v-if="pedido.estado == 'proceso'" :disabled="load"
+                <b-button v-if="(role_id == 6 || role_id == 7) && pedido.estado == 'proceso'" 
+                    :disabled="load"
                     variant="danger" pill block @click="cancelarPedido()">
                     <i class="fa fa-close"></i> Cancelar
                 </b-button>
             </b-col>
             <b-col sm="2">
-                <b-button v-if="pedido.estado == 'proceso'"
+                <b-button v-if="(role_id == 2 || role_id == 6) && pedido.estado == 'proceso'"
                     :href="`/pedido/preparar/${pedido.id}`" 
                     variant="dark" pill block :disabled="load">
                     Preparar pedido
@@ -45,7 +46,7 @@ import DatosPedido from './partials/DatosPedido.vue'
 import EstadoPedido from './partials/EstadoPedido.vue';
 export default {
     components: { DatosPedido, EstadoPedido },
-    props: ['pedido'],
+    props: ['pedido', 'role_id'],
     data(){
         return {
             fields: [

@@ -79,7 +79,7 @@ export default {
             cliente_id: null,
             misActs: false,
             options: [
-                { value: 'PLANTEL', text: 'PLANTELES' },
+                { value: 'CLIENTE', text: 'CLIENTE' },
                 { value: 'DISTRIBUIDOR', text: 'DISTRIBUIDORES' },
                 { value: 'PROSPECTO', text: 'PROSPECTOS' }
             ]

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Donacione;
 use Carbon\Carbon;
+use App\Reporte;
 use App\Regalo;
 use App\Libro;
 use Excel;
@@ -28,36 +29,38 @@ class DonacioneController extends Controller
         try{
             $regalo = Regalo::create([
                 'cliente_id' => $request->cliente_id,
-                'plantel' => strtoupper($request->plantel),
+                'plantel' => $request->plantel,
                 'descripcion' => strtoupper($request->descripcion),
                 'unidades' => (int) $request->unidades,
                 'entregado_por' => null,
                 'creado_por' => auth()->user()->name
             ]);
 
-            $lista_donaciones = [];
             $donaciones = collect($request->donaciones);
             $hoy = Carbon::now();
-            $donaciones->map(function($donacion) use(&$lista_donaciones, $regalo, $hoy){
+            $donaciones->map(function($donacion) use($regalo, $hoy){
                 $unidades = $donacion['unidades'];
                 $libro_id = $donacion['id'];
 
-                $lista_donaciones[] = [
+                // Crear registros de donación
+                $d = Donacione::create([
                     'regalo_id' => $regalo->id,
                     'libro_id' => $libro_id,
                     'unidades' => $unidades,
                     'created_at' => $hoy,
                     'updated_at' => $hoy
-                ];
+                ]);
 
                 // DISMINUIR PIEZAS DE LOS LIBROS
                 \DB::table('libros')->whereId($libro_id)
                     ->decrement('piezas', $unidades);
-            });
 
-            // Crear registros de donación
-            Donacione::insert($lista_donaciones);
+                $reporte = 'registro la salida (donación) de '.$d->unidades.' unidades - '.$d->libro->editorial.': '.$d->libro->type.' '.$d->libro->ISBN.' / '.$d->libro->titulo.' para '.$regalo->plantel;
+                $this->create_report($d->id, $reporte, 'libro', 'donaciones');
+            });
             
+            $reporte = 'creo la donación para '.$regalo->plantel;
+            $this->create_report($regalo->id, $reporte, 'cliente', 'regalos');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -123,6 +126,10 @@ class DonacioneController extends Controller
         \DB::beginTransaction();
         try {
             $regalo->update(['entregado_por' => $request->entregado_por]);
+
+            $reporte = 'asigno como responsable a '.$regalo->entregado_por.' Entrega de la donación '.$regalo->plantel;
+            $this->create_report($regalo->id, $reporte, 'cliente', 'regalos');
+
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -133,5 +140,15 @@ class DonacioneController extends Controller
 
     public function download_regalo($id){
         return Excel::download(new DonacionExport($id), 'nota-donacion.xlsx');
+    }
+
+    public function create_report($regalo_id, $reporte, $type, $name_table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => $type, 
+            'reporte' => $reporte,
+            'name_table' => $name_table, 
+            'id_table' => $regalo_id
+        ]);
     }
 }
