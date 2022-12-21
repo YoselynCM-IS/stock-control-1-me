@@ -501,6 +501,8 @@ Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
 Route::name('clientes.')->prefix('clientes')->group(function () {
     //Agregar cliente
     Route::post('/store', 'ClienteController@store')->name('store');
+    //Agregar cliente prospecto
+    Route::post('/store_prospecto', 'ClienteController@store_prospecto')->name('store_prospecto');
     //Editar informacion de cliente
     Route::put('/update', 'ClienteController@update')->name('update');
     //Obtener todos los cliente
@@ -521,6 +523,10 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     Route::delete('/delete_libro', 'ClienteController@delete_libro')->name('delete_libro');
     // Obtener los libros registrados en el cliente
     Route::get('/get_libros', 'ClienteController@get_libros')->name('get_libros');
+    //Obtener los clientes por responsables
+    Route::get('/by_userid', 'ClienteController@by_userid')->name('by_userid');
+    Route::get('/by_name_userid', 'ClienteController@by_name_userid')->name('by_name_userid');
+    
     // Obtener clientes por tipo
     Route::get('/by_tipo', 'ClienteController@by_tipo')->name('by_tipo');
 });
@@ -616,39 +622,47 @@ Route::name('historial.')->prefix('historial')->middleware(['auth'])->group(func
 
 Route::name('information.')->prefix('information')->middleware(['auth'])->group(function () {
     Route::name('actividades.')->prefix('actividades')->group(function () {
-        // REGISTRAR PAGO
         Route::get('/get_tipocliente/{tipo}', 'ActividadeController@get_tipocliente')->name('get_tipocliente');
     });
 
     Route::name('pedidos.')->prefix('pedidos')->group(function () {
-        // REGISTRAR PAGO
         Route::get('/cliente', 'PedidoController@cliente')->name('cliente');
         Route::get('/proveedor', 'OrderController@proveedor')->name('proveedor');
     });
     
     Route::name('clientes.')->prefix('clientes')->group(function () {
-        // REGISTRAR PAGO
         Route::get('/lista', 'ClienteController@lista')->name('lista');
     });
 
     Route::name('remisiones.')->prefix('remisiones')->group(function () {
-        // REGISTRAR PAGO
         Route::get('/lista', 'RemisionController@lista')->name('lista');
+    });
+
+    Route::name('reportes.')->prefix('reportes')->group(function () {
+        Route::get('/lista', 'ReporteController@lista')->name('lista');
     });
 }); 
 
 Route::name('actividades.')->prefix('actividades')->group(function () {
     // GUARDAR ACTIVIDAD
     Route::post('/store', 'ActividadeController@store')->name('store');
+    // OBTENER ACTIVIDADES POR FECHA ACTUAL
+    Route::get('/by_user_fecha_actual', 'ActividadeController@by_user_fecha_actual')->name('by_user_fecha_actual');
+    // MARCAR ACTIVIDADES COMO COMPLETADAS
+    Route::put('/update_estado', 'ActividadeController@update_estado')->name('update_estado');
+    // OBTENER ACTIVIDADES POR FECHA ACTUAL
+    Route::get('/by_user_estado', 'ActividadeController@by_user_estado')->name('by_user_estado');
+    // OBTENER ACTIVIDADES POR FECHA ACTUAL
+    Route::put('/update', 'ActividadeController@update')->name('update');
+    
+    // **** POR REVISAR
     // OBTENER ACTIVIDADES POR TIPO Y ESTADO
     Route::get('/by_tipo_estado', 'ActividadeController@by_tipo_estado')->name('by_tipo_estado');
     // OBTENER ACTIVIDADES POR CLIENTE, ESTADO Y TIPO
     Route::get('/by_cliente_tipo_estado', 'ActividadeController@by_cliente_tipo_estado')->name('by_cliente_tipo_estado');
-    // MARCAR ACTIVIDADES COMO COMPLETADAS
-    Route::put('/mark_actividades', 'ActividadeController@mark_actividades')->name('mark_actividades');
     // OBTENER ACTIVIDADES CREADAS POR EL USUARIO EN SESION
     Route::get('/by_userid_tipo_estado', 'ActividadeController@by_userid_tipo_estado')->name('by_userid_tipo_estado');
-    
+    // *** POR REVISAR
 });
 
 Route::name('salidas.')->prefix('salidas')->group(function () {
@@ -656,6 +670,12 @@ Route::name('salidas.')->prefix('salidas')->group(function () {
     Route::post('/store', 'SalidaController@store')->name('store');
     Route::get('/show', 'SalidaController@show')->name('show');
     Route::get('/download/{id}', 'SalidaController@download')->name('download');
+});
+
+Route::name('reportes.')->prefix('reportes')->group(function () {
+    Route::get('/by_type_estado', 'ReporteController@by_type_estado')->name('by_type_estado');
+    Route::get('/by_type_estado_fecha', 'ReporteController@by_type_estado_fecha')->name('by_type_estado_fecha');
+    Route::get('/by_type_estado_usuario', 'ReporteController@by_type_estado_usuario')->name('by_type_estado_usuario');
 });
 
 Route::name('codes.')->prefix('codes')->group(function () {

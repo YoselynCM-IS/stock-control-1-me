@@ -13,7 +13,8 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        'App\Console\Commands\ActsVencidos',
+        'App\Console\Commands\ActsPendProx',
     ];
 
     /**
@@ -26,6 +27,9 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')
         //          ->hourly();
+        $schedule->command('actividades:vencidos')->hourly();
+        $schedule->command('actividades:pendprox')->everyMinute();
+        // ->twiceDaily(7, 19);
     }
 
     /**

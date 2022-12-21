@@ -1,0 +1,191 @@
+<template>
+    <div>
+        <div v-if="!load">
+            <b-row>
+                <b-col></b-col>
+                <b-col sm="2">
+                    <!-- <b-button v-if="misActs"
+                        variant="success" pill size="sm" block 
+                        @click="markCompleted()" class="mb-2"
+                        :disabled="(selected.length == 0 || estado == 'completado' || loaded)">
+                        <i class="fa fa-check-square-o"></i> Completado
+                    </b-button> -->
+                </b-col>
+            </b-row>
+            <b-table v-if="actividades.length > 0" striped 
+                :items="actividades" :fields="fields" 
+                :tbody-tr-class="rowClass">
+                <template v-slot:cell(index)="row">
+                    {{ row.index + 1 }}
+                </template>
+                <template v-slot:cell(show_details)="row">
+                    <b-button variant="info" pill size="sm" @click="row.toggleDetails">
+                        {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
+                    </b-button>
+                </template>
+                <template #row-details="row">
+                    <b-card>
+                        <b-row v-if="row.item.estado !== 'completado' && row.item.estado !== 'cancelado'" class="mb-3">
+                            <b-col sm="2">
+                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="warning" 
+                                    block pill size="sm" @click="editar(row.item)">
+                                    <i class="fa fa-pencil"></i> Editar
+                                </b-button>
+                            </b-col>
+                            <b-col sm="2">
+                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="danger" 
+                                    block pill size="sm" @click="cancelar(row.item)">
+                                    <i class="fa fa-close"></i> Cancelar
+                                </b-button>
+                            </b-col>
+                            <b-col sm="2">
+                                <b-button v-if="!completarAct && !cancelarAct && !editarAct" variant="success" 
+                                    block pill size="sm" @click="markCompleted(row.item)">
+                                    <i class="fa fa-check"></i> Completar
+                                </b-button>
+                            </b-col>
+                            <b-col></b-col>
+                            <b-col sm="1">
+                                <b-button v-if="(completarAct || cancelarAct || editarAct) && (actividad.id == row.item.id)" 
+                                    variant="secondary" block pill size="sm" @click="setValues(null, null, false, false, false)">
+                                    <i class="fa fa-close"></i>
+                                </b-button>
+                            </b-col>
+                        </b-row>
+                        <mark-actividad-component v-if="completarAct && (actividad.id == row.item.id)" 
+                            :actividad="actividad" @updatedActEstado="updatedActEstado"></mark-actividad-component>
+                        <cancelar-actividad-component v-if="cancelarAct && (actividad.id == row.item.id)" 
+                            :actividad="actividad" @updatedActEstado="updatedActEstado"></cancelar-actividad-component>
+                        <editar-actividad-component v-if="editarAct && (actividad.id == row.item.id)" 
+                            :actividad="actividad" @updatedActEstado="updatedActEstado"></editar-actividad-component>
+                        <b-row class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Fecha de creación</b></label></b-col>
+                            <b-col>{{ row.item.created_at }}</b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Nombre de la actividad</b></label></b-col>
+                            <b-col>{{ row.item.nombre }}</b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Tipo</b></label></b-col>
+                            <b-col>{{ row.item.tipo }}</b-col>
+                        </b-row>
+                        <b-row class="mb-2" v-if="row.item.tipo == 'reunion' || row.item.tipo == 'videoconferencia'">
+                            <b-col sm="3" class="text-right"><label><b>{{setTitulo(row.item.tipo)}}</b></label></b-col>
+                            <b-col>{{ row.item.lugar }}</b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Fecha y hora</b></label></b-col>
+                            <b-col>{{ row.item.fecha }}</b-col>
+                        </b-row>
+                        <b-row class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Descripción</b></label></b-col>
+                            <b-col><p v-html="row.item.descripcion"></p></b-col>
+                        </b-row>
+                        <b-row v-if="row.item.cliente_id != null" class="mb-2">
+                            <b-col sm="3" class="text-right"><label><b>Cliente relacionado</b></label></b-col>
+                            <b-col>{{ row.item.cliente.name }}</b-col>
+                        </b-row>
+                        <div v-if="row.item.estado == 'completado'" class="mb-2">
+                            <hr>
+                            <b-row>
+                                <b-col sm="3" class="text-right"><label><b>¿La actividad se completo con exito?</b></label></b-col>
+                                <b-col>{{ row.item.exitosa ? 'SI':'NO' }}</b-col>
+                            </b-row>
+                        </div>
+                        <b-row v-if="row.item.estado == 'completado' || row.item.estado == 'cancelado'">
+                            <b-col sm="3" class="text-right"><label><b>Observaciones</b></label></b-col>
+                            <b-col>{{ row.item.observaciones }}</b-col>
+                        </b-row>
+                    </b-card>
+                </template>
+                <template #cell(selected)="{ rowSelected }">
+                    <template v-if="rowSelected">
+                        <span aria-hidden="true">&check;</span>
+                        <span class="sr-only">Selected</span>
+                    </template>
+                    <template v-else>
+                        <span aria-hidden="true">&nbsp;</span>
+                        <span class="sr-only">Not selected</span>
+                    </template>
+                </template>
+            </b-table>
+            <no-registros-component v-else></no-registros-component>  
+        </div>
+        <load-component v-else></load-component>
+    </div>
+</template>
+
+<script>
+import LoadComponent from '../../cortes/partials/LoadComponent.vue';
+import setTitulo from '../../../mixins/setTitulo';
+import MarkActividadComponent from './MarkActividadComponent.vue';
+import CancelarActividadComponent from './CancelarActividadComponent.vue';
+import EditarActividadComponent from './EditarActividadComponent.vue';
+export default {
+    props: ['actividades', 'load'],
+    components: {LoadComponent, MarkActividadComponent, CancelarActividadComponent, EditarActividadComponent},
+    mixins: [setTitulo],
+    data(){
+        return {
+            fields: [
+                {key: 'index', label: 'N.'},
+                {key: 'estado', label: 'Estado'},
+                {key: 'tipo', label: 'Tipo'},
+                {key: 'nombre', label: 'Actividad'},
+                {key: 'fecha', label: 'Fecha'},
+                {key: 'cliente.name', label: 'Cliente'},
+                {key: 'show_details', label: 'Detalles'}
+            ],
+            loaded: false,
+            form: { selected: [] },
+            actividad: {
+                id: null,
+                tipo: null,
+                fecha: null,
+                hora: null,
+                estado: null,
+                exitosa: 0,
+                observaciones: null
+            },
+            completarAct: false,
+            cancelarAct: false,
+            editarAct: false
+        }
+    },
+    methods: {
+        onRowSelected(items) {
+            this.selected = items
+        },
+        editar(actividad){
+            this.actividad.tipo = actividad.tipo;
+            this.actividad.fecha = actividad.fecha.substring(0,10);
+            this.actividad.hora = actividad.fecha.substring(11,28);
+            this.setValues(actividad.id, null, false, false, true);
+        },
+        cancelar(actividad){
+            this.setValues(actividad.id, 'cancelado', false, true, false);
+        },
+        markCompleted(actividad){
+            this.setValues(actividad.id, 'completado', true, false, false);
+        },
+        updatedActEstado(actividad){
+            swal("OK", "La actividad se actualizo correctamente.", "success")
+                    .then((value) => { location.reload(); });
+        },
+        setValues(id, estado, completarAct, cancelarAct, editarAct){
+            this.actividad.id = id;
+            this.actividad.estado = estado;
+            this.actividad.exitosa = 0;
+            this.actividad.observaciones = null;
+            this.completarAct = completarAct;
+            this.cancelarAct = cancelarAct;
+            this.editarAct = editarAct;
+        }
+    }
+}
+</script>
+
+<style>
+
+</style>

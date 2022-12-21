@@ -4,7 +4,7 @@
             <b-col align="right">Estado</b-col>
             <div class="col-md-9">
                 <b-form-select v-model="form.estado_id" :options="estados" required
-                    :disabled="loaded"
+                    :disabled="load"
                 ></b-form-select>
             </div>
         </b-row>
@@ -15,7 +15,7 @@
                     id="input-email"
                     v-model="form.email"
                     type="email"
-                    :disabled="loaded"
+                    :disabled="load"
                     required>
                 </b-form-input>
                 <div v-if="errors && errors.email" class="text-danger">{{ errors.email[0] }}</div>
@@ -27,7 +27,7 @@
                 <b-form-input 
                     id="input-telefono"
                     v-model="form.telefono" 
-                    :disabled="loaded"
+                    :disabled="load"
                     required>
                 </b-form-input>
                 <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
@@ -37,7 +37,7 @@
             <b-col align="right">Responsable del cliente</b-col>
             <div class="col-md-9">
                 <b-form-select v-model="form.user_id" :options="usuarios" required
-                    :disabled="loaded"
+                    :disabled="load"
                 ></b-form-select>
             </div>
         </b-row>
@@ -45,28 +45,20 @@
 </template>
 
 <script>
+import getUsuarios from '../../../mixins/getUsuarios';
 export default {
-    props: ['form', 'loaded', 'errors'],
+    props: ['form', 'load', 'errors'],
+    mixins: [getUsuarios],
     data(){
         return{
-            estados: [],
-            usuarios: []
+            estados: []
         }
     },
     created: function(){
         this.getEstados();
-        this.getUsuarios();
+        this.getUsuarios(6);
     },
     methods: {
-        getUsuarios(){
-            axios.get('/clientes/get_usuarios').then(response => {
-                let users = response.data;
-                this.usuarios.push({ value: null, text: 'Selecciona una opción', disabled: true});
-                users.forEach(u => {
-                    this.usuarios.push({ value: u.id, text: u.name });
-                });
-            }).catch(error => { });
-        },
         getEstados(){
             axios.get('/clientes/get_estados').then(response => {
                 let edos = response.data;

@@ -1,11 +1,11 @@
 <template>
     <div>
         <b-row class="mb-4">
-            <b-col>
+            <!-- <b-col>
                 <b-form-select v-model="tipo_cliente" :options="options" 
                     @change="get_by_tipocliente()"></b-form-select>
-            </b-col>
-            <b-col sm="4">
+            </b-col> -->
+            <!-- <b-col sm="7">
                 <b-input v-model="queryCliente" @keyup="mostrarClientesByTipo(tipo_cliente)" autofocus
                     style="text-transform:uppercase;" :disabled="(load || misActs)" required
                     placeholder="BUSCAR CLIENTE">
@@ -16,8 +16,11 @@
                         {{ cliente.name }}
                     </a>
                 </div>
+            </b-col> -->
+            <b-col sm="7">
+
             </b-col>
-            <b-col sm="6">
+            <b-col sm="5">
                 <b-row>
                     <b-col>
                         <b-button :variant="`${queryEstado != 'completado' ? 'dark':'primary'}`" pill block 
@@ -25,13 +28,13 @@
                             <i class="fa fa-check-square-o"></i> Completadas
                         </b-button>
                     </b-col>
-                    <b-col>
+                    <!-- <b-col>
                         <b-button :variant="`${!misActs ? 'dark':'primary'}`" pill block 
                             :disabled="(load || misActs || queryEstado == 'completado')" 
                             @click="http_byusertipoestado()">
                             <i class="fa fa-list-alt"></i> Mis actividades
                         </b-button>
-                    </b-col>
+                    </b-col> -->
                     <b-col>
                         <b-button variant="success" pill block :disabled="load"
                             @click="addActividad()">
@@ -42,17 +45,14 @@
             </b-col>
         </b-row>
         <b-tabs content-class="mt-2" fill>
-            <b-tab title="Citas" active @click="get_acts_bytipoestado('cita')">
-               <tipo-component :misActs="misActs" :estado="queryEstado" :load="load" tipo="cita" 
-                    :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-component> 
+            <b-tab title="Vencido" @click="actividades_byvencido('vencido')">
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
-            <b-tab title="Recordatorios" @click="get_acts_bytipoestado('recordatorio')">
-                <tipo-component :misActs="misActs" :estado="queryEstado" :load="load" tipo="recordatorio" 
-                    :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-component> 
+            <b-tab title="Hoy" @click="actividades_byfechaactual()" active>
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
-            <b-tab title="Anotaciones" @click="get_acts_bytipoestado('anotacion')">
-                <tipo-component :misActs="misActs" :estado="queryEstado" :load="load" tipo="anotacion" 
-                    :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-component> 
+            <b-tab title="Proximo" @click="actividades_byvencido('proximo')">
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
         </b-tabs>
         <!-- MODASL -->
@@ -64,11 +64,11 @@
 </template>
 
 <script>
-import TipoComponent from './partials/TipoComponent.vue';
+import TipoActividadComponent from './partials/TipoActividadComponent.vue';
 import searchCliente from '../../mixins/searchCliente';
 export default {
     props: ['tipo_cliente'],
-    components: {TipoComponent},
+    components: {TipoActividadComponent},
     mixins: [searchCliente],
     data(){
         return {
@@ -85,10 +85,30 @@ export default {
             ]
         }
     },
-    created: function(){
-        this.http_bytipoestado();
+    mounted: function(){
+        this.actividades_byfechaactual();
     },
     methods: {
+        actividades_byfechaactual(){
+            this.load = true;
+            this.actividades = [];
+            axios.get(`/actividades/by_user_fecha_actual`).then(response => {
+                this.actividades = response.data;
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+            });
+        },
+        actividades_byvencido(estado){
+            this.load = true;
+            this.actividades = [];
+            axios.get(`/actividades/by_user_estado`, {params: {estado: estado}}).then(response => {
+                this.actividades = response.data;
+                this.load = false;
+            }).catch(error => {
+                this.load = false;
+            });
+        },
         getResults(){
             this.get_acts_bytipoestado();
         },

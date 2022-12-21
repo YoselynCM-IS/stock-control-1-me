@@ -2,12 +2,47 @@
     <div>
         <b-form @submit.prevent="onSubmit()">
             <div>
-                <div v-if="!addProspecto">
-                    <b-form-group label-cols-sm="9" label-cols-lg="3" label-align-sm="right"
-                        label="Cliente">
-                        <!-- BUSCAR CLIENTE -->
-                        <b-input v-model="queryCliente" @keyup="mostrarClientes()" autofocus
-                            style="text-transform:uppercase;" :disabled="loaded" required>
+                <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Nombre de la actividad</label></b-col>
+                    <b-col>
+                        <b-form-input v-model="form.nombre" required :disabled="loaded" autofocus></b-form-input>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Tipo</label></b-col>
+                    <b-col>
+                        <b-form-select v-model="form.tipo" :options="tipos" required
+                            :disabled="loaded" @change="initializeValues()"></b-form-select>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2" v-if="form.tipo == 'reunion' || form.tipo == 'videoconferencia'">
+                    <b-col sm="3" class="text-right"><label>{{setTitulo(form.tipo)}}</label></b-col>
+                    <b-col>
+                        <b-form-input v-model="form.lugar" required :disabled="loaded"></b-form-input>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Fecha</label></b-col>
+                    <b-col>
+                        <b-form-datepicker v-model="form.fecha" :disabled="loaded" required></b-form-datepicker>
+                    </b-col>
+                    <b-col v-if="form.tipo != 'nota'" sm="1" class="text-right"><label>Hora</label></b-col>
+                    <b-col v-if="form.tipo != 'nota'">
+                        <b-form-timepicker v-model="form.hora" locale="en" :disabled="loaded" required></b-form-timepicker>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Descripción</label></b-col>
+                    <b-col>
+                        <b-form-textarea v-model="form.descripcion" rows="3" max-rows="6"
+                            :disabled="loaded" required></b-form-textarea>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Cliente relacionado</label></b-col>
+                    <b-col>
+                        <b-input v-model="queryCliente" @keyup="mostrarClientes()"
+                            style="text-transform:uppercase;" :disabled="loaded">
                         </b-input>
                         <div class="list-group" v-if="clientes.length" id="listP">
                             <a href="#" v-bind:key="i" class="list-group-item list-group-item-action" 
@@ -15,41 +50,14 @@
                                 {{ cliente.name }}
                             </a>
                         </div>
-                        <b-button class="mt-1" variant="secondary" pill size="sm" block
-                            @click="addProspecto = true" :disabled="form.cliente_id != null">
-                            Cliente no registrado
-                        </b-button>
-                    </b-form-group>
-                </div>
-                <div v-else class="mb-5">
-                    <h6><b>Datos del cliente</b></h6>
-                    <datos-parte-1 :form="form.prospecto" :loaded="loaded" :errors="errors"></datos-parte-1>
-                    <datos-parte-2 :form="form.prospecto" :loaded="loaded" :errors="errors"></datos-parte-2>
-                </div>
+                    </b-col>
+                </b-row>
             </div>
-            <div>
-                <h6><b>Datos de la actividad</b></h6>
-                <b-form-group label-cols-sm="9" label-cols-lg="3" label-align-sm="right"
-                    label="Tipo de actividad">
-                    <b-form-select v-model="form.tipo" :options="tipos" required
-                        :disabled="loaded"></b-form-select>
-                </b-form-group>
-                <b-form-group label-cols-sm="9" label-cols-lg="3" label-align-sm="right"
-                    label="Descripción">
-                    <b-form-textarea v-model="form.descripcion" rows="3" max-rows="6"
-                        :disabled="loaded" required></b-form-textarea>
-                </b-form-group>
-                <b-form-group label-cols-sm="9" label-cols-lg="3" label-align-sm="right"
-                    :label="label_tipo(form.tipo)" >
-                    <b-form-datepicker v-model="form.fecha_recordatorio" :disabled="loaded"
-                        required></b-form-datepicker>
-                </b-form-group>
-            </div>
-            <b-row>
+            <b-row class="mb-2">
                 <b-col></b-col>
                 <b-col sm="9">
                     <b-button type="submit" :disabled="loaded" variant="success"
-                        pill block class="mt-2">
+                        pill block>
                         <i class="fa fa-check"></i> {{ !loaded ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="loaded"></b-spinner>
                     </b-button>
                 </b-col>
@@ -60,36 +68,28 @@
 
 <script>
 import searchCliente from '../../mixins/searchCliente';
-import DatosParte1 from '../clientes/partials/DatosParte1.vue';
-import DatosParte2 from '../clientes/partials/DatosParte2.vue';
-import setTipoAct from '../../mixins/setTipoAct';
+import setTitulo from '../../mixins/setTitulo';
 export default {
-  components: { DatosParte1, DatosParte2 },
-    mixins: [searchCliente, setTipoAct],
+    mixins: [searchCliente, setTitulo],
     data(){
         return {
-            addProspecto: false,
             loaded: false, 
             form: {
                 cliente_id: null,
                 tipo: null,
-                descripcion: null,
-                fecha_recordatorio: null,
-                prospecto: {
-                    name: null,
-                    contacto: null,
-                    estado_id: null,
-                    email: null,
-                    telefono: null,
-                    user_id: null
-                }
+                lugar: null,
+                fecha: null,
+                hora: null,
+                descripcion: null
             },
             errors: {},
             tipos: [
                 { value: null, text: 'Selecciona una opción', disabled: true},
-                { value: 'cita', text: 'Cita' },
-                { value: 'recordatorio', text: 'Recordatorio' },
-                { value: 'anotacion', text: 'Anotación' }
+                { value: 'reunion', text: 'Reunión' },
+                { value: 'videoconferencia', text: 'Video conferencia' },
+                { value: 'llamar', text: 'Llamar' },
+                { value: 'enviarcorreo', text: 'Enviar correo' },
+                { value: 'nota', text: 'Nota' }
             ],
         }
     },
@@ -97,6 +97,10 @@ export default {
         
     },
     methods: {
+        initializeValues(){
+            this.form.lugar = null;
+            if(this.form.tipo == 'nota') this.form.hora = null;
+        },
         selectCliente(cliente){
             this.form.cliente_id = cliente.id;
             this.queryCliente = cliente.name;

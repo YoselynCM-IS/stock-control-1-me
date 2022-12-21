@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Actividade;
 use App\Cliente;
 use App\Reporte;
+use Carbon\Carbon;
 
 class ActividadeController extends Controller
 {
@@ -24,34 +25,22 @@ class ActividadeController extends Controller
         \DB::beginTransaction();
         try {
             $cliente_id = $request->cliente_id;
-            if($cliente_id == null){
-                $cliente = Cliente::create([
-                    'tipo' => 'PROSPECTO',
-                    'name' => strtoupper($request->prospecto['name']),
-                    'contacto' => strtoupper($request->prospecto['contacto']),
-                    'email' => $request->prospecto['email'],
-                    'telefono' => $request->prospecto['telefono'],
-                    'estado_id' => $request->prospecto['estado_id'],
-                    'user_id' => $request->prospecto['user_id']
-                ]);
-                $cliente_id = $cliente->id;
-
-                $reporte = 'creo al '.$cliente->tipo.' '.$cliente->name;
-                $this->create_report($cliente_id, $reporte, 'clientes');
-            }
-            
             $tipo = $request->tipo;
             $descripcion = $request->descripcion;
+            $fecha = $request->fecha.' '.$request->hora;
+
             $actividad = Actividade::create([
                 'user_id' => auth()->user()->id, 
                 'cliente_id' => $cliente_id, 
+                'nombre' => $request->nombre,
                 'tipo' => $tipo, 
                 'descripcion' => $descripcion, 
                 'estado' => 'pendiente', 
-                'fecha_recordatorio' => $request->fecha_recordatorio
+                'fecha' => $fecha,
+                'lugar' => $request->lugar
             ]);
 
-            $reporte = 'creo la actividad '.$actividad->tipo.': '.$actividad->descripcion.' para '.$actividad->cliente->name;
+            $reporte = 'creo la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
             $this->create_report($actividad->id, $reporte, 'actividades');
 
             \DB::commit();
@@ -62,6 +51,87 @@ class ActividadeController extends Controller
 
         return response()->json($actividad);
     }
+
+    // MARCAR ACTIVIDADES COMO TEMRINADAS
+    public function update_estado(Request $request){
+        \DB::beginTransaction();
+        try {
+            $actividad = Actividade::find($request->id);
+            $actividad->update([
+                'estado' => $request->estado,
+                'exitosa' => $request->exitosa, 
+                'observaciones' => $request->observaciones
+            ]);
+
+            $reporte = 'marco como '.$actividad->estado.' la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
+            $this->create_report($actividad->id, $reporte, 'actividades');
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($actividad);
+    }
+
+    public function create_report($id_table, $reporte, $name_table){
+        Reporte::create([
+            'user_id' => auth()->user()->id, 
+            'type' => 'cliente', 
+            'reporte' => $reporte,
+            'name_table' => $name_table,
+            'id_table' => $id_table
+        ]);
+    }
+
+    public function update(Request $request){
+        \DB::beginTransaction();
+        try {
+            $actividad = Actividade::find($request->id);
+            $hoy = Carbon::now();
+
+            $descripcion = $actividad->descripcion.'<p><b>ACTUALIZACIÓN ('.$hoy.'):</b> '.$request->observaciones.'</p>';
+            $fecha = $request->fecha.' '.$request->hora;
+            
+            $estado = 'pendiente';
+            if($fecha < $hoy->toDateTimeString()) $estado = 'vencido';
+
+            $actividad->update([
+                'estado' => $estado,
+                'fecha' => $fecha,
+                'descripcion' => $descripcion
+            ]);
+
+            $reporte = 'edito la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
+            $this->create_report($actividad->id, $reporte, 'actividades');
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($actividad);
+    }
+
+    public function by_user_fecha_actual(){
+        $hoy = Carbon::now();
+        $actividades = $this->get_user_actividades()
+                        ->where('fecha', 'like', '%'.$hoy->format('Y-m-d').'%')
+                        ->get();
+        return response()->json($actividades);
+    }
+
+    public function by_user_estado(Request $request){
+        $actividades = $this->get_user_actividades()
+                        ->where('estado', $request->estado)
+                        ->get();
+        return response()->json($actividades);
+    }
+
+    public function get_user_actividades(){
+        return Actividade::where('user_id', auth()->user()->id)
+                ->with('cliente')->orderBy('fecha', 'desc');
+    }
+
+    // *** FUNCIONES PENDIENTES POR REVISAR
 
     // OBTENER TODAS LAS ACTIVIDADES POR ESTADO Y TIPO
     public function by_tipo_estado(Request $request){
@@ -77,26 +147,6 @@ class ActividadeController extends Controller
                             ->where('actividades.cliente_id', $request->cliente_id)
                             ->get();
         return response()->json($actividades);
-    }
-
-    // MARCAR ACTIVIDADES COMO TEMRINADAS
-    public function mark_actividades(Request $request){
-        \DB::beginTransaction();
-        try {
-            $actividades = collect($request->selected);
-            $actividades->map(function($actividad) use (&$prueba){
-                Actividade::whereId($actividad['id'])
-                                ->update(['estado' => 'completado']);
-
-                $reporte = 'marco como completado la actividad '.$actividad['tipo'].': '.$actividad['descripcion'].' para '.$actividad['cliente_name'];
-                $this->create_report($actividad['id'], $reporte, 'actividades');
-            });
-            \DB::commit();
-        } catch (Exception $e) {
-            \DB::rollBack();
-            return response()->json($exception->getMessage());
-        }
-        return response()->json();
     }
 
     // OBTENER ACTIVIDADES DEL USUARIO EN SESION
@@ -116,15 +166,5 @@ class ActividadeController extends Controller
                     ->where('actividades.tipo', $request->tipo)
                     ->where('actividades.estado', $request->estado)
                     ->orderBy('actividades.created_at', 'desc');
-    }
-
-    public function create_report($id_table, $reporte, $name_table){
-        Reporte::create([
-            'user_id' => auth()->user()->id, 
-            'type' => 'cliente', 
-            'reporte' => $reporte,
-            'name_table' => $name_table,
-            'id_table' => $id_table
-        ]);
     }
 }

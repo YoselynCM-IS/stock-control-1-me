@@ -24,15 +24,29 @@ class ClienteController extends Controller
 
     // OBTENER TODOS LOS CLIENTES
     public function index(){
-        $clientes = Cliente::with('user', 'estado')->orderBy('name', 'asc')->paginate(20);
+        $clientes = $this->get_all_clientes()->paginate(20);
         return response()->json($clientes);
     }
 
+    // OBTENER TODOS LOS CLIENTES RESPONSABLES DEL USUARIO EN SESION
+    public function by_userid(){
+        $clientes = $this->get_all_clientes()->where('user_id', auth()->user()->id)->paginate(20);
+        return response()->json($clientes);
+    }
+
+    public function get_all_clientes(){
+        return Cliente::with('user', 'estado')->orderBy('name', 'asc');
+    }
+
     // MOSTRAR LOS CLIENTES POR COINCIDENCIA DE NOMBRE PAGINADO
-    public function by_name(){
-        $cliente = Input::get('cliente');
-        $clientes = Cliente::where('name','like','%'.$cliente.'%')
-                ->with('user', 'estado')->orderBy('name', 'asc')->paginate(20);
+    public function by_name(Request $request){
+        $clientes = $this->get_all_clientes()->where('name','like','%'.$request->cliente.'%')->paginate(20);
+        return response()->json($clientes);
+    }
+
+    public function by_name_userid(Request $request){
+        $clientes = $this->get_all_clientes()->where('user_id', auth()->user()->id)
+                        ->where('name','like','%'.$request->cliente.'%')->paginate(20);
         return response()->json($clientes);
     }
 
@@ -141,6 +155,35 @@ class ClienteController extends Controller
         return response()->json($cliente);
     }
 
+    public function store_prospecto(Request $request){
+        $this->validate($request, [
+            'name' => 'min:3|max:100|required|string|unique:clientes',
+            'email' => 'min:8|max:50|required|email',
+            'telefono' => 'required|numeric|max:9999999999|min:1000000'
+        ]);
+        \DB::beginTransaction();
+        try {
+            $cliente = Cliente::create([
+                'tipo' => 'PROSPECTO',
+                'name' => strtoupper($request->name),
+                'contacto' => strtoupper($request->contacto),
+                'email' => $request->email,
+                'telefono' => $request->telefono,
+                'estado_id' => $request->estado_id,
+                'user_id' => $request->user_id
+            ]);
+
+            $reporte = 'creo al '.$cliente->tipo.' '.$cliente->name;
+            $this->create_report($cliente->id, $reporte, 'clientes');
+
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($cliente);
+    }
+
     public function validacion($request){
         $this->validate($request, [
             'name' => 'min:3|max:100|required|string|unique:clientes',
@@ -167,8 +210,8 @@ class ClienteController extends Controller
         return response()->json($estados);
     }
 
-    public function get_usuarios(){
-        $users = \DB::table('users')->whereNotIn('role_id', [6])
+    public function get_usuarios(Request $request){
+        $users = \DB::table('users')->whereNotIn('role_id', [$request->role_id])
                         ->orderBy('name', 'asc')->get();
         return response()->json($users);
     }

@@ -13,18 +13,18 @@ class CreatePeticionesTable extends Migration
      */
     public function up()
     {
-        Schema::create('peticiones', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('pedido_id')->nullable();
-            $table->foreign('pedido_id')->references('id')->on('pedidos');
-            $table->unsignedBigInteger('libro_id')->nullable();
-            $table->foreign('libro_id')->references('id')->on('libros');
-            $table->integer('quantity')->default(0);
-            $table->integer('existencia')->default(0);
-            $table->integer('faltante')->default(0);
-            $table->integer('solicitar')->default(0);
-            $table->timestamps();
-        });
+        // Schema::create('peticiones', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('pedido_id')->nullable();
+        //     $table->foreign('pedido_id')->references('id')->on('pedidos');
+        //     $table->unsignedBigInteger('libro_id')->nullable();
+        //     $table->foreign('libro_id')->references('id')->on('libros');
+        //     $table->integer('quantity')->default(0);
+        //     $table->integer('existencia')->default(0);
+        //     $table->integer('faltante')->default(0);
+        //     $table->integer('solicitar')->default(0);
+        //     $table->timestamps();
+        // });
     }
 
     /**

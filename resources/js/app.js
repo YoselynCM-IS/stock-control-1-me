@@ -77,6 +77,7 @@ Vue.component('details-order-component', require('./components/orders/DetailsOrd
 
 // CLIENTES
 Vue.component('clientes-component', require('./components/clientes/ClientesComponent.vue').default);
+Vue.component('table-clientes', require('./components/clientes/partials/TableClientes').default);
 Vue.component('new-client-component', require('./components/clientes/NewClientComponent.vue').default);
 Vue.component('libros-cliente-component', require('./components/clientes/LibrosClienteComponent.vue').default);
 
@@ -132,7 +133,15 @@ Vue.component('add-pago-corte-component', require('./components/historial/AddPag
 
 // ACTIVIDADES
 Vue.component('actividades-component', require('./components/actividades/ActividadesComponent').default);
+Vue.component('actividades-component', require('./components/actividades/ActividadesComponent').default);
 Vue.component('new-actividad-component', require('./components/actividades/NewActividadComponent').default);
+
+// REPORTES
+Vue.component('reportes-listado-component', require('./components/reportes/ListadoComponent').default);
+
+// CRM
+Vue.component('crm-inicio-component', require('./components/crm/InicioComponent').default);
+
 
 /** NO UTLIZADOS */
 Vue.component('pagos-remisiones', require('./components/nu/PagosRemisiones.vue').default);

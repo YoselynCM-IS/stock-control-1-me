@@ -13,18 +13,18 @@ class CreateReportesTable extends Migration
      */
     public function up()
     {
-        Schema::create('reportes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
-            $table->enum('type', ['libro', 'cliente', 'proveedor']);
-            $table->text('reporte');
-            $table->string('name_table');
-            $table->bigInteger('id_table');
-            $table->enum('estado', ['capturado', 'revisado', 'pendiente'])->default('capturado');
-            $table->text('comentario')->nullable();
-            $table->timestamps();
-        });
+        // Schema::create('reportes', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('user_id');
+        //     $table->foreign('user_id')->references('id')->on('users');
+        //     $table->enum('type', ['libro', 'cliente', 'proveedor']);
+        //     $table->text('reporte');
+        //     $table->string('name_table');
+        //     $table->bigInteger('id_table');
+        //     $table->enum('estado', ['capturado', 'revisado', 'pendiente'])->default('capturado');
+        //     $table->text('comentario')->nullable();
+        //     $table->timestamps();
+        // });
     }
 
     /**

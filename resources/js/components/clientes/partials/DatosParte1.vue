@@ -7,7 +7,7 @@
                     id="input-name"
                     style="text-transform:uppercase;"
                     v-model="form.name"
-                    :disabled="loaded"
+                    :disabled="load"
                     required>
                 </b-form-input>
                 <div v-if="errors && errors.name" class="text-danger">{{ errors.name[0] }}</div>
@@ -20,7 +20,7 @@
                     id="input-name"
                     style="text-transform:uppercase;"
                     v-model="form.contacto"
-                    :disabled="loaded">
+                    :disabled="load">
                 </b-form-input>
                 <div v-if="errors && errors.contacto" class="text-danger">{{ errors.contacto[0] }}</div>
             </div>
@@ -30,6 +30,6 @@
 
 <script>
 export default {
-    props: ['form', 'loaded', 'errors']
+    props: ['form', 'load', 'errors']
 }
 </script>

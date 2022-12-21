@@ -9,7 +9,8 @@ use App\User;
 class Actividade extends Model
 {
     protected $fillable = [
-        'id', 'user_id', 'cliente_id', 'tipo', 'descripcion', 'estado', 'fecha_recordatorio'
+        'id', 'user_id', 'cliente_id', 'nombre', 'tipo', 'descripcion', 'estado', 'fecha', 'lugar',
+        'exitosa', 'observaciones'
     ];   
 
     public function cliente(){

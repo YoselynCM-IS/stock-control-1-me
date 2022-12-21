@@ -1,5 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-    <actividades-component tipo_cliente="{{$tipo}}"></actividades-component>
+    <crm-inicio-component :role_id="{{ auth()->user()->role_id }}"></crm-inicio-component>
+    <!-- <actividades-component tipo_cliente="{{$tipo}}"></actividades-component> -->
 @endsection

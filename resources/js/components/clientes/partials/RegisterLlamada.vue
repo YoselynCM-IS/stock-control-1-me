@@ -1,0 +1,100 @@
+<template>
+    <div>
+        <b-form @submit.prevent="onSubmit">
+            <b-row>
+                <b-col>
+                    <b-form-group label="Tipo">
+                        <b-form-select v-model="form.tipo" :options="tipos" :disabled="load" required></b-form-select>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group label="Fecha">
+                        <b-form-datepicker v-model="form.fecha" :disabled="load" required></b-form-datepicker>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group label="Hora">
+                        <b-form-timepicker v-model="form.hora" locale="en" :disabled="load" required></b-form-timepicker>
+                    </b-form-group>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col>
+                    <b-form-group label="Respuesta">
+                        <b-form-select v-model="form.respuesta" :options="respuestas" :disabled="load" required></b-form-select>
+                    </b-form-group>
+                </b-col>
+                <b-col>
+                    <b-form-group label="Duración">
+                        <b-row>
+                            <b-col class="text-center">
+                                <b-form-input v-model="form.duracion.horas" type="number" :disabled="load" required></b-form-input>
+                                <label>horas</label>
+                            </b-col>
+                            <b-col class="text-center">
+                                <b-form-input v-model="form.duracion.minutos" type="number" :disabled="load" required></b-form-input>
+                                <label>minutos</label>
+                            </b-col>
+                            <b-col class="text-center">
+                                <b-form-input v-model="form.duracion.segundos" type="number" :disabled="load" required></b-form-input>
+                                <label>segundos</label>
+                            </b-col>
+                        </b-row>
+                    </b-form-group>
+                </b-col>
+            </b-row>
+            <b-form-group label="Comentario">
+                <b-form-textarea v-model="form.comentario" rows="3" max-rows="6"></b-form-textarea>
+            </b-form-group>
+            <div class="text-right">
+                <b-button type="submit" variant="success" pill class="mt-2">
+                    <i class="fa fa-check"></i> Guardar
+                </b-button>
+            </div>
+        </b-form>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            load: false,
+            form: {
+                tipo: null,
+                fecha: null,
+                hora: null,
+                duracion: {
+                    horas: 0,
+                    minutos: 0,
+                    segundos: 0 
+                },
+                respuesta: null,
+                comentario: null
+            },
+            tipos: [
+                {value: null, text: 'Selecciona una opción', disabled: true},
+                {value: 'recibida', text: 'Recibida'},
+                {value: 'realizada', text: 'Realizada'}
+            ],
+            respuestas: [
+                {value: 'sin respuesta', label: 'sin respuesta'},
+                {value: 'ocupado', label: 'ocupado'},
+                {value: 'buzon de voz', label: 'buzón de voz'},
+                {value: 'llamar mas tarde', label: 'llamar más tarde'},
+                {value: 'numero equivocado', label: 'número equivocado'},
+                {value: 'no interesado', label: 'no interesado'},
+            ]
+        }
+    },
+    methods: {
+        onSubmit(){
+
+        }
+    }
+}
+</script>
+
+<style>
+
+</style>
