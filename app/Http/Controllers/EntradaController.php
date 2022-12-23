@@ -24,6 +24,11 @@ use PDF;
 
 class EntradaController extends Controller
 {
+    // OBTENER LA LISTA DE ENTRADAS
+    public function lista(){
+        return view('information.entradas.lista');
+    }
+
     // OBTENER TODAS LAS ENTRADAS
     public function index(){
         $entradas = Entrada::with('registros')
@@ -183,13 +188,8 @@ class EntradaController extends Controller
     // Función utilizada en EntradasComponent, EditarEntradasComponent, VendidosComponent
     public function by_editorial(){
         $editorial = Input::get('editorial');
-        if($editorial == 'TODAS'){
-            $entradas = Entrada::orderBy('id','desc')->paginate(20);
-        }
-        else{
-            $entradas = Entrada::where('editorial','like','%'.$editorial.'%')
+        $entradas = Entrada::where('editorial','like','%'.$editorial.'%')
                             ->orderBy('id','desc')->paginate(20);
-        }
         return response()->json($entradas);
     }
 

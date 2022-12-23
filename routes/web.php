@@ -91,8 +91,8 @@ Route::name('captura.')->prefix('captura')->middleware(['auth', 'role:Captura'])
 
 // ALMACEN
 Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])->group(function () {
-    // Route::get('/pagos', 'AlmacenController@pagos')->name('pagos');
     Route::get('/remisiones', 'AlmacenController@remisiones')->name('remisiones');
+    Route::get('/devoluciones', 'AlmacenController@devoluciones')->name('devoluciones');
     Route::get('/notas', 'AlmacenController@notas')->name('notas');
     Route::get('/promociones', 'AlmacenController@promociones')->name('promociones');
     Route::get('/entradas', 'AlmacenController@entradas')->name('entradas');
@@ -640,6 +640,10 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
 
     Route::name('reportes.')->prefix('reportes')->group(function () {
         Route::get('/lista', 'ReporteController@lista')->name('lista');
+    });
+
+    Route::name('entradas.')->prefix('entradas')->group(function () {
+        Route::get('/lista', 'EntradaController@lista')->name('lista');
     });
 }); 
 

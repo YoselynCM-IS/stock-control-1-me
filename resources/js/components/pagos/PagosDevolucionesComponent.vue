@@ -71,7 +71,7 @@
                     </template> -->
                     <template v-slot:cell(registrar_devolucion)="row">
                         <b-button 
-                            v-if="row.item.total_pagar > 0 && (role_id == 1 || role_id == 2 || role_id == 3 || role_id == 6)" 
+                            v-if="row.item.total_pagar > 0 && (role_id == 1 || role_id == 3 || role_id == 6)" 
                             variant="dark" 
                             @click="registrarDevolucion(row.item, row.index)">Devolución
                         </b-button>

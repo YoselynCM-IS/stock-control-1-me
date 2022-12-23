@@ -18,10 +18,10 @@ class AlmacenController extends Controller
         return view('almacen.remisiones');
     }
 
-    // public function pagos(){ 
-    //     $responsables = \DB::table('responsables')->orderBy('responsable', 'asc')->get();
-    //     return view('almacen.pagos', compact('responsables'));
-    // }
+    public function devoluciones(){ 
+        $responsables = \DB::table('responsables')->orderBy('responsable', 'asc')->get();
+        return view('almacen.devoluciones', compact('responsables'));
+    }
 
     public function notas(){
         return view('almacen.notas');

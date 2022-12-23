@@ -72,7 +72,10 @@
                     </b-button>
                 </b-col>
                 <b-col sm="3" class="text-right">
-                    <b-button v-if="role_id === 1 || role_id == 2 || role_id == 6" variant="success" @click="nuevaEntrada()"><i class="fa fa-plus"></i> Nueva entrada</b-button>
+                    <b-button v-if="role_id === 1 || role_id == 3 || role_id == 6" 
+                            variant="success" @click="nuevaEntrada()">
+                            <i class="fa fa-plus"></i> Nueva entrada
+                    </b-button>
                 </b-col>
             </b-row>
             <!-- LISTADO DE ENTRADAS -->
@@ -110,7 +113,7 @@
                             <i class="fa fa-pencil"></i>
                         </b-button>
                         <b-button
-                            v-if="(role_id === 1 || role_id == 2 || role_id == 6) && row.item.total > 0 && ((row.item.total - (row.item.total_pagos + row.item.total_devolucion)) > 0)"
+                            v-if="(role_id === 1 || role_id == 3 || role_id == 6) && row.item.total > 0 && ((row.item.total - (row.item.total_pagos + row.item.total_devolucion)) > 0)"
                             @click="registrarDevolucion(row.item, row.index)"
                             variant="primary">Devolución
                         </b-button>
@@ -372,16 +375,18 @@
 </template>
 
 <script>
+import getEditoriales from '../../mixins/getEditoriales';
 import AddEditEntrada from './partials/AddEditEntrada.vue';
 import DevolucionEntrada from './partials/DevolucionEntrada.vue';
     export default {
     components: { AddEditEntrada, DevolucionEntrada },
-        props: ['role_id', 'editoriales'],
+    mixins: [getEditoriales],
+        props: ['role_id'],
         data() {
             return {
                 entradas: [],
                 registros: [],
-                editorial: 'TODAS',
+                editorial: null,
                 fieldsP: [
                     {key: 'index', label: 'No.'},
                     'pago',
@@ -434,7 +439,6 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     {key: 'unidades_base', label: 'Unidades'},
                     {key: 'total_base', label: 'Subtotal'},
                 ],
-                options: [],
                 mostrarDetalles: false,
                 entrada: {
                     id: 0,
@@ -499,7 +503,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
             }
         },
         created: function(){
-            this.assign_editorial();
+            this.get_editoriales();
             this.getResults();
         },
         filters: {
@@ -532,18 +536,18 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     this.load = false;
                 });
             },
-            assign_editorial(){
-                this.options.push({
-                    value: 'TODAS',
-                    text: 'MOSTRAR TODO'
-                });
-                this.editoriales.forEach(editorial => {
-                    this.options.push({
-                        value: editorial.editorial,
-                        text: editorial.editorial
-                    });
-                });
-            },
+            // assign_editorial(){
+            //     this.options.push({
+            //         value: 'TODAS',
+            //         text: 'MOSTRAR TODO'
+            //     });
+            //     this.editoriales.forEach(editorial => {
+            //         this.options.push({
+            //             value: editorial.editorial,
+            //             text: editorial.editorial
+            //         });
+            //     });
+            // },
             confirmarAct(){
                 if(this.subtotal > 0){
                     this.estado = false;
