@@ -20,7 +20,7 @@
             </b-col>
         </b-row>
         <hr>
-        <div v-if="showSelect" class="row justify-content-center">
+        <!-- <div v-if="showSelect" class="row justify-content-center">
             <b-card class="col-md-6">
                 <b-row>
                     <b-col sm="2"><label>Editorial</label></b-col>
@@ -35,19 +35,23 @@
                     <i class="fa fa-arrow-right"></i> Continuar
                 </b-button>
             </b-card>
-        </div>
-        <div v-else>
+        </div> -->
+        <div>
             <div>
                 <b-row>
                     <b-col sm="1"><label>Editorial</label></b-col>
-                    <b-col sm="5"><b>{{ form.editorial }}</b></b-col>
+                    <b-col sm="5">
+                        <b-form-select v-model="form.editorial" autofocus :state="stateE" 
+                            @change="editorialSelected()"
+                            :disabled="load || form.registros.length > 0" :options="options">
+                        </b-form-select>    
+                    </b-col>
                 </b-row>
                 <b-row>
                     <b-col sm="1"><label>Folio</label></b-col>
                     <b-col sm="5">
                         <b-form-input style="text-transform:uppercase;"
-                            v-model="form.folio" autofocus
-                            :disabled="load" :state="stateN"
+                            v-model="form.folio" :disabled="load" :state="stateN"
                             @change="guardarNum()">
                         </b-form-input>
                     </b-col>
@@ -59,7 +63,7 @@
                 </b-row>
             </div>
             <hr>
-            <b-table :items="form.registros" :fields="form.editorial == 'MAJESTIC EDUCATION' ? fieldsQO:fieldsRE">
+            <b-table :items="form.registros" :fields="form.queretaro ? fieldsQO:fieldsRE">
                 <template v-slot:cell(index)="row">{{ row.index + 1}}</template>
                 <template v-slot:cell(ISBN)="row">{{ row.item.isbn }}</template>
                 <template v-slot:cell(titulo)="row">{{ row.item.titulo }}</template>
@@ -77,8 +81,8 @@
                         <th colspan="1"></th>
                         <th>ISBN</th>
                         <th>Libro</th>
-                        <th>{{ form.editorial == 'MAJESTIC EDUCATION' ? 'Unidades (CDMX)':'Unidades' }}</th>
-                        <th v-if="form.editorial == 'MAJESTIC EDUCATION'">Unidades (QUE)</th>
+                        <th>{{ form.queretaro ? 'Unidades (CDMX)':'Unidades' }}</th>
+                        <th v-if="form.queretaro">Unidades (QUE)</th>
                     </tr>
                     <tr v-if="form.editorial !== null">
                         <th colspan="1"></th>
@@ -109,12 +113,12 @@
                                 type="number" required>
                             </b-form-input>
                         </th>
-                        <th v-if="form.editorial == 'MAJESTIC EDUCATION'">
+                        <th v-if="form.queretaro">
                             <b-form-input v-model="temporal.unidades_que" 
                                 type="number" required>
                             </b-form-input>
                         </th>
-                        <th v-if="form.editorial == 'MAJESTIC EDUCATION'" colspan="2">
+                        <th v-if="form.queretaro" colspan="2">
                             <b-button :disabled="temporal.id == null || temporal.unidades_que <= 0"
                                 variant="success" pill @click="saveTemporal()">
                                 <i class="fa fa-level-down"></i>
@@ -142,7 +146,7 @@
                             :total_unidades="total_unidades"></totales-entrada>
                     </b-col>
                 </b-row>
-                <b-table :items="form.registros" :fields="form.editorial == 'MAJESTIC EDUCATION' ? fieldsQO:fieldsRE">
+                <b-table :items="form.registros" :fields="form.queretaro ? fieldsQO:fieldsRE">
                     <template v-slot:cell(index)="row">{{ row.index + 1}}</template>
                     <template v-slot:cell(ISBN)="row">{{ row.item.isbn }}</template>
                     <template v-slot:cell(titulo)="row">{{ row.item.titulo }}</template>
@@ -228,6 +232,19 @@ export default {
         });
     },
     methods: {
+        editorialSelected(){
+            if(this.form.editorial == 'MAJESTIC EDUCATION'){
+                swal({
+                    title: "¿Se enviarán libros a Querétaro?",
+                    text: this.form.editorial,
+                    icon: 'info',
+                    buttons: ['NO', 'SI'],
+                }).then((value) => {
+                    if(value) this.form.queretaro = true;
+                    else this.form.queretaro = false;
+                });
+            }
+        },
         confirmarEntrada(){
             this.$refs['modal-confirmarEntrada'].show();
         },

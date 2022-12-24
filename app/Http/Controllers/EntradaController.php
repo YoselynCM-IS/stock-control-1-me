@@ -42,11 +42,10 @@ class EntradaController extends Controller
         \DB::beginTransaction();
         try {
             $editorial = $request->editorial;
-            $lugar = 'CMX';
 
-            if($editorial == 'MAJESTIC EDUCATION') $lugar = 'DOS';
-            if($editorial == 'OMEGA BOOK') $editorial = 'MAJESTIC EDUCATION';
-            
+            $lugar = 'CMX';
+            if($request->queretaro) $lugar = 'DOS';
+
             $entrada = Entrada::create([
                 'folio' => strtoupper($request->folio),
                 'editorial' => $editorial,

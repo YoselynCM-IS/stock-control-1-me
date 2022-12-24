@@ -1,10 +1,10 @@
 <template>
     <div>
         <b-row>
-            <b-col align="right"><b>{{ form.editorial == 'MAJESTIC EDUCATION' ? 'Unidades (CDMX)':'Unidades' }}:</b></b-col>
+            <b-col align="right"><b>{{ form.queretaro ? 'Unidades (CDMX)':'Unidades' }}:</b></b-col>
             <b-col align="left">{{ form.unidades | formatNumber }}</b-col>
         </b-row>
-        <div v-if="form.editorial == 'MAJESTIC EDUCATION'">
+        <div v-if="form.queretaro">
             <b-row>
                 <b-col align="right"><b>Unidades (QUE):</b></b-col>
                 <b-col align="left">{{ total_unidades_que | formatNumber }}</b-col>

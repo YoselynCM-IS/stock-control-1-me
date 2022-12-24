@@ -487,6 +487,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     unidades: 0,
                     folio: null,
                     editorial: null,
+                    queretaro: false,
                     registros: []
                 },
                 mostrarAdd: false,
@@ -788,6 +789,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     unidades: 0,
                     folio: null,
                     editorial: null,
+                    queretaro: false,
                     registros: []
                 };
                 this.mostrarAdd = true;
