@@ -18,7 +18,8 @@ class Entrada extends Model
         'total_pagos',
         'total_devolucion',
         'lugar',
-        'creado_por'
+        'creado_por',
+        'name', 'size', 'extension', 'public_url'
     ];
 
     //Uno a muchos

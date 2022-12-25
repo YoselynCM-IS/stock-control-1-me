@@ -1,12 +1,12 @@
 <template>
     <div>
-        <!-- ENCABEZADO -->
         <b-row>
             <b-col sm="3">
                 <h4 style="color: #170057">{{ agregar ? 'Nueva' : 'Editar' }} entrada</h4>
             </b-col>
             <b-col sm="6" class="text-right">
-                <b-button :disabled="load || this.form.registros.length == 0 || stateN != true"
+                <b-button :disabled="load || form.registros.length == 0 || stateN != true ||
+                        (form.editorial == 'MAJESTIC EDUCATION' && form.queretaro && total_unidades_que == 0)"
                     @click="confirmarEntrada()" variant="success" pill>
                     <i v-if="agregar === true" class="fa fa-check"> {{ !load ? 'Guardar' : 'Guardando' }}</i>
                     <i v-else class="fa fa-check"> {{ !load ? 'Guardar  cambios' : 'Guardando' }}</i>
@@ -20,45 +20,31 @@
             </b-col>
         </b-row>
         <hr>
-        <!-- <div v-if="showSelect" class="row justify-content-center">
-            <b-card class="col-md-6">
-                <b-row>
-                    <b-col sm="2"><label>Editorial</label></b-col>
-                    <b-col sm="10">
-                        <b-form-select v-model="form.editorial" :disabled="load || form.registros.length > 0"
-                            autofocus :state="stateE" :options="options">
-                        </b-form-select>
-                    </b-col>
-                </b-row>
-                <b-button class="mt-3" pill block variant="success"
-                    :disabled="form.editorial == null" @click="showSelect = !showSelect">
-                    <i class="fa fa-arrow-right"></i> Continuar
-                </b-button>
-            </b-card>
-        </div> -->
         <div>
             <div>
                 <b-row>
-                    <b-col sm="1"><label>Editorial</label></b-col>
-                    <b-col sm="5">
-                        <b-form-select v-model="form.editorial" autofocus :state="stateE" 
-                            @change="editorialSelected()"
-                            :disabled="load || form.registros.length > 0" :options="options">
-                        </b-form-select>    
+                    <b-col>
+                        <b-row>
+                            <b-col sm="2"><label>Editorial</label></b-col>
+                            <b-col>
+                                <b-form-select v-model="form.editorial" autofocus :state="stateE" 
+                                    @change="editorialSelected()"
+                                    :disabled="load || form.registros.length > 0" :options="options">
+                                </b-form-select>    
+                            </b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col sm="2"><label>Folio</label></b-col>
+                            <b-col>
+                                <b-form-input style="text-transform:uppercase;"
+                                    v-model="form.folio" :disabled="load" :state="stateN"
+                                    @change="guardarNum()">
+                                </b-form-input>
+                            </b-col>
+                        </b-row>
                     </b-col>
-                </b-row>
-                <b-row>
-                    <b-col sm="1"><label>Folio</label></b-col>
-                    <b-col sm="5">
-                        <b-form-input style="text-transform:uppercase;"
-                            v-model="form.folio" :disabled="load" :state="stateN"
-                            @change="guardarNum()">
-                        </b-form-input>
-                    </b-col>
-                    <b-col sm="6" align="right">
-                        <totales-entrada :form="form" 
-                            :total_unidades_que="total_unidades_que" 
-                            :total_unidades="total_unidades"></totales-entrada>
+                    <b-col class="text-right">
+                        <!-- <subir-foto-component :disabled="(load)" :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component> -->
                     </b-col>
                 </b-row>
             </div>
@@ -119,7 +105,7 @@
                             </b-form-input>
                         </th>
                         <th v-if="form.queretaro" colspan="2">
-                            <b-button :disabled="temporal.id == null || temporal.unidades_que <= 0"
+                            <b-button :disabled="temporal.id == null"
                                 variant="success" pill @click="saveTemporal()">
                                 <i class="fa fa-level-down"></i>
                             </b-button>
@@ -131,30 +117,43 @@
                             </b-button>
                         </th>
                     </tr>
+                    <tr>
+                        <th colspan="3"></th>
+                        <th>{{ form.unidades | formatNumber }}</th>
+                        <th v-if="form.queretaro">{{ total_unidades_que | formatNumber }}</th>
+                        <th v-if="form.queretaro">{{ total_unidades | formatNumber }}</th>
+                    </tr>
                 </template>
             </b-table>
             <!-- MODALS -->
-            <b-modal ref="modal-confirmarEntrada" size="xl" title="Resumen de la entrada">
-                <b-row>
-                    <b-col sm="8">
-                        <label><b>Folio:</b> {{form.folio}}</label><br>
-                        <label><b>Editorial:</b> {{form.editorial}}</label>
-                    </b-col>
-                    <b-col sm="4">
-                        <totales-entrada :form="form" 
-                            :total_unidades_que="total_unidades_que" 
-                            :total_unidades="total_unidades"></totales-entrada>
-                    </b-col>
-                </b-row>
-                <b-table :items="form.registros" :fields="form.queretaro ? fieldsQO:fieldsRE">
-                    <template v-slot:cell(index)="row">{{ row.index + 1}}</template>
-                    <template v-slot:cell(ISBN)="row">{{ row.item.isbn }}</template>
-                    <template v-slot:cell(titulo)="row">{{ row.item.titulo }}</template>
-                    <template v-slot:cell(unidades)="row">{{ row.item.unidades | formatNumber }}</template>
-                    <template v-slot:cell(unidades_que)="row">{{ row.item.unidades_que | formatNumber }}</template>
-                    <template v-slot:cell(total_unidades)="row">{{ row.item.total_unidades | formatNumber }}</template>
-                </b-table>
-                <div slot="modal-footer">
+            <b-modal ref="modal-confirmarEntrada" size="xl" title="Resumen de la entrada" hide-footer>
+                <form @submit="onSubmit" enctype="multipart/form-data">
+                    <b-row>
+                        <b-col>
+                            <label><b>Folio:</b> {{form.folio}}</label><br>
+                            <label><b>Editorial:</b> {{form.editorial}}</label>
+                        </b-col>
+                        <b-col class="text-right">
+                            <subir-foto-component :disabled="load" 
+                                :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component>
+                        </b-col>
+                    </b-row>
+                    <b-table :items="form.registros" :fields="form.queretaro ? fieldsQO:fieldsRE">
+                        <template v-slot:cell(index)="row">{{ row.index + 1}}</template>
+                        <template v-slot:cell(ISBN)="row">{{ row.item.isbn }}</template>
+                        <template v-slot:cell(titulo)="row">{{ row.item.titulo }}</template>
+                        <template v-slot:cell(unidades)="row">{{ row.item.unidades | formatNumber }}</template>
+                        <template v-slot:cell(unidades_que)="row">{{ row.item.unidades_que | formatNumber }}</template>
+                        <template v-slot:cell(total_unidades)="row">{{ row.item.total_unidades | formatNumber }}</template>
+                        <template #thead-top="row">
+                            <tr>
+                                <th colspan="3"></th>
+                                <th>{{ form.unidades | formatNumber }}</th>
+                                <th v-if="form.queretaro">{{ total_unidades_que | formatNumber }}</th>
+                                <th v-if="form.queretaro">{{ total_unidades | formatNumber }}</th>
+                            </tr>
+                        </template>
+                    </b-table>
                     <b-row>
                         <b-col sm="10">
                             <b-alert show variant="info">
@@ -162,24 +161,23 @@
                             </b-alert>
                         </b-col>
                         <b-col sm="2" align="right">
-                            <b-button @click="onSubmit()" 
-                                variant="success" :disabled="load">
+                            <b-button type="submit" variant="success" :disabled="load || form.file == null">
                                 <i class="fa fa-check"></i> Confirmar
                             </b-button>
                         </b-col>
                     </b-row>
-                </div>
+                </form>
             </b-modal>
         </div>
     </div>
 </template>
 
 <script>
+import SubirFotoComponent from '../../funciones/SubirFotoComponent.vue';
 import formatNumber from './../../../mixins/formatNumber';
 import toast from './../../../mixins/toast';
-import TotalesEntrada from './TotalesEntrada.vue';
 export default {
-  components: { TotalesEntrada },
+  components: { SubirFotoComponent },
     props: ['agregar', 'form', 'editoriales'],
     mixins: [formatNumber,toast],
     data(){
@@ -244,13 +242,29 @@ export default {
                     else this.form.queretaro = false;
                 });
             }
+            if(this.form.editorial != 'MAJESTIC EDUCATION') this.form.queretaro = false;
+            this.inicializar_temporal(null, null, null);
+            this.resultsISBNS = [];
+            this.resultslibros = [];
         },
         confirmarEntrada(){
+            this.form.file = null;
             this.$refs['modal-confirmarEntrada'].show();
         },
-        onSubmit(){
+        onSubmit(e){
+            e.preventDefault();
             this.load = true;
-            axios.post('/entradas/store', this.form).then(response => {
+
+            let formData = new FormData();
+            formData.append('file', this.form.file, this.form.file.name);
+            formData.append('unidades', this.form.unidades);
+            formData.append('folio', this.form.folio);
+            formData.append('editorial', this.form.editorial);
+            formData.append('queretaro', this.form.queretaro);
+            formData.append('registros', JSON.stringify(this.form.registros));
+            axios.post('/entradas/store', formData, { 
+                headers: { 'content-type': 'multipart/form-data' } })
+            .then(response => {
                 swal("OK", "La entrada se creo correctamente", "success")
                     .then((value) => { location.reload(); });
                 this.load = false;
@@ -324,16 +338,21 @@ export default {
         saveTemporal(){
             let u = parseInt(this.temporal.unidades);
             let uq = parseInt(this.temporal.unidades_que);
-            this.form.registros.push({
-                id: this.temporal.id,
-                isbn: this.temporal.isbn,
-                titulo: this.temporal.titulo,
-                unidades: u,
-                unidades_que: uq,
-                total_unidades: u + uq
-            });
-            this.acum_total();
-            this.inicializar_temporal(null, null, null);
+            let total_unidades = u + uq;
+            if(total_unidades > 0){
+                this.form.registros.push({
+                    id: this.temporal.id,
+                    isbn: this.temporal.isbn,
+                    titulo: this.temporal.titulo,
+                    unidades: u,
+                    unidades_que: uq,
+                    total_unidades: total_unidades
+                });
+                this.acum_total();
+                this.inicializar_temporal(null, null, null);
+            } else {
+                this.makeToast('warning', 'El total de unidades debe ser mayor a 0');
+            }
         },
         acum_total(){
             this.form.unidades = 0;
@@ -346,6 +365,9 @@ export default {
         },
         goBack(){
             this.$emit('goBack', true);
+        },
+        uploadImage(file){
+            this.form.file = file;
         }
     }
 }

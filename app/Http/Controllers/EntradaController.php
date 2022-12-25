@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use App\Exports\EntradasExport;
@@ -24,6 +26,13 @@ use PDF;
 
 class EntradaController extends Controller
 {
+    public function __construct()
+    {
+        // Necesitamos obtener una instancia de la clase Client la cual tiene algunos métodos
+        // que serán necesarios.
+        $this->dropbox = Storage::disk('dropbox')->getDriver()->getAdapter()->getClient();   
+    }
+
     // OBTENER LA LISTA DE ENTRADAS
     public function lista(){
         return view('information.entradas.lista');
@@ -42,19 +51,70 @@ class EntradaController extends Controller
         \DB::beginTransaction();
         try {
             $editorial = $request->editorial;
-
+            $folio = strtoupper($request->folio);
             $lugar = 'CMX';
-            if($request->queretaro) $lugar = 'DOS';
+            if($request->queretaro == 'true') $lugar = 'DOS';
+            
+            // *** SUBIR IMAGEN
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $name_file = $folio."_".time().".".$extension;
+    
+            $image = Image::make($request->file('file'));
+            $image->resize(1280, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+    
+            Storage::disk('dropbox')->put(
+                '/stock1/entradas/'.$name_file, (string) $image->encode('jpg', 30)
+            );
+            
+            $response = $this->dropbox->createSharedLinkWithSettings(
+                '/stock1/entradas/'.$name_file, 
+                ["requested_visibility" => "public"]
+            );
+            // *** SUBIR IMAGEN
 
             $entrada = Entrada::create([
-                'folio' => strtoupper($request->folio),
+                'folio' => $folio,
                 'editorial' => $editorial,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
-                'creado_por' => auth()->user()->name
+                'creado_por' => auth()->user()->name,
+                'name' => $response['name'],
+                'extension' => $extension,
+                'size' => $response['size'],
+                'public_url' => $response['url'],
             ]);
 
-            $unidades = $this->save_registros($request->registros, $entrada);
+            $rs = json_decode($request->registros);
+            $unidades = 0;
+            $registros = collect($rs);
+            $hoy = Carbon::now();
+            $registros->map(function($item) use($entrada, &$unidades, $hoy){
+                $unidades_base = (int) $item->unidades;
+                $libro_id = $item->id;
+                // CREAR LISTA DE REGISTROS
+                $registro = Registro::create([
+                    'entrada_id' => $entrada->id,
+                    'libro_id'  => $libro_id,
+                    'unidades'  => $unidades_base,
+                    'unidades_que'  => $item->unidades_que,
+                    'unidades_pendientes'  => $unidades_base,
+                    'created_at' => $hoy,
+                    'updated_at' => $hoy
+                ]);
+
+                $reporte = 'registro la entrada (entrada) de '.$registro->unidades.' unidades - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$entrada->folio.' / '.$entrada->editorial;
+                $this->create_report($registro->id, $reporte, 'libro', 'registros');
+
+                // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
+                \DB::table('libros')->whereId($libro_id)
+                    ->increment('piezas', $unidades_base);   
+                
+                $unidades += $unidades_base;
+            });
             
             $entrada->update(['unidades' => $unidades]);
             $get_entrada = Entrada::whereId($entrada->id)->first();

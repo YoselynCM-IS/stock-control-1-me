@@ -54,20 +54,8 @@
         </b-modal>
         <!-- SUBIR PAGO -->
         <b-modal ref="show-upload-pago" hide-footer size="sm" title="Subir foto del pago">
-            <form @submit="uploadImage" enctype="multipart/form-data">
-                <b-form-group>
-                    <input :disabled="load" type="file" id="archivoType" 
-                        v-on:change="fileChange" required name="file">
-                    <label for="archivoType">
-                        <i class="fa fa-upload"></i> Seleccionar foto
-                    </label>
-                    <p v-if="formImage.file !== null">
-                        FOTO: <b>{{ formImage.file.name }}</b>
-                    </p>
-                    <div v-if="errors && errors.file" class="text-danger">
-                        La foto debe tener un tamaño máximo de 3MB y solo formato jpg, png, jpeg
-                    </div>
-                </b-form-group>
+            <form @submit="saveImage" enctype="multipart/form-data">
+                <subir-foto-component :disabled="load" :titulo="'Subir pago'" @uploadImage="uploadImage"></subir-foto-component>
                 <div class="text-right mt-3">
                     <b-button pill :disabled="load" variant="success" type="submit">
                         <i class="fa fa-plus-circle"> Subir</i> 
@@ -79,13 +67,14 @@
 </template>
 
 <script>
+import SubirFotoComponent from '../../funciones/SubirFotoComponent.vue';
 import formatNumber from '../../../mixins/formatNumber';
 import AlertVComponent from './AlertVComponent.vue';
 import setCortes from '../../../mixins/setCortes';
 import toast from '../../../mixins/toast';
 import EditPagoComponent from './EditPagoComponent.vue';
 export default {
-    components: {AlertVComponent, EditPagoComponent},
+    components: {AlertVComponent, EditPagoComponent, SubirFotoComponent},
     props: ['remdepositos', 'cortePagar', 'showTitle', 'cliente_id','role_id'],
     mixins: [formatNumber,setCortes,toast],
     data(){
@@ -202,7 +191,7 @@ export default {
                 swal("Revisar formato de imagen", "Formato de imagen no permitido, solo puede ser en formato imagen (jpg, jpeg, png)", "warning");
             }
         },
-        uploadImage(e){
+        saveImage(e){
             e.preventDefault();
             this.load = true;
             let formData = new FormData();
@@ -218,6 +207,9 @@ export default {
             }).catch(error => {
                 this.load = false;
             });
+        },
+        uploadImage(file){
+            this.formImage.file = file;
         }
     }
 }

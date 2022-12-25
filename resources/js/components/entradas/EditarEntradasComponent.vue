@@ -143,23 +143,29 @@
         <!-- MOSTRAR DETALLES DE LA ENTRADA -->
         <div v-if="mostrarDetalles">
             <b-row>
-                <b-col sm="5">
+                <b-col sm="4">
                     <label><b>Folio:</b> {{entrada.folio}}</label><br>
                     <label><b>Fecha de creación:</b> {{entrada.created_at | moment}}</label>
                 </b-col>
-                <b-col>
+                <!-- <b-col>
                     <b-button variant="info" v-b-modal.modal-Mpagos v-if="entrada.total_pagos > 0">
                         Mostrar pagos
                     </b-button>
+                </b-col> -->
+                <b-col>
+                    <a v-if="entrada.public_url.length > 0"
+                        :href="entrada.public_url" target="_blank">
+                        Ver factura
+                    </a>
                 </b-col>
                 <b-col class="text-right">
                     <b-button variant="dark" :href="'/downloadEntrada/' + entrada.id">
                         <i class="fa fa-download"></i> Descargar
                     </b-button>
                 </b-col>
-                <b-col v-if="(role_id == 2 || role_id == 6) && entrada.lugar == 'DOS'">
-                    <b-button variant="success" pill @click="enviarME()"
-                        :disabled="load">
+                <b-col>
+                    <b-button v-if="(role_id == 2 || role_id == 6) && entrada.lugar == 'DOS'"
+                        variant="success" pill @click="enviarME()" :disabled="load">
                         <i class="fa fa-check-square-o"></i> Enviar a ME
                     </b-button>
                 </b-col>
@@ -451,7 +457,8 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     created_at: '',
                     items: [],
                     lugar: null,
-                    creado_por: null
+                    creado_por: null,
+                    public_url: null
                 },
                 total: 0,
                 total_pagos: 0,
@@ -488,7 +495,8 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     folio: null,
                     editorial: null,
                     queretaro: false,
-                    registros: []
+                    registros: [],
+                    file: {}
                 },
                 mostrarAdd: false,
                 mostrarDevolucion: false,
@@ -746,6 +754,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                 this.entrada.lugar = response.data.entrada.lugar;
                 this.entrada.creado_por = response.data.entrada.creado_por;
                 this.entrada.created_at = response.data.entrada.created_at;
+                this.entrada.public_url = response.data.entrada.public_url;
                 this.registros = response.data.entrada.registros;
                 this.pagos = response.data.entrada.repayments;
                 this.entdevoluciones = response.data.entdevoluciones;
@@ -790,7 +799,8 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     folio: null,
                     editorial: null,
                     queretaro: false,
-                    registros: []
+                    registros: [],
+                    file: null
                 };
                 this.mostrarAdd = true;
             },
