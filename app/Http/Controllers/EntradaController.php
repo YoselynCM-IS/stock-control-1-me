@@ -78,9 +78,10 @@ class EntradaController extends Controller
                 ["requested_visibility" => "public"]
             );
             // *** SUBIR IMAGEN
-
+            $corte = $this->get_corte();
             $entrada = Entrada::create([
                 'folio' => $folio,
+                'corte_id' => $corte->id,
                 'editorial' => $editorial,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
@@ -139,9 +140,11 @@ class EntradaController extends Controller
             $editorial = $request->editorial;
             $lugar = 'CMX';
             
+            $corte = $this->get_corte();
             $entrada = null;
             $entrada = Entrada::create([
                 'folio' => strtoupper($request->folio),
+                'corte_id' => $corte->id,
                 'editorial' => $editorial,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
@@ -812,17 +815,13 @@ class EntradaController extends Controller
     public function save_editorial(Request $request){
         \DB::beginTransaction();
         try {
-            $hoy = Carbon::now();
-
             $e = Editoriale::create([
                 'editorial' => strtoupper($request->editorial)
             ]);
 
             $this->create_enteditoriale($e->editorial, 0);
             
-            $corte = Corte::where('inicio', '<', $hoy)
-                        ->where('final', '>', $hoy)
-                        ->first();
+            $corte = $this->get_corte();
 
             Ectotale::create([
                 'corte_id' => $corte->id, 
@@ -837,5 +836,12 @@ class EntradaController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($request);
+    }
+
+    public function get_corte(){
+        $hoy = Carbon::now();
+        return Corte::where('inicio', '<', $hoy)
+                        ->where('final', '>', $hoy)
+                        ->first();
     }
 }
