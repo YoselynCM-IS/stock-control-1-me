@@ -307,14 +307,22 @@ class EntradaController extends Controller
             $entrada->total = $total;
             $entrada->save();
 
+            $ectotale = $this->get_ectotale($entrada->editorial, $entrada->corte_id);
+            $ectotale->update([
+                'total' => $ectotale->total + $entrada->total,
+                'total_pagar' => $ectotale->total_pagar + $entrada->total
+            ]);
+            
             $editorial = Enteditoriale::where('editorial', $entrada->editorial)->first();
             if($editorial === null){
                 $this->create_enteditoriale($entrada->editorial, $entrada->total);
+
             } else {
                 $editorial->update([
                     'total' => $editorial->total + $entrada->total,
                     'total_pendiente' => $editorial->total_pendiente + $entrada->total
                 ]);
+
             }
 
             $reporte = 'registro los costos de la entrada '.$entrada->folio.' de '.$entrada->editorial;
@@ -326,6 +334,15 @@ class EntradaController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($entrada);
+    }
+
+    // Obtener cctotale
+    public function get_ectotale($editorial, $corte_id){
+        $e = \DB::table('editoriales')->where('editorial', $editorial)->first();
+        return Ectotale::where([
+            'corte_id' => $corte_id,
+            'editorial_id' => $e->id
+        ])->first();
     }
 
     public function create_enteditoriale($editorial, $t){
@@ -530,6 +547,13 @@ class EntradaController extends Controller
             $entrada->update([
                 'total_devolucion' => $entrada->total_devolucion + $total
             ]);
+
+            $ectotale = $this->get_ectotale($entrada->editorial, $entrada->corte_id);
+            $ectotale->update([
+                'total_devolucion' => $ectotale->total_devolucion + $total,
+                'total_pagar' => $ectotale->total_pagar - $total
+            ]);
+
             $editorial = Enteditoriale::where('editorial', $entrada->editorial)->first();
             $editorial->update([
                 'total_devolucion' => $editorial->total_devolucion + $total,
@@ -570,12 +594,26 @@ class EntradaController extends Controller
                 'total_pagos' => $editorial->total_pagos + $monto,
                 'total_pendiente' => $editorial->total_pendiente - $monto
             ]);
+
+            // $corte = $this->get_corte();
+            $fecha = $request->fecha;
+            $f = new Carbon($fecha);
+            $corte = Corte::where('inicio', '<', $f)
+                            ->where('final', '>', $f)
+                            ->first();
             $deposito = Entdeposito::create([
                 'enteditoriale_id' => $editorial->id,
+                'corte_id' => $corte->id,
                 'pago' => $monto,
-                'fecha' => $request->fecha,
+                'fecha' => $fecha,
                 'nota' => $request->nota,
                 'ingresado_por' => auth()->user()->name
+            ]);
+
+            $ectotale = $this->get_ectotale($editorial->editorial, $deposito->corte_id);
+            $ectotale->update([
+                'total_pagos' => $ectotale->total_pagos + $monto,
+                'total_pagar' => $ectotale->total_pagar - $monto
             ]);
 
             $reporte = 'registro un pago al proveedor '.$editorial->editorial.' PAGO: '.$deposito->fecha.' / $'.$deposito->pago.' / '.$deposito->nota;
