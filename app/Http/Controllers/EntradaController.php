@@ -13,13 +13,16 @@ use Illuminate\Http\Request;
 use App\Entdevolucione;
 use App\Enteditoriale;
 use App\Entdeposito;
+use App\Editoriale;
 use Carbon\Carbon;
 use App\Repayment;
 use App\Registro;
+use App\Ectotale;
 use App\Entrada;
 use App\Reporte;
 use App\Salida;
 use App\Libro;
+use App\Corte;
 use App\Code;
 use Excel;
 use PDF;
@@ -303,11 +306,7 @@ class EntradaController extends Controller
 
             $editorial = Enteditoriale::where('editorial', $entrada->editorial)->first();
             if($editorial === null){
-                Enteditoriale::create([
-                    'editorial' => $entrada->editorial,
-                    'total' => $entrada->total,
-                    'total_pendiente' => $entrada->total
-                ]);
+                $this->create_enteditoriale($entrada->editorial, $entrada->total);
             } else {
                 $editorial->update([
                     'total' => $editorial->total + $entrada->total,
@@ -324,6 +323,14 @@ class EntradaController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($entrada);
+    }
+
+    public function create_enteditoriale($editorial, $t){
+        Enteditoriale::create([
+            'editorial' => $editorial,
+            'total' => $t,
+            'total_pendiente' => $t
+        ]);
     }
 
     // GUARDAR PAGO DE ENTRADA
@@ -800,5 +807,35 @@ class EntradaController extends Controller
             'name_table' => $tabla, 
             'id_table' => $entrada_id
         ]);
+    }
+
+    public function save_editorial(Request $request){
+        \DB::beginTransaction();
+        try {
+            $hoy = Carbon::now();
+
+            $e = Editoriale::create([
+                'editorial' => strtoupper($request->editorial)
+            ]);
+
+            $this->create_enteditoriale($e->editorial, 0);
+            
+            $corte = Corte::where('inicio', '<', $hoy)
+                        ->where('final', '>', $hoy)
+                        ->first();
+
+            Ectotale::create([
+                'corte_id' => $corte->id, 
+                'editorial_id' => $e->id
+            ]);
+
+            $reporte = 'creo la editorial '.$e->editorial;
+            $this->create_report($e->id, $reporte, 'proveedor', 'editoriales');
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json($request);
     }
 }

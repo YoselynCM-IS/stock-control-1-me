@@ -259,6 +259,9 @@ Route::name('entradas.')->prefix('entradas')->group(function () {
     Route::get('by_fecha', 'EntradaController@by_fecha')->name('by_fecha');
     // Mostrar los depositos por editorial
     Route::get('enteditoriale_pagos', 'EntradaController@enteditoriale_pagos')->name('enteditoriale_pagos');
+
+    // GUARDAR EDITORIAL
+    Route::post('save_editorial', 'EntradaController@save_editorial')->name('save_editorial');
 });
 
 //PAGOS

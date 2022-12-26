@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import SpinnerComponent from "./partials/SpinnerComponent.vue";
+import SpinnerComponent from '../funciones/SpinnerComponent.vue';
 
 export default {
     components: { SpinnerComponent },

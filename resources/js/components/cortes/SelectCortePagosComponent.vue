@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import SpinnerComponent from './partials/SpinnerComponent.vue';
+import SpinnerComponent from '../funciones/SpinnerComponent.vue';
 import toast from '../../mixins/toast';
 import CheckFavorComponent from './partials/CheckFavorComponent.vue';
 import setCortes from '../../mixins/setCortes';

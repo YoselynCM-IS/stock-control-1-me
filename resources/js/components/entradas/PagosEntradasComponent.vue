@@ -9,6 +9,12 @@
                     <i class="fa fa-download"></i> Descargar
                 </b-button>
             </b-col>
+            <b-col sm="3" class="text-right" >
+                <b-button v-if="role_id === 1 || role_id == 6" :disabled="load"
+                    pill variant="success" @click="newEditorial()">
+                    <i class="fa fa-plus-circle"></i> Agregar editorial
+                </b-button>
+            </b-col>
         </b-row>
         <b-table :items="editoriales" :fields="fieldsEntrada">
             <template v-slot:cell(total)="row">
@@ -21,7 +27,6 @@
                 ${{ row.item.total_devolucion | formatNumber }}
             </template>
             <template v-slot:cell(total_pendiente)="row">
-                <!-- ${{ row.item.total - (row.item.total_pagos + row.item.total_devolucion) | formatNumber }} -->
                 ${{ row.item.total_pendiente | formatNumber }}
             </template>
             <template v-slot:cell(pagar)="row">
@@ -101,6 +106,9 @@
                 </b-button>
             </div>
         </b-modal>
+        <b-modal ref="modal-agregarEditorial" title="Agregar editorial" hide-footer size="sm">
+            <add-edit-editorial @saveEditorial="saveEditorial"></add-edit-editorial>
+        </b-modal>
     </div>
 </template>
 
@@ -108,9 +116,10 @@
 import formatNumber from '../../mixins/formatNumber';
 import NewEditPagoEntrada from './NewEditPagoEntrada.vue';
 import toast from '../../mixins/toast';
+import AddEditEditorial from './partials/AddEditEditorial.vue';
 export default {
     props: ['role_id', 'editoriales'],
-    components: {NewEditPagoEntrada},
+    components: {NewEditPagoEntrada, AddEditEditorial},
     mixins: [formatNumber,toast],
     data(){
         return {
@@ -252,6 +261,14 @@ export default {
                 this.load = false;
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
             }); 
+        },
+        newEditorial(){
+            this.$refs['modal-agregarEditorial'].show();
+        },
+        saveEditorial(){
+            this.$bvModal.hide('modal-agregarEditorial');
+            swal("OK", "La editorial se guardo correctamente.", "success")
+                .then((value) => { location.reload(); });
         }
     }
 }

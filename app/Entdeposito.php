@@ -13,6 +13,7 @@ class Entdeposito extends Model
     
     protected $fillable = [
         'id', 
+        'corte_id',
         'enteditoriale_id', 
         'pago',
         'fecha',
