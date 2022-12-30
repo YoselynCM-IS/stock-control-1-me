@@ -18,6 +18,7 @@ class Entdeposito extends Model
         'pago',
         'fecha',
         'nota',
-        'ingresado_por'
+        'ingresado_por',
+        'name', 'size', 'extension', 'public_url'
     ];
 }

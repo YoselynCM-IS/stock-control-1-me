@@ -70,7 +70,7 @@
 <script>
 import formatNumber from '../../../mixins/formatNumber';
 import TableRemisiones from '../partials/TableRemisiones.vue';
-import TableTotals from '../partials/TableTotals.vue';
+import TableTotals from '../../funciones/TableTotals.vue';
 import TablePagos from '../partials/TablePagos.vue';
 import RegPagoComponent from '../partials/RegPagoComponent.vue';
 import toast from '../../../mixins/toast';

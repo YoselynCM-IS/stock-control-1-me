@@ -43,9 +43,7 @@
                             </b-col>
                         </b-row>
                     </b-col>
-                    <b-col class="text-right">
-                        <!-- <subir-foto-component :disabled="(load)" :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component> -->
-                    </b-col>
+                    <b-col class="text-right"></b-col>
                 </b-row>
             </div>
             <hr>

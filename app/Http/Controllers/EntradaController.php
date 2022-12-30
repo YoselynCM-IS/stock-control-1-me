@@ -62,21 +62,7 @@ class EntradaController extends Controller
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
             $name_file = $folio."_".time().".".$extension;
-    
-            $image = Image::make($request->file('file'));
-            $image->resize(1280, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-    
-            Storage::disk('dropbox')->put(
-                '/stock1/entradas/'.$name_file, (string) $image->encode('jpg', 30)
-            );
-            
-            $response = $this->dropbox->createSharedLinkWithSettings(
-                '/stock1/entradas/'.$name_file, 
-                ["requested_visibility" => "public"]
-            );
+            $response = $this->upload_image($request, $name_file, 'entradas');
             // *** SUBIR IMAGEN
             $corte = $this->get_corte();
             $entrada = Entrada::create([
@@ -132,6 +118,24 @@ class EntradaController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($get_entrada);
+    }
+
+    public function upload_image($request, $name_file, $ruta){
+        $image = Image::make($request->file('file'));
+        $image->resize(1280, null, function ($constraint) {
+            $constraint->aspectRatio();
+            $constraint->upsize();
+        });
+
+        Storage::disk('dropbox')->put(
+            '/stock1/'.$ruta.'/'.$name_file, (string) $image->encode('jpg', 30)
+        );
+        
+        $response = $this->dropbox->createSharedLinkWithSettings(
+            '/stock1/'.$ruta.'/'.$name_file, 
+            ["requested_visibility" => "public"]
+        );
+        return $response;
     }
 
     public function store_codes(Request $request){
@@ -307,7 +311,7 @@ class EntradaController extends Controller
             $entrada->total = $total;
             $entrada->save();
 
-            $ectotale = $this->get_ectotale($entrada->editorial, $entrada->corte_id);
+            $ectotale = $this->get_we_ectotale($entrada->editorial, $entrada->corte_id);
             $ectotale->update([
                 'total' => $ectotale->total + $entrada->total,
                 'total_pagar' => $ectotale->total_pagar + $entrada->total
@@ -337,11 +341,10 @@ class EntradaController extends Controller
     }
 
     // Obtener cctotale
-    public function get_ectotale($editorial, $corte_id){
-        $e = \DB::table('editoriales')->where('editorial', $editorial)->first();
+    public function get_ectotale($corte_id, $editoriale_id){
         return Ectotale::where([
             'corte_id' => $corte_id,
-            'editorial_id' => $e->id
+            'editoriale_id' => $editoriale_id
         ])->first();
     }
 
@@ -548,7 +551,7 @@ class EntradaController extends Controller
                 'total_devolucion' => $entrada->total_devolucion + $total
             ]);
 
-            $ectotale = $this->get_ectotale($entrada->editorial, $entrada->corte_id);
+            $ectotale = $this->get_we_ectotale($entrada->editorial, $entrada->corte_id);
             $ectotale->update([
                 'total_devolucion' => $ectotale->total_devolucion + $total,
                 'total_pagar' => $ectotale->total_pagar - $total
@@ -571,6 +574,14 @@ class EntradaController extends Controller
         return response()->json($entrada);
     }
 
+    public function get_we_ectotale($editorial, $corte_id){
+        $e = \DB::table('editoriales')->where('editorial', $editorial)->first();
+        return Ectotale::where([
+                    'corte_id' => $corte_id,
+                    'editoriale_id' => $e->id
+                ])->first();
+    }
+
     public function pagos_entrada(){
         // $entradas = \DB::table('entradas')
         //             ->select(
@@ -590,30 +601,35 @@ class EntradaController extends Controller
         \DB::beginTransaction();
         try {
             $monto = (double) $request->pago;
+            $corte_id = $request->corte_id;
+            $editoriale_id = $request->editoriale_id;
+            $corte_id_favor = $request->corte_id_favor;
+
+            // *** SUBIR IMAGEN
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $name_file = time().".".$extension;
+            $response = $this->upload_image($request, $name_file, 'entradasPagos');
+            // *** SUBIR IMAGEN
+
+            $deposito = Entdeposito::create([
+                'enteditoriale_id' => $editorial->id,
+                'corte_id' => $corte_id,
+                'pago' => $monto,
+                'fecha' => $request->fecha,
+                'nota' => $request->nota,
+                'ingresado_por' => auth()->user()->name,
+                'name' => $response['name'],
+                'extension' => $extension,
+                'size' => $response['size'],
+                'public_url' => $response['url']
+            ]);
+            
+            $this->validate_favor($corte_id, $editoriale_id, $corte_id_favor, $monto);
+            
             $editorial->update([
                 'total_pagos' => $editorial->total_pagos + $monto,
                 'total_pendiente' => $editorial->total_pendiente - $monto
-            ]);
-
-            // $corte = $this->get_corte();
-            $fecha = $request->fecha;
-            $f = new Carbon($fecha);
-            $corte = Corte::where('inicio', '<', $f)
-                            ->where('final', '>', $f)
-                            ->first();
-            $deposito = Entdeposito::create([
-                'enteditoriale_id' => $editorial->id,
-                'corte_id' => $corte->id,
-                'pago' => $monto,
-                'fecha' => $fecha,
-                'nota' => $request->nota,
-                'ingresado_por' => auth()->user()->name
-            ]);
-
-            $ectotale = $this->get_ectotale($editorial->editorial, $deposito->corte_id);
-            $ectotale->update([
-                'total_pagos' => $ectotale->total_pagos + $monto,
-                'total_pagar' => $ectotale->total_pagar - $monto
             ]);
 
             $reporte = 'registro un pago al proveedor '.$editorial->editorial.' PAGO: '.$deposito->fecha.' / $'.$deposito->pago.' / '.$deposito->nota;
@@ -624,7 +640,34 @@ class EntradaController extends Controller
             \DB::rollBack();
             return response()->json($exception->getMessage());
         }
-        return response()->json($editorial);
+        return response()->json(true);
+    }
+
+    public function validate_favor($corte_id, $editoriale_id, $corte_id_favor, $monto){
+        $ectotale = $this->get_ectotale($corte_id, $editoriale_id);
+        return response()->json('hola');
+        if($corte_id_favor == 'null') {
+            return response()->json('hola');
+            $this->update_ectotale($ectotale, $monto);
+        } else {
+            $total_favor = $monto - $ectotale->total_pagar;
+            $ectotale->update([
+                'corte_id_favor' => $corte_id_favor,
+                'total_favor' => $ectotale->total_favor + $total_favor,
+                'total_pagos' => $ectotale->total_pagos + $ectotale->total_pagar,
+                'total_pagar' => 0
+            ]);
+
+            $ectotale_favor = $this->get_ectotale($corte_id_favor, $editoriale_id);
+            $this->update_ectotale($ectotale_favor, $total_favor);
+        }
+    }
+
+    public function update_ectotale($ectotale, $monto){
+        $ectotale->update([
+            'total_pagos' => $ectotale->total_pagos + $monto,
+            'total_pagar' => $ectotale->total_pagar - $monto
+        ]);
     }
 
     // ACTUALIZAR PAGO
@@ -863,7 +906,7 @@ class EntradaController extends Controller
 
             Ectotale::create([
                 'corte_id' => $corte->id, 
-                'editorial_id' => $e->id
+                'editoriale_id' => $e->id
             ]);
 
             $reporte = 'creo la editorial '.$e->editorial;
@@ -881,5 +924,39 @@ class EntradaController extends Controller
         return Corte::where('inicio', '<', $hoy)
                         ->where('final', '>', $hoy)
                         ->first();
+    }
+
+    public function cortes($editorial){
+        return view('information.cortes.details-editorial', compact('editorial'));
+    }
+
+    public function get_cortes(Request $request){
+        $enteditoriale = Enteditoriale::where('editorial', $request->editorial)->first();
+        $ectotales = Editoriale::where('editorial', $request->editorial)
+                    ->with('ectotales.corte')->first();
+        return response()->json([
+            'enteditoriale' => $enteditoriale,
+            'ectotales' => $ectotales
+        ]);
+    }
+
+    public function cortes_details(Request $request){
+        $corte_id = $request->corte_id;
+        $entdepositos = Entdeposito::where([
+            'corte_id' => $corte_id,
+            'enteditoriale_id' => $request->enteditoriale_id
+        ])->get();
+        $entradas = Entrada::where([
+            'corte_id' => $corte_id,
+            'editorial' => $request->editorial
+        ])->get();
+        $ids = $entradas->pluck('id');
+        $entdevoluciones = Entdevolucione::whereIn('entrada_id', $ids->all())
+                        ->with('registro.libro')->get();
+        return response()->json([
+            'entdepositos' => $entdepositos,
+            'entradas' => $entradas,
+            'entdevoluciones' => $entdevoluciones
+        ]);
     }
 }

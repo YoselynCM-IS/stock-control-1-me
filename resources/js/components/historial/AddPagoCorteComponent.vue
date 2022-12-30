@@ -50,7 +50,7 @@
 
 <script>
 import formatNumber from '../../mixins/formatNumber';
-import TableTotals from '../cortes/partials/TableTotals.vue';
+import TableTotals from '../funciones/TableTotals.vue';
 import TablePagos from '../cortes/partials/TablePagos.vue';
 import RegPagoComponent from '../cortes/partials/RegPagoComponent.vue';
 import toast from '../../mixins/toast';

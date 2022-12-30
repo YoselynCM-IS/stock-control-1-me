@@ -29,7 +29,7 @@
 <script>
 import SpinnerComponent from '../funciones/SpinnerComponent.vue';
 import toast from '../../mixins/toast';
-import CheckFavorComponent from './partials/CheckFavorComponent.vue';
+import CheckFavorComponent from '../funciones/CheckFavorComponent.vue';
 import setCortes from '../../mixins/setCortes';
 export default {
     components: { SpinnerComponent, CheckFavorComponent },

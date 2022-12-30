@@ -260,8 +260,23 @@ Route::name('entradas.')->prefix('entradas')->group(function () {
     // Mostrar los depositos por editorial
     Route::get('enteditoriale_pagos', 'EntradaController@enteditoriale_pagos')->name('enteditoriale_pagos');
 
+    ///Crear entrada
+    Route::post('store', 'EntradaController@store')->name('store');
+    ///Crear entrada de codigos
+    Route::post('store_codes', 'EntradaController@store_codes')->name('store_codes');
+    //Actualizar entrada
+    Route::put('update', 'EntradaController@update')->name('update');
+    //Actualizar costos unitarios
+    Route::put('update_costos', 'EntradaController@update_costos')->name('update_costos');
+    ///Guardar devolución de la entrada
+    Route::post('devolucion', 'EntradaController@devolucion')->name('devolucion');
+
     // GUARDAR EDITORIAL
     Route::post('save_editorial', 'EntradaController@save_editorial')->name('save_editorial');
+    // OBTENER CORTES DE LA EDITORIAL
+    Route::get('get_cortes', 'EntradaController@get_cortes')->name('get_cortes');
+    // OBTENER DETALLES DEL CORTE DE UNA EDITORIAL
+    Route::get('cortes_details', 'EntradaController@cortes_details')->name('cortes_details');
 });
 
 //PAGOS
@@ -484,20 +499,6 @@ Route::name('donaciones.')->prefix('donaciones')->group(function () {
     Route::get('by_plantel', 'DonacioneController@by_plantel')->name('by_plantel');
 });
 
-//ENTRADAS
-Route::name('entradas.')->prefix('entradas')->group(function () {
-    ///Crear entrada
-    Route::post('store', 'EntradaController@store')->name('store');
-    ///Crear entrada de codigos
-    Route::post('store_codes', 'EntradaController@store_codes')->name('store_codes');
-    //Actualizar entrada
-    Route::put('update', 'EntradaController@update')->name('update');
-    //Actualizar costos unitarios
-    Route::put('update_costos', 'EntradaController@update_costos')->name('update_costos');
-    ///Guardar devolución de la entrada
-    Route::post('devolucion', 'EntradaController@devolucion')->name('devolucion');
-});
-
 //Obtener todos los cliente
 Route::get('/getTodo', 'ClienteController@getTodo')->name('getTodo');
 //CLIENTES
@@ -647,6 +648,7 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
 
     Route::name('entradas.')->prefix('entradas')->group(function () {
         Route::get('/lista', 'EntradaController@lista')->name('lista');
+        Route::get('/cortes/{editorial}', 'EntradaController@cortes')->name('cortes');
     });
 }); 
 

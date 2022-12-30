@@ -16,7 +16,7 @@ class CreateEctotalesTable extends Migration
         Schema::create('ectotales', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('corte_id');
-            $table->unsignedBigInteger('editorial_id');
+            $table->unsignedBigInteger('editoriale_id');
             $table->double('total', 16, 2)->default(0);
             $table->double('total_devolucion', 16, 2)->default(0);
             $table->double('total_pagos', 16, 2)->default(0);

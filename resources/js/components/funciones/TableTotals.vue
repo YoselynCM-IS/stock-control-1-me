@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import formatNumber from '../../../mixins/formatNumber';
+import formatNumber from '../../mixins/formatNumber';
 export default {
     props: ['dato','variant','favor'],
     mixins: [formatNumber]

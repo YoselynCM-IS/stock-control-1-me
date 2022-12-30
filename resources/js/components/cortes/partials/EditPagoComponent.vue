@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import FormPagoComponent from './FormPagoComponent.vue'
+import FormPagoComponent from '../../funciones/FormPagoComponent.vue';
 import toast from '../../../mixins/toast';
 export default {
     components: { FormPagoComponent },

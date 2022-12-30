@@ -84,6 +84,9 @@ Vue.component('libros-cliente-component', require('./components/clientes/LibrosC
 // ENTRADAS
 Vue.component('editar-entradas-component', require('./components/entradas/EditarEntradasComponent.vue').default);
 Vue.component('pagos-entradas-component', require('./components/entradas/PagosEntradasComponent.vue').default);
+// *** CORTES
+Vue.component('corte-editorial-component', require('./components/entradas/CorteEditorialComponent.vue').default);
+
 
 // NOTAS
 Vue.component('new-nota-component', require('./components/notas/NewNotaComponent.vue').default);

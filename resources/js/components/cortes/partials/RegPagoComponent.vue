@@ -22,9 +22,9 @@
 
 <script>
 import toast from '../../../mixins/toast';
-import CheckFavorComponent from './CheckFavorComponent.vue';
+import CheckFavorComponent from '../../funciones/CheckFavorComponent.vue';
 import setCortes from '../../../mixins/setCortes';
-import FormPagoComponent from './FormPagoComponent.vue';
+import FormPagoComponent from '../../funciones/FormPagoComponent.vue';
 export default {
   components: { CheckFavorComponent, FormPagoComponent },
     props: ['form', 'corte', 'tipo'],
@@ -51,8 +51,7 @@ export default {
                     } else {
                         this.tipo2_guardarPago();
                     }
-                }
-                else{
+                } else{
                     this.showVerify = true;
                 }
             } else{
