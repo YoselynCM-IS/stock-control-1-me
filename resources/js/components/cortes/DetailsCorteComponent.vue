@@ -21,7 +21,7 @@
                 <!-- PAGINACIÓN -->
                 <b-pagination v-model="currentPage" :total-rows="ctsclientes.length"
                     :per-page="perPage" aria-controls="my-table"
-                    v-if="clientes.length > 0">
+                    v-if="ctsclientes.length > 0">
                 </b-pagination>
             </b-col>
         </b-row>
@@ -54,14 +54,16 @@
                     </b-button>
                 </template>
                 <template #row-details="row">
-                    <b-row>
-                        <b-col>
-                            <table-remisiones :remisiones="row.item.remisiones" :showTitle="true"></table-remisiones>
-                        </b-col>
-                        <b-col>
-                            <table-pagos :remdepositos="row.item.remdepositos" :showTitle="true"></table-pagos>
-                        </b-col>
-                    </b-row>
+                    <b-card bg-variant="light">
+                        <b-tabs content-class="mt-3" fill>
+                            <b-tab title="Pagos" active>
+                                <table-pagos :remdepositos="row.item.remdepositos" :showTitle="true"></table-pagos>
+                            </b-tab>
+                            <b-tab title="Remisiones">
+                                <table-remisiones :remisiones="row.item.remisiones" :showTitle="true"></table-remisiones>
+                            </b-tab>
+                        </b-tabs>
+                    </b-card>
                 </template>
             </b-table>
         </div>
@@ -86,12 +88,11 @@ export default {
             load: false,
             ctsclientes: [],
             fieldsClientes: [
-                { key: 'cliente', label: 'Cliente' },
+                { key: 'cliente.name', label: 'Cliente' },
                 { key: 'total', label: 'Total' },
                 { key: 'total_devolucion', label: 'Devolución' },
                 { key: 'total_pagos', label: 'Pagos' },
                 { key: 'total_pagar', label: 'Pagar' },
-                { key: 'total_favor', label: 'A favor' },
                 { key: 'show_details', label: 'Remisiones / Depósitos' }
             ],
             currentPage: 1,

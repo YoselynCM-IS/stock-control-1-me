@@ -928,7 +928,7 @@ class EntradaController extends Controller
     }
 
     public function cortes($editorial){
-        return view('information.cortes.details-editorial', compact('editorial'));
+        return view('information.cortes.proveedores.details-editorial', compact('editorial'));
     }
 
     public function get_cortes(Request $request){

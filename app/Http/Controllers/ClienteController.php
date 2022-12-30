@@ -22,6 +22,10 @@ class ClienteController extends Controller
         return view('information.clientes.lista');
     }
 
+    public function cortes(){
+        return view('information.cortes.clientes.lista');
+    }
+
     // OBTENER TODOS LOS CLIENTES
     public function index(){
         $clientes = $this->get_all_clientes()->paginate(20);

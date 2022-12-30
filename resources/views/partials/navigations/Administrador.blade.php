@@ -4,16 +4,16 @@
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
 		<a class="dropdown-item" href="{{ route('information.remisiones.lista') }}">
-			{{ __('Remisiones') }}
-		</a>
-		<a class="dropdown-item" href="{{ route('administrador.pagos') }}">
-			{{ __('Pagos') }}
+			{{ __('Lista') }}
 		</a>
 		<a class="dropdown-item" href="{{ route('administrador.cerrar') }}">
 			{{ __('Devoluciones / Cerrar') }}
 		</a>
-		<a class="dropdown-item" href="{{ route('administrador.fecha-adeudo') }}">
-			{{ __('Fecha de adeudos') }}
+		<a class="dropdown-item" href="{{ route('administrador.pagos') }}">
+			{{ __('Pagos') }}
+		</a>
+		<a class="dropdown-item" href="{{ route('information.clientes.cortes') }}">
+			{{ __('Cortes') }}
 		</a>
 	</div>
 </li>
@@ -44,6 +44,9 @@
 		Movimientos <span class="caret"></span>
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
+		<a class="dropdown-item" href="{{ route('administrador.fecha-adeudo') }}">
+			{{ __('Fecha de adeudos') }}
+		</a>
 		<a class="dropdown-item" href="{{ route('administrador.entradas-salidas') }}">
 			{{ __("Entradas / Salidas") }}
 		</a>

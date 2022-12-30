@@ -3,14 +3,6 @@
         <div v-if="!showClasRems && !showDetails && !showClasPagos">
             <!-- FUNCIONES (ENCABEZADO) -->
             <b-row class="mb-3">
-                <b-col>
-                    <!-- PAGINACIÓN -->
-                    <pagination size="default" :limit="1" :data="cortes" 
-                        @pagination-change-page="getResults">
-                        <span slot="prev-nav"><i class="fa fa-angle-left"></i></span>
-                        <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
-                    </pagination>
-                </b-col>
                 <!-- <b-col sm="4" class="text-center"> -->
                     <!-- REMISIONES -->
                     <!-- <b-button variant="primary" pill @click="classify(1)">
@@ -21,10 +13,12 @@
                         <i class="fa fa-exchange"></i> Pagos
                     </b-button> -->
                 <!-- </b-col> -->
-                <b-col sm="2" class="text-center">
+                <b-col></b-col>
+                <b-col sm="2">
                     <!-- AGREGAR CORTE -->
-                    <b-button id="show-necorte" @click="showNewCorte"
-                        pill variant="success">
+                    <b-button v-if="role_id == 6"
+                        id="show-necorte" @click="showNewCorte"
+                        pill variant="success" block>
                         <i class="fa fa-plus-circle"></i> Agregar corte
                     </b-button>
                 </b-col>
@@ -32,14 +26,19 @@
             <!-- TABLA DE CORTES -->
             <div v-if="!load">
                 <b-table responsive hover 
-                            :items="cortes.data" :fields="fieldsCortes">
+                            :items="cortes" :fields="fieldsCortes">
+                    <template v-slot:cell(total)="row">${{ row.item.total | formatNumber }}</template>
+                    <template v-slot:cell(total_devolucion)="row">${{ row.item.total_devolucion | formatNumber }}</template>
+                    <template v-slot:cell(total_pagar)="row">${{ row.item.total_pagar | formatNumber }}</template>
+                    <template v-slot:cell(total_pagos)="row">${{ row.item.total_pagos | formatNumber }}</template>  
                     <template v-slot:cell(details)="row">
                         <!-- DETALLES -->
                         <b-button variant="info" pill @click="getDetails(row.item)">
                             <i class="fa fa-info-circle"></i>
                         </b-button>
                         <!-- EDITAR CORTE -->
-                        <b-button variant="warning" pill @click="showEditCorte(row.item)">
+                        <b-button v-if="role_id == 6" @click="showEditCorte(row.item)"
+                            variant="warning" pill>
                             <i class="fa fa-edit"></i>
                         </b-button>
                     </template>
@@ -76,9 +75,11 @@
 <script>
 import toast from '../../mixins/toast';
 import LoadComponent from './partials/LoadComponent.vue';
+import formatNumber from '../../mixins/formatNumber';
 export default {
-  components: { LoadComponent },
-    mixins: [toast],
+    props: ['role_id'],
+    components: { LoadComponent },
+    mixins: [toast,formatNumber],
     data(){
         return {
             edit: false,
@@ -88,12 +89,16 @@ export default {
                 inicio: null,
                 final: null
             },
-            cortes: {},
+            cortes: [],
             fieldsCortes: [
                 { key: 'tipo', label: 'Temporada' },
                 { key: 'inicio', label: 'Fecha de inicio' },
                 { key: 'final', label: 'Fecha de termino' },
-                { key: 'created_at', label: 'Creado el:' },
+                // { key: 'created_at', label: 'Creado el:' },
+                { key: 'total', label: 'Salida' }, 
+                { key: 'total_pagos', label: 'Pagado' },
+                { key: 'total_devolucion', label: 'Devolución' }, 
+                { key: 'total_pagar', label: 'Pagar' },
                 { key: 'details', label: '' }
             ],
             load: false,
@@ -109,9 +114,9 @@ export default {
     },
     methods: {
         // OBTENER CORTES
-        getResults(page = 1){
+        getResults(){
             this.load = true;
-            axios.get(`/cortes/index?page=${page}`).then(response => {
+            axios.get(`/cortes/index`).then(response => {
                 this.cortes = response.data;
                 this.load = false;
             }).catch(error => {

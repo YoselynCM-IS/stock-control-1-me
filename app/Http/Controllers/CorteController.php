@@ -26,8 +26,22 @@ class CorteController extends Controller
 
     // Obtener todos los cortes (PAGINADO)
     public function index() {
-        $cortes = Corte::orderBy('inicio', 'desc')->paginate(50);
-        return response()->json($cortes);
+        $c = collect();
+        $cortes = Corte::orderBy('inicio', 'desc')->get();
+        $cortes->map(function($corte) use (&$c){
+            $cctotales = Cctotale::where('corte_id', $corte->id);
+            $c->push([
+                'id' => $corte->id,
+                'tipo' => $corte->tipo, 
+                'inicio' => $corte->inicio, 
+                'final' => $corte->final,
+                'total' => $cctotales->sum('total'), 
+                'total_devolucion' => $cctotales->sum('total_devolucion'), 
+                'total_pagos' => $cctotales->sum('total_pagos'),
+                'total_pagar' => $cctotales->sum('total_pagar')
+            ]);
+        });
+        return response()->json($c);
     }
 
     // OBTENER TODOS LOS CORTES
@@ -52,6 +66,7 @@ class CorteController extends Controller
     // Obtener detalles de un corte
     public function show(Request $request){
         $cctotales = Cctotale::where('corte_id', $request->corte_id)
+                                ->where('total', '>', 0)
                                 ->with('cliente', 'corte')->get();
         
         $clientes = collect($this->org_remisiones($cctotales));
@@ -327,7 +342,7 @@ class CorteController extends Controller
 
     // MANDAR A LA VISTA DE DETALLES DE CORTES DEL CLIENTE
     public function details_cliente($cliente_id){
-        return view('information.cortes.details-cliente', compact('cliente_id'));
+        return view('information.cortes.clientes.details-cliente', compact('cliente_id'));
     } 
 
     // OBTENER CORTES DEL CLIENTE

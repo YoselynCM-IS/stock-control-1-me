@@ -638,6 +638,7 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
     
     Route::name('clientes.')->prefix('clientes')->group(function () {
         Route::get('/lista', 'ClienteController@lista')->name('lista');
+        Route::get('/cortes', 'ClienteController@cortes')->name('cortes');
     });
 
     Route::name('remisiones.')->prefix('remisiones')->group(function () {

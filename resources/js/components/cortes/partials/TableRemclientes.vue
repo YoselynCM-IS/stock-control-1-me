@@ -32,9 +32,10 @@
 <script>
 import LoadComponent from '../../funciones/LoadComponent.vue';
 import formatNumber from '../../../mixins/formatNumber';
+import AcumTotalesRC from '../../../mixins/AcumTotalesRC';
 export default {
     components: { LoadComponent },
-    mixins: [formatNumber],
+    mixins: [formatNumber,AcumTotalesRC],
     props: ['remclientesData', 'load'],
     data(){
         return {
@@ -46,30 +47,9 @@ export default {
                 {key: 'total_devolucion', label: 'Devolución'}, 
                 {key: 'total_pagar', label: 'Pagar'},
                 {key: 'ver_pagos', label: 'Pago(s)'},
-            ],
-            total_salida: 0,
-            total_pagos: 0,
-            total_devolucion: 0,
-            total_pagar: 0,
+            ]
         }
-    },
-    mounted: function(){
-        this.acumular_totales();
-    },
-    methods: {
-        // OBTENER TOTALES DE TODO 
-        acumular_totales(){
-            axios.get('/remcliente/get_totales').then(response => {
-                this.set_totales(response.data[0]); 
-            }).catch(error => { });
-        }, 
-        set_totales(r){
-            this.total_salida       = r.total;
-            this.total_devolucion   = r.total_devolucion;
-            this.total_pagos        = r.total_pagos;
-            this.total_pagar        = r.total_pagar;
-        },
-    },
+    }
 }
 </script>
 
