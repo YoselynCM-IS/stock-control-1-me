@@ -119,22 +119,22 @@ export default {
         verCortes(){
             this.load = true;
             axios.get('/entradas/get_cortes', {params: {editorial: this.editorial}}).then(response => {
-                this.assign_values(response.data.enteditoriale, response.data.ectotales);
+                this.assign_values(response.data.editoriale, response.data.enteditoriale, response.data.ectotales);
                 this.load = false;
             }).catch(error => {
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 this.load = false;
             });
         },
-        assign_values(enteditoriale, ectotales){
+        assign_values(editoriale, enteditoriale, ectotales){
+            this.edsCortes.editoriale_id = editoriale.id;
+            this.edsCortes.editorial = editoriale.editorial;
             this.edsCortes.enteditoriale_id = enteditoriale.id;
-            this.edsCortes.editoriale_id = ectotales.id;
-            this.edsCortes.editorial = ectotales.editorial;
             this.edsCortes.total = enteditoriale.total;
             this.edsCortes.total_pagos = enteditoriale.total_pagos;
             this.edsCortes.total_devolucion = enteditoriale.total_devolucion;
             this.edsCortes.total_pagar = enteditoriale.total_pendiente;
-            this.edsCortes.cortes = ectotales.ectotales;
+            this.edsCortes.cortes = ectotales;
         },
         goBack(){
             window.close();

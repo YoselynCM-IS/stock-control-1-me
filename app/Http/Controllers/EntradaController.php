@@ -932,10 +932,12 @@ class EntradaController extends Controller
     }
 
     public function get_cortes(Request $request){
-        $enteditoriale = Enteditoriale::where('editorial', $request->editorial)->first();
-        $ectotales = Editoriale::where('editorial', $request->editorial)
-                    ->with('ectotales.corte')->first();
+        $e = $request->editorial;
+        $editoriale = Editoriale::where('editorial', $e)->first();
+        $enteditoriale = Enteditoriale::where('editorial', $e)->first();
+        $ectotales = Ectotale::where('editoriale_id', $editoriale->id)->with('corte')->orderBy('corte_id', 'desc')->get();
         return response()->json([
+            'editoriale' => $editoriale,
             'enteditoriale' => $enteditoriale,
             'ectotales' => $ectotales
         ]);
@@ -946,14 +948,15 @@ class EntradaController extends Controller
         $entdepositos = Entdeposito::where([
             'corte_id' => $corte_id,
             'enteditoriale_id' => $request->enteditoriale_id
-        ])->get();
+        ])->orderBy('created_at', 'desc')->get();
         $entradas = Entrada::where([
             'corte_id' => $corte_id,
             'editorial' => $request->editorial
-        ])->get();
+        ])->orderBy('id','desc')->get();
         $ids = $entradas->pluck('id');
         $entdevoluciones = Entdevolucione::whereIn('entrada_id', $ids->all())
-                        ->with('registro.libro')->get();
+                        ->with('registro.libro')
+                        ->orderBy('created_at', 'desc')->get();
         return response()->json([
             'entdepositos' => $entdepositos,
             'entradas' => $entradas,
