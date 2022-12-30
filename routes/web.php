@@ -277,6 +277,8 @@ Route::name('entradas.')->prefix('entradas')->group(function () {
     Route::get('get_cortes', 'EntradaController@get_cortes')->name('get_cortes');
     // OBTENER DETALLES DEL CORTE DE UNA EDITORIAL
     Route::get('cortes_details', 'EntradaController@cortes_details')->name('cortes_details');
+    // OBTENER LISTA DE IMPRENTAS
+    Route::get('get_imprentas', 'EntradaController@get_imprentas')->name('get_imprentas');
 });
 
 //PAGOS

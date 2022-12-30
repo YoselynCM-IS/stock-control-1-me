@@ -21,6 +21,8 @@ return array(
     'App\\Deposito' => $baseDir . '/app/Deposito.php',
     'App\\Devolucione' => $baseDir . '/app/Devolucione.php',
     'App\\Donacione' => $baseDir . '/app/Donacione.php',
+    'App\\Ectotale' => $baseDir . '/app/Ectotale.php',
+    'App\\Editoriale' => $baseDir . '/app/Editoriale.php',
     'App\\Element' => $baseDir . '/app/Element.php',
     'App\\Entdeposito' => $baseDir . '/app/Entdeposito.php',
     'App\\Entdevolucione' => $baseDir . '/app/Entdevolucione.php',

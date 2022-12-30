@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Entdevolucione;
 use App\Repayment;
 use App\Registro;
+use App\Imprenta;
 
 class Entrada extends Model
 {
@@ -14,6 +15,7 @@ class Entrada extends Model
         'corte_id',
         'folio',
         'editorial',
+        'imprenta_id',
         'unidades', 
         'total',
         'total_pagos',
@@ -39,6 +41,10 @@ class Entrada extends Model
     //Una entrada puede tener muchas devoluciones
     public function entdevoluciones(){
         return $this->hasMany(Entdevolucione::class);
+    }
+
+    public function imprenta(){
+        return $this->belongsTo(Imprenta::class);
     }
 
 }

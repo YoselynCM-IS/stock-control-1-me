@@ -620,6 +620,8 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Deposito' => __DIR__ . '/../..' . '/app/Deposito.php',
         'App\\Devolucione' => __DIR__ . '/../..' . '/app/Devolucione.php',
         'App\\Donacione' => __DIR__ . '/../..' . '/app/Donacione.php',
+        'App\\Ectotale' => __DIR__ . '/../..' . '/app/Ectotale.php',
+        'App\\Editoriale' => __DIR__ . '/../..' . '/app/Editoriale.php',
         'App\\Element' => __DIR__ . '/../..' . '/app/Element.php',
         'App\\Entdeposito' => __DIR__ . '/../..' . '/app/Entdeposito.php',
         'App\\Entdevolucione' => __DIR__ . '/../..' . '/app/Entdevolucione.php',

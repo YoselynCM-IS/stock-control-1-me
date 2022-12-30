@@ -178,7 +178,12 @@
                 </b-col>
             </b-row>
             <b-row>
-                <b-col><label><b>Editorial:</b> {{entrada.editorial}}</label></b-col>
+                <b-col sm="4"><label><b>Editorial:</b> {{entrada.editorial}}</label></b-col>
+                <b-col sm="4">
+                    <label v-if="entrada.editorial == 'MAJESTIC EDUCATION' && entrada.imprenta_id != null">
+                        <b>Imprenta:</b> {{entrada.imprenta}}
+                    </label>
+                </b-col>
                 <b-col>
                     <label v-if="entrada.creado_por !== null">
                         <b>Creado por:</b> {{entrada.creado_por}}
@@ -344,7 +349,7 @@
                 </div>
             </b-modal>
         </div>
-        <!-- NUEVA REMISION-->
+        <!-- NUEVA ENTRADA-->
         <div v-if="mostrarAdd">
             <add-edit-entrada :agregar="agregar" :form="form" 
                 :editoriales="editoriales" @goBack="goBack"></add-edit-entrada>
@@ -454,6 +459,8 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     total_pendiente: 0,
                     folio: '',
                     editorial: '',
+                    imprenta_id: null,
+                    imprenta: null,
                     created_at: '',
                     items: [],
                     lugar: null,
@@ -494,6 +501,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     unidades: 0,
                     folio: null,
                     editorial: null,
+                    imprenta_id: null,
                     queretaro: false,
                     registros: [],
                     file: {}
@@ -755,6 +763,9 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                 this.entrada.creado_por = response.data.entrada.creado_por;
                 this.entrada.created_at = response.data.entrada.created_at;
                 this.entrada.public_url = response.data.entrada.public_url;
+                this.entrada.imprenta_id = response.data.entrada.imprenta_id;
+                if (this.entrada.editorial == 'MAJESTIC EDUCATION' && this.entrada.imprenta_id != null)
+                    this.entrada.imprenta = response.data.entrada.imprenta.imprenta;
                 this.registros = response.data.entrada.registros;
                 this.pagos = response.data.entrada.repayments;
                 this.entdevoluciones = response.data.entdevoluciones;
@@ -798,6 +809,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     unidades: 0,
                     folio: null,
                     editorial: null,
+                    imprenta_id: null,
                     queretaro: false,
                     registros: [],
                     file: null

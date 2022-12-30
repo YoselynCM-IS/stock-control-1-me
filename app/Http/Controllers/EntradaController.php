@@ -69,6 +69,7 @@ class EntradaController extends Controller
                 'folio' => $folio,
                 'corte_id' => $corte->id,
                 'editorial' => $editorial,
+                'imprenta_id' => $request->imprenta_id,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
                 'creado_por' => auth()->user()->name,
@@ -287,7 +288,7 @@ class EntradaController extends Controller
     // Función utilizada en EditarEntradasComponent, EntradasComponent
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
-        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes'])->first(); 
+        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes', 'imprenta'])->first(); 
         $entdevoluciones = Entdevolucione::where('entrada_id', $entrada_id)->with('registro.libro')->get();
         return response()->json(['entrada' => $entrada, 'entdevoluciones' => $entdevoluciones]);
     }
@@ -958,5 +959,10 @@ class EntradaController extends Controller
             'entradas' => $entradas,
             'entdevoluciones' => $entdevoluciones
         ]);
+    }
+
+    public function get_imprentas(){
+        $imprentas = \DB::table('imprentas')->orderBy('imprenta', 'asc')->get();
+        return response()->json($imprentas);
     }
 }
