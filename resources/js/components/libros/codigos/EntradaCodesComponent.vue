@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col sm="4">
+            <b-col>
                 <b-form-group label="Editorial">
                     <b-form-select v-model="form.editorial" autofocus
                         :disabled="load || form.libros.length > 0" :state="stateE" 
@@ -9,7 +9,7 @@
                     </b-form-select>
                 </b-form-group>
             </b-col>
-            <b-col sm="4">
+            <b-col>
                 <b-form-group label="Folio">
                     <b-form-input style="text-transform:uppercase;"
                         v-model="form.folio"
@@ -18,11 +18,10 @@
                     </b-form-input>
                 </b-form-group>
             </b-col>
-            <b-col sm="1"></b-col>
             <b-col sm="3" class="text-right">
                 <b-button :disabled="!stateE || !state || form.unidades <= 0 || load" 
-                    @click="save_entrada()" variant="success" block pill>
-                    <i class="fa fa-check-circle"></i> Guardar
+                    @click="subirComprobante()" variant="dark" block pill>
+                    <i class="fa fa-arrow-right"></i> Continuar
                 </b-button>
             </b-col>
         </b-row>
@@ -63,21 +62,34 @@
         <b-modal id="modal-uploadCodes" title="Cargar códigos" hide-footer>
             <upload-codes-component :editorial="form.editorial" @addListaLibros="addListaLibros"></upload-codes-component>
         </b-modal>
+        <!-- MODAL PARA SUBIR COMPROBANTE -->
+        <b-modal id="modal-uploadComprobante" title="Subir comprobante y Guardar" hide-footer>
+            <form @submit="save_entrada" enctype="multipart/form-data">
+                <subir-foto-component :disabled="load || !stateE" :allowExt="allowExt"
+                    :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component>
+                <b-button :disabled="load" type="submit" variant="success" block pill>
+                    <i class="fa fa-check-circle"></i> Guardar
+                </b-button>
+            </form>
+        </b-modal>
     </div>
 </template>
 
 <script>
 import toast from '../../../mixins/toast';
 import getEditoriales from '../../../mixins/getEditoriales';
+import SubirFotoComponent from '../../funciones/SubirFotoComponent.vue';
 export default {
     mixins: [toast, getEditoriales],
+    components: {SubirFotoComponent},
     data(){
         return {
             form: {
                 editorial: null,
                 folio: null,
                 unidades: 0,
-                libros: []
+                libros: [],
+                file: null
             },
             load: false,
             state: null,
@@ -90,7 +102,8 @@ export default {
             fieldsCodes: [
                 {key:'index', label:'N.'},
                 {key:'codigo', label:'Código'},
-            ]
+            ],
+            allowExt: /(\.pdf)$/i
         }
     },
     created: function(){
@@ -129,9 +142,17 @@ export default {
             this.$bvModal.hide('modal-uploadCodes')
         },
         // GUARDAR ENTRADA
-        save_entrada(){
+        save_entrada(e){
+            e.preventDefault();
             this.load = true;
-            axios.post('/entradas/store_codes', this.form).then(response => {
+            let formData = new FormData();
+            formData.append('file', this.form.file, this.form.file.name);
+            formData.append('unidades', this.form.unidades);
+            formData.append('folio', this.form.folio);
+            formData.append('editorial', this.form.editorial);
+            formData.append('libros', JSON.stringify(this.form.libros));
+            axios.post('/entradas/store_codes', formData, { 
+                headers: { 'content-type': 'multipart/form-data' } }).then(response => {
                 swal("OK", "La entrada se creo correctamente", "success")
                     .then((value) => { location.reload(); });
                 this.load = false;
@@ -139,6 +160,13 @@ export default {
                 this.load = false;
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
             });
+        },
+        subirComprobante(){
+            this.form.file = null;
+            this.$bvModal.show('modal-uploadComprobante');
+        },
+        uploadImage(file){
+            this.form.file = file;
         }
     }
 }

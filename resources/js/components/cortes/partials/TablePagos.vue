@@ -55,7 +55,7 @@
         <!-- SUBIR PAGO -->
         <b-modal ref="show-upload-pago" hide-footer size="sm" title="Subir foto del pago">
             <form @submit="saveImage" enctype="multipart/form-data">
-                <subir-foto-component :disabled="load" :titulo="'Subir pago'" @uploadImage="uploadImage"></subir-foto-component>
+                <subir-foto-component :disabled="load" :titulo="'Subir pago'" :allowExt="allowExt" @uploadImage="uploadImage"></subir-foto-component>
                 <div class="text-right mt-3">
                     <b-button pill :disabled="load" variant="success" type="submit">
                         <i class="fa fa-plus-circle"> Subir</i> 
@@ -110,7 +110,8 @@ export default {
                 pagoid: null, file: null
             },
             // file: null,
-            errors: {}
+            errors: {},
+            allowExt: /(\.jpg|\.jpeg|\.png)$/i
         }
     },
     methods: {

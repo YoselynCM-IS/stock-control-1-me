@@ -7,7 +7,7 @@
                 <i class="fa fa-upload"></i> {{titulo}}
             </label>
             <p v-if="file.name">
-                FOTO: <b>{{ file.name }}</b>
+                ARCHIVO: <b>{{ file.name }}</b>
             </p>
             <!-- <div v-if="errors && errors.file" class="text-danger">
                 La foto debe tener un tamaño máximo de 3MB y solo formato jpg, png, jpeg
@@ -18,7 +18,7 @@
 
 <script>
 export default {
-    props: ['disabled', 'titulo'],
+    props: ['disabled', 'titulo', 'allowExt'],
     data(){
         return {
             file: {}
@@ -27,13 +27,13 @@ export default {
     methods: {
         fileChange(e){
             var fileInput = document.getElementById('archivoType');
-            var allowedExtensions = /(\.jpg|\.jpeg|\.png)$/i;
+            // var allowExt = /(\.jpg|\.jpeg|\.png|\.pdf)$/i;
             
-            if(allowedExtensions.exec(fileInput.value)){
+            if(this.allowExt.exec(fileInput.value)){
                 this.file = e.target.files[0];
                 this.$emit('uploadImage', this.file);
             } else {
-                swal("Revisar formato de imagen", "Formato de imagen no permitido, solo puede ser en formato imagen (jpg, jpeg, png)", "warning");
+                swal("Revisar formato de archivo", "Formato de archivo no permitido", "warning");
             }
         },
     }

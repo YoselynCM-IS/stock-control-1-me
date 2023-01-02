@@ -7,7 +7,7 @@
                     <label>Comprobante</label>
                 </b-col>
                 <b-col sm="7">
-                    <subir-foto-component :disabled="load" :titulo="'Subir pago'" @uploadImage="uploadImage"></subir-foto-component>
+                    <subir-foto-component :disabled="load" :titulo="'Subir pago'" :allowExt="allowExt" @uploadImage="uploadImage"></subir-foto-component>
                 </b-col>
             </b-row>
             <check-favor-component v-if="showVerify" @answerCheck="answerCheck"></check-favor-component>
@@ -51,6 +51,7 @@ export default {
             state: null,
             showVerify: false,
             showYes: false,
+            allowExt: /(\.jpg|\.jpeg|\.png)$/i
         }
     },
     methods: {

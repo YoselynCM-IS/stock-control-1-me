@@ -141,7 +141,7 @@
                             <label><b>Editorial:</b> {{form.editorial}}</label>
                         </b-col>
                         <b-col class="text-right">
-                            <subir-foto-component :disabled="load" 
+                            <subir-foto-component :disabled="load" :allowExt="allowExt"
                                 :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component>
                         </b-col>
                     </b-row>
@@ -222,7 +222,8 @@ export default {
             showSelect: true,
             total_unidades_que: 0,
             total_unidades: 0,
-            imprentas: []
+            imprentas: [],
+            allowExt: /(\.jpg|\.jpeg|\.png)$/i
         }
     },
     created: function(){

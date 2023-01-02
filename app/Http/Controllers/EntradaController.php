@@ -62,14 +62,17 @@ class EntradaController extends Controller
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
             $name_file = $folio."_".time().".".$extension;
-            $response = $this->upload_image($request, $name_file, 'entradas');
+            $response = $this->upload_archivo($request, $name_file, 'entradas', $extension);
             // *** SUBIR IMAGEN
+            if($editorial == 'MAJESTIC EDUCATION') $imprenta_id = $request->imprenta_id; 
+            else $imprenta_id = null;
+            
             $corte = $this->get_corte();
             $entrada = Entrada::create([
                 'folio' => $folio,
                 'corte_id' => $corte->id,
                 'editorial' => $editorial,
-                'imprenta_id' => $request->imprenta_id,
+                'imprenta_id' => $imprenta_id,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
                 'creado_por' => auth()->user()->name,
@@ -121,6 +124,22 @@ class EntradaController extends Controller
         return response()->json($get_entrada);
     }
 
+    public function upload_archivo($request, $name_file, $ruta, $extension){
+        if($extension == 'pdf'){
+            Storage::disk('dropbox')->putFileAs(
+                '/stock1/'.$ruta.'/', $request->file('file'), $name_file
+            );
+        } else {
+            $this->upload_image($request, $name_file, $ruta);
+        }
+        
+        $response = $this->dropbox->createSharedLinkWithSettings(
+            '/stock1/'.$ruta.'/'.$name_file, 
+            ["requested_visibility" => "public"]
+        );
+        return $response;
+    }
+
     public function upload_image($request, $name_file, $ruta){
         $image = Image::make($request->file('file'));
         $image->resize(1280, null, function ($constraint) {
@@ -131,12 +150,6 @@ class EntradaController extends Controller
         Storage::disk('dropbox')->put(
             '/stock1/'.$ruta.'/'.$name_file, (string) $image->encode('jpg', 30)
         );
-        
-        $response = $this->dropbox->createSharedLinkWithSettings(
-            '/stock1/'.$ruta.'/'.$name_file, 
-            ["requested_visibility" => "public"]
-        );
-        return $response;
     }
 
     public function store_codes(Request $request){
@@ -144,26 +157,37 @@ class EntradaController extends Controller
         try {
             $editorial = $request->editorial;
             $lugar = 'CMX';
+            $folio = strtoupper($request->folio);
             
+            // *** SUBIR IMAGEN
+            $file = $request->file('file');
+            $extension = $file->getClientOriginalExtension();
+            $name_file = $folio."_".time().".".$extension;
+            $response = $this->upload_archivo($request, $name_file, 'entradas', $extension);
+            // *** SUBIR IMAGEN
+
             $corte = $this->get_corte();
             $entrada = null;
             $entrada = Entrada::create([
-                'folio' => strtoupper($request->folio),
+                'folio' => $folio,
                 'corte_id' => $corte->id,
                 'editorial' => $editorial,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
-                'creado_por' => auth()->user()->name
+                'creado_por' => auth()->user()->name,
+                'name' => $response['name'],
+                'extension' => $extension,
+                'size' => $response['size'],
+                'public_url' => $response['url']
             ]);
 
-            $libros = collect($request->libros);
+            $libros = collect(json_decode($request->libros));
             $hoy = Carbon::now();
 
             $l = collect();
-
             $libros->map(function($item) use($entrada, $hoy, &$l){
-                $unidades_base = (int) $item['unidades'];
-                $libro_id = $item['libro_id'];
+                $unidades_base = (int) $item->unidades;
+                $libro_id = $item->libro_id;
                 
                 $registro = Registro::create([
                     'entrada_id' => $entrada->id,
@@ -176,11 +200,11 @@ class EntradaController extends Controller
                 $reporte = 'registro la entrada (entrada) de '.$registro->unidades.' códigos - '.$registro->libro->editorial.': '.$registro->libro->type.' '.$registro->libro->ISBN.' / '.$registro->libro->titulo.' para '.$entrada->folio.' / '.$entrada->editorial;
                 $this->create_report($registro->id, $reporte, 'libro', 'registros');
 
-                $codes = collect($item['codes']);
+                $codes = collect($item->codes);
                 $code_registro = [];
                 $codes->map(function($code) use (&$l, &$code_registro){
-                    Code::whereId($code['id'])->update(['estado' => 'inventario']);
-                    $code_registro[] = $code['id'];
+                    Code::whereId($code->id)->update(['estado' => 'inventario']);
+                    $code_registro[] = $code->id;
                 });
 
                 $registro->codes()->sync($code_registro);
@@ -610,7 +634,7 @@ class EntradaController extends Controller
             $file = $request->file('file');
             $extension = $file->getClientOriginalExtension();
             $name_file = time().".".$extension;
-            $response = $this->upload_image($request, $name_file, 'entradasPagos');
+            $response = $this->upload_archivo($request, $name_file, 'entradasPagos', $extension);
             // *** SUBIR IMAGEN
 
             $deposito = Entdeposito::create([
