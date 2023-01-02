@@ -2,7 +2,7 @@
     <div>
         <!-- ENCABEZADO -->
         <b-row>
-            <b-col sm="4"><h5><b>Remisión No. {{ remision.id }}</b></h5></b-col>
+            <b-col><h5><b>Remisión {{ remision.id }}</b></h5></b-col>
             <b-col sm="2" class="text-right">
                 <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado'"
                     variant="dark" v-b-modal.modal-cancelar pill block>
@@ -23,10 +23,21 @@
                 </b-button>
             </b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
-                    :href="`/codes/download_byremision/${remision.id}`" variant="dark" pill block>
-                    <i class="fa fa-download"></i> Códigos
+                <b-button v-b-toggle.collapse-1 variant="info" pill block>
+                    <i class="fa fa-navicon"></i> Otros
                 </b-button>
+                <b-collapse id="collapse-1" class="mt-2">
+                    <b-card>
+                        <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                            :href="`/codes/download_byremision/${remision.id}`" variant="dark" pill block>
+                            <i class="fa fa-download"></i> Códigos
+                        </b-button>
+                        <b-button v-if="remision.paqueteria_id != null" 
+                            variant="dark" pill block v-b-modal.modal-envio>
+                            <i class="fa fa-truck"></i> Envió
+                        </b-button>
+                    </b-card>
+                </b-collapse>
             </b-col>
         </b-row>
         <hr>
@@ -183,6 +194,45 @@
                 </b-form>
             </div>
             <div slot="modal-footer"></div>
+        </b-modal>
+        <!-- MODAL PARA MOSTRAR DETALLES DE ENVIO -->
+        <b-modal id="modal-envio" title="Detalles de envió" hide-footer size="lg">
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Destinatario:</b></b-col>
+                <b-col>{{ remision.paqueteria.destinatario.destinatario }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Dirección:</b></b-col>
+                <b-col>{{ remision.paqueteria.destinatario.direccion }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>RFC:</b></b-col>
+                <b-col>{{ remision.paqueteria.destinatario.rfc }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Teléfono:</b></b-col>
+                <b-col>{{ remision.paqueteria.destinatario.telefono }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Régimen fiscal:</b></b-col>
+                <b-col>{{ remision.paqueteria.destinatario.regimen_fiscal }}</b-col>
+            </b-row><hr>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Nombre de la paquetería:</b></b-col>
+                <b-col>{{ remision.paqueteria.paqueteria }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Tipo de envió:</b></b-col>
+                <b-col>{{ remision.paqueteria.tipo_envio }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Fecha de envió:</b></b-col>
+                <b-col>{{ remision.paqueteria.fecha_envio }}</b-col>
+            </b-row>
+            <b-row>
+                <b-col sm="3" class="text-right"><b>Costo de envió:</b></b-col>
+                <b-col>{{ remision.paqueteria.precio }}</b-col>
+            </b-row>
         </b-modal>
     </div>
 </template>

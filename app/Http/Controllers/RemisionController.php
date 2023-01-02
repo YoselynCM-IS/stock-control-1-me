@@ -9,11 +9,13 @@ use App\Exports\RemisionesGExport;
 use App\Helper\CollectionHelper;
 use App\Exports\GAccountExport;
 use Illuminate\Http\Request;
-use App\Remcliente;
+use App\Destinatario;
 use NumerosEnLetras;
 use App\Devolucione;
 use App\Remdeposito;
+use App\Remcliente;
 use App\Comentario;
+use App\Paqueteria;
 use Carbon\Carbon;
 use App\Remisione;
 use App\Donacione;
@@ -799,11 +801,44 @@ class RemisionController extends Controller
     }
 
     // Asignar responsable de entregar la remisión
-    public function assign_responsable(Request $request){
-        $remision = Remisione::whereId($request->remision_id)->first();
+    public function save_envio(Request $request){
+        $remision = Remisione::whereId($request->remisione_id)->first();
         \DB::beginTransaction();
         try {
-            $remision->update(['responsable' => $request->responsable]);
+            $paqueteria_id = null;
+            $precio = (double) $request->paqueteria['precio'];
+            if($precio > 0){
+                $id = $request->destinatario['id'];
+                if($id == null){
+                    $destinatario = Destinatario::create([
+                        'destinatario' => strtoupper($request->destinatario['destinatario']), 
+                        'rfc' => strtoupper($request->destinatario['rfc']), 
+                        'direccion' => strtoupper($request->destinatario['direccion']), 
+                        'regimen_fiscal' => $request->destinatario['regimen_fiscal'], 
+                        'telefono' => $request->destinatario['telefono']
+                    ]);
+                    $reporte = 'creo el destinatario '.$destinatario->destinatario;
+                    $this->create_report($destinatario->id, $reporte, 'cliente', 'destinatarios');
+                } else {
+                    $destinatario = Destinatario::find($id);
+                }
+                $paqueteria = Paqueteria::create([
+                    'destinatario_id' => $destinatario->id,
+                    'paqueteria' => strtoupper($request->paqueteria['paqueteria']), 
+                    'fecha_envio' => $request->paqueteria['fecha_envio'], 
+                    'tipo_envio' => $request->paqueteria['tipo_envio'], 
+                    'precio' => $precio
+                ]);
+                $paqueteria_id = $paqueteria->id;
+
+                $reporte = 'registro envió de paquetería en la remisión '.$remision->id.' / '.$remision->cliente->name;
+                $this->create_report($paqueteria->id, $reporte, 'cliente', 'paqueterias');
+            }
+
+            $remision->update([
+                'paqueteria_id' => $paqueteria_id,
+                'responsable' => $request->responsable
+            ]);
 
             $reporte = 'asigno como responsable de la entrega a '.$remision->responsable.' Entrega de la remisión '.$remision->id.' / '.$remision->cliente->name;
             $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
@@ -812,6 +847,7 @@ class RemisionController extends Controller
             \DB::rollBack();
             return response()->json($exception->getMessage());
         }
+
         return response()->json($remision);
     }
 
@@ -1133,8 +1169,9 @@ class RemisionController extends Controller
                         'devoluciones.dato',
                         'fechas.libro',
                         'depositos',
-                        'comentarios.user'
-                    ])->withCount('depositos')->first(); 
+                        'comentarios.user',
+                        'paqueteria.destinatario'
+                    ])->withCount('depositos')->first();
         return view('information.remisiones.details-remision', compact('remision'));
     }
 

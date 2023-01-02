@@ -134,7 +134,8 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     Route::get('/get_responsables', 'RemisionController@get_responsables')->name('get_responsables');
     //Buscar remision
     Route::get('obtener_devoluciones', 'RemisionController@obtener_devoluciones')->name('obtener_devoluciones');
-
+    // Asignar responsable de la remision
+    Route::post('save_envio', 'RemisionController@save_envio')->name('save_envio');
 
     // HISTORIAL
     // Verificar que no exista el folio
@@ -142,9 +143,6 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     // Crear remision
     Route::post('/historial_store', 'RemisionController@historial_store')->name('historial_store');
 });
-
-// Asignar responsable de la remision
-Route::put('assign_responsable', 'RemisionController@assign_responsable')->name('assign_responsable');
 
 
 // OBTENER REMISION POR ID
@@ -535,6 +533,9 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     
     // Obtener clientes por tipo
     Route::get('/by_tipo', 'ClienteController@by_tipo')->name('by_tipo');
+
+    // BUSCAR DESTINATARIOS
+    Route::get('/get_destinatarios', 'ClienteController@get_destinatarios')->name('get_destinatarios');
 });
 
 // MANAGER

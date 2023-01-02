@@ -13,11 +13,11 @@ class CreateImprentasTable extends Migration
      */
     public function up()
     {
-        Schema::create('imprentas', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('imprenta', 70)->unique();
-            $table->timestamps();
-        });
+        // Schema::create('imprentas', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->string('imprenta', 70)->unique();
+        //     $table->timestamps();
+        // });
     }
 
     /**

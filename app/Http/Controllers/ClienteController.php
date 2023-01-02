@@ -14,6 +14,7 @@ use App\Remcliente;
 use App\Cctotale;
 use App\Reporte;
 use App\Corte;
+use App\Destinatario;
 
 class ClienteController extends Controller
 {
@@ -294,5 +295,11 @@ class ClienteController extends Controller
             'name_table' => $name_table, 
             'id_table' => $cliente_id
         ]);
+    }
+
+    public function get_destinatarios(Request $request){
+        $destinatarios = Destinatario::where('destinatario','like','%'.$request->queryDestinatario.'%')
+                            ->orderBy('destinatario', 'asc')->get();
+        return response()->json($destinatarios);
     }
 }

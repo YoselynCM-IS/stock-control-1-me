@@ -151,7 +151,7 @@
                             <b-button
                                 @click="selectResponsable(row.item, row.index)"
                                 v-if="(role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6) && row.item.responsable === null && row.item.estado !== 'Cancelado'"
-                                variant="warning"><i class="fa fa-frown-o"></i>
+                                variant="dark"><i class="fa fa-truck"></i>
                             </b-button>
                         </template>
                         <template v-slot:cell(editar)="row">
@@ -190,22 +190,8 @@
             </div>
             <!-- MODALS -->
             <!-- ELEGIR RESPONSABLE DE LA ENTREGA -->
-            <b-modal ref="modalMarcarE" id="modal-marcar" title="Responsable de la entrega">
-                <b-row>
-                    <b-col sm="8">
-                        <b-form-select :state="stateResp" :disabled="load" v-model="responsableRem.responsable" :options="optionsR"></b-form-select>
-                    </b-col>
-                    <b-col sm="4">
-                        <b-button v-on:click="assignResponsable()" :disabled="load" variant="success">
-                            <i class="fa fa-check"></i> Guardar <b-spinner v-if="load" small></b-spinner>
-                        </b-button>
-                    </b-col>
-                </b-row>
-                <template v-slot:modal-footer>
-                    <b-alert show variant="info">
-                        <i class="fa fa-exclamation-circle"></i> Verificar los datos antes de presionar <b>Guardar</b>, ya que después no se podrán realizar cambios.
-                    </b-alert>
-                </template>
+            <b-modal ref="modalMarcarE" id="modal-marcar" title="Información de la entrega" size="lg" hide-footer>
+                <envio-remision :remisione_id="remisione_id" @savedResponsable="savedResponsable"></envio-remision>
             </b-modal>
         </div>
     </div>
@@ -214,8 +200,10 @@
 <script>
     import formatNumber from '../../mixins/formatNumber';
     import rowClass from '../../mixins/rowClass';
+    import EnvioRemision from './partials/EnvioRemision.vue';
     moment.locale('es');
     export default {
+        components: { EnvioRemision },
         props: ['role_id'],
         mixins: [formatNumber,rowClass],
         data() {
@@ -317,13 +305,7 @@
                 // total_depositos: 0,
                 total_vendido: 0,
                 checkUnit: false,
-                stateResp: null,
-                responsableRem: {
-                    remision_id: null,
-                    responsable: null,
-                    posicion: null
-                },
-                optionsR: [],
+                remisione_id: null,
                 editar: false,
                 datosRemision: {
                     id: null,
@@ -529,46 +511,14 @@
             //     }
             // },
             selectResponsable(remision, i){
-                this.load = true;
-                this.optionsR = [];
-                axios.get('/remisiones/get_responsables').then(response => {
-                    this.optionsR.push({
-                        value: null,
-                        text: 'Selecciona una opción',
-                        disabled: true
-                    });
-                    response.data.forEach(responsable => {
-                        this.optionsR.push({
-                            value: responsable.responsable,
-                            text: responsable.responsable
-                        });
-                    });
-                    this.stateResp = null;
-                    this.responsableRem.remision_id = remision.id;
-                    this.responsableRem.responsable = null;
-                    this.responsableRem.posicion = i;
-                    this.$refs['modalMarcarE'].show();
-                    this.load = false;
-                }).catch(error => {
-                    this.load = false;
-                });
+                this.remisione_id = remision.id;
+                this.position = i;
+                this.$refs['modalMarcarE'].show();
             },
-            // ASIGNAR RESPONSABLE DE LA REMISIÓN
-            assignResponsable(){
-                if(this.responsableRem.responsable !== null){
-                    this.stateResp = true;
-                    axios.put('/assign_responsable', this.responsableRem).then(response => {
-                        this.remisiones[this.responsableRem.posicion].responsable = response.data.responsable;
-                        this.makeToast('success', 'El responsable de la entrega se guardo correctamente.');
-                        this.$refs['modalMarcarE'].hide();
-                    })
-                    .catch(error => {
-                        this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
-                    });
-                } else {
-                    this.stateResp = false;
-                    this.makeToast('warning', 'Seleccionar responsable de la entrega.');
-                }
+            savedResponsable(remision){
+                this.remisiones[this.position].responsable = remision.responsable;
+                this.makeToast('success', 'Los datos se guardaron correctamente.');
+                this.$refs['modalMarcarE'].hide();
             },
             // AGREGAR LA NUEVA REMISIÓN A LA LISTA
             actualizarRs(remision){

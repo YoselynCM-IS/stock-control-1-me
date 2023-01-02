@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Model;
+use App\Paqueteria;
 use App\Cliente;
 use App\Dato;
 use App\Devolucione;
@@ -23,6 +24,7 @@ class Remisione extends Model
         'user_id',
         'cliente_id',
         'corte_id', 
+        'paqueteria_id',
         'tipo', 
         'total', 
         'total_devolucion', 
@@ -41,6 +43,12 @@ class Remisione extends Model
     //Una remision solo puede pertenecer a un cliente
     public function cliente(){
         return $this->belongsTo(Cliente::class);
+    }
+
+    //Uno a uno
+    //Un usuario solo puede tener un rol
+    public function paqueteria(){
+        return $this->belongsTo(Paqueteria::class);
     }
 
     //Uno a muchos
