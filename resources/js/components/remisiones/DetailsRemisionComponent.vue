@@ -197,42 +197,44 @@
         </b-modal>
         <!-- MODAL PARA MOSTRAR DETALLES DE ENVIO -->
         <b-modal id="modal-envio" title="Detalles de envió" hide-footer size="lg">
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Destinatario:</b></b-col>
-                <b-col>{{ remision.paqueteria.destinatario.destinatario }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Dirección:</b></b-col>
-                <b-col>{{ remision.paqueteria.destinatario.direccion }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>RFC:</b></b-col>
-                <b-col>{{ remision.paqueteria.destinatario.rfc }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Teléfono:</b></b-col>
-                <b-col>{{ remision.paqueteria.destinatario.telefono }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Régimen fiscal:</b></b-col>
-                <b-col>{{ remision.paqueteria.destinatario.regimen_fiscal }}</b-col>
-            </b-row><hr>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Nombre de la paquetería:</b></b-col>
-                <b-col>{{ remision.paqueteria.paqueteria }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Tipo de envió:</b></b-col>
-                <b-col>{{ remision.paqueteria.tipo_envio }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Fecha de envió:</b></b-col>
-                <b-col>{{ remision.paqueteria.fecha_envio }}</b-col>
-            </b-row>
-            <b-row>
-                <b-col sm="3" class="text-right"><b>Costo de envió:</b></b-col>
-                <b-col>{{ remision.paqueteria.precio }}</b-col>
-            </b-row>
+            <div v-if="remision.paqueteria_id != null">
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Destinatario:</b></b-col>
+                    <b-col>{{ remision.paqueteria.destinatario.destinatario }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Dirección:</b></b-col>
+                    <b-col>{{ remision.paqueteria.destinatario.direccion }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>RFC:</b></b-col>
+                    <b-col>{{ remision.paqueteria.destinatario.rfc }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Teléfono:</b></b-col>
+                    <b-col>{{ remision.paqueteria.destinatario.telefono }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Régimen fiscal:</b></b-col>
+                    <b-col>{{ remision.paqueteria.destinatario.regimen_fiscal }}</b-col>
+                </b-row><hr>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Nombre de la paquetería:</b></b-col>
+                    <b-col>{{ remision.paqueteria.paqueteria }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Tipo de envió:</b></b-col>
+                    <b-col>{{ remision.paqueteria.tipo_envio }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Fecha de envió:</b></b-col>
+                    <b-col>{{ remision.paqueteria.fecha_envio }}</b-col>
+                </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Costo de envió:</b></b-col>
+                    <b-col>{{ remision.paqueteria.precio }}</b-col>
+                </b-row>
+            </div>
         </b-modal>
     </div>
 </template>
