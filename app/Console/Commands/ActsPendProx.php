@@ -44,9 +44,9 @@ class ActsPendProx extends Command
                         ->where('estado', 'proximo')
                         ->update(['estado' => 'pendiente']);
 
-        $mañana = Carbon::tomorrow();
-        Actividade::where('fecha', 'like', '%'.$mañana->format('Y-m-d').'%')
-                        ->where('estado', 'pendiente')
-                        ->update(['estado' => 'proximo']);
+        // $mañana = Carbon::tomorrow();
+        // Actividade::where('fecha', 'like', '%'.$mañana->format('Y-m-d').'%')
+        //                 ->where('estado', 'pendiente')
+        //                 ->update(['estado' => 'proximo']);
     }
 }

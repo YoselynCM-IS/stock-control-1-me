@@ -27,15 +27,17 @@ class ActividadeController extends Controller
             $cliente_id = $request->cliente_id;
             $tipo = $request->tipo;
             $descripcion = $request->descripcion;
-            $fecha = $request->fecha.' '.$request->hora;
 
+            $fecha = new Carbon($request->fecha.' '.$request->hora);
+            $estado = $this->set_tiempo_estado($fecha);
+            
             $actividad = Actividade::create([
                 'user_id' => auth()->user()->id, 
                 'cliente_id' => $cliente_id, 
                 'nombre' => $request->nombre,
                 'tipo' => $tipo, 
                 'descripcion' => $descripcion, 
-                'estado' => 'pendiente', 
+                'estado' => $estado, 
                 'fecha' => $fecha,
                 'lugar' => $request->lugar
             ]);
@@ -83,6 +85,16 @@ class ActividadeController extends Controller
         ]);
     }
 
+    public function set_tiempo_estado($fecha){
+        $ahora = Carbon::now();
+        $mañana = Carbon::tomorrow();
+
+        $estado = 'pendiente';
+        if($fecha < $ahora) $estado = 'vencido';
+        if($fecha->format('Y-m-d') >= $mañana->format('Y-m-d')) $estado = 'proximo';
+        return $estado;
+    }
+
     public function update(Request $request){
         \DB::beginTransaction();
         try {
@@ -90,10 +102,9 @@ class ActividadeController extends Controller
             $hoy = Carbon::now();
 
             $descripcion = $actividad->descripcion.'<p><b>ACTUALIZACIÓN ('.$hoy.'):</b> '.$request->observaciones.'</p>';
-            $fecha = $request->fecha.' '.$request->hora;
             
-            $estado = 'pendiente';
-            if($fecha < $hoy->toDateTimeString()) $estado = 'vencido';
+            $fecha = new Carbon($request->fecha.' '.$request->hora);
+            $estado = $this->set_tiempo_estado($fecha);
 
             $actividad->update([
                 'estado' => $estado,
