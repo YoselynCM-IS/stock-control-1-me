@@ -3,6 +3,18 @@
         <b-form @submit.prevent="onSubmit()">
             <datos-parte-1 :form="form" :load="load" :errors="errors"></datos-parte-1>
             <datos-parte-2 :form="form" :load="load" :errors="errors"></datos-parte-2>
+            <b-row class="my-1">
+                <b-col align="right">Teléfono (Oficina)</b-col>
+                <div class="col-md-9">
+                    <b-form-input 
+                        id="input-telefono"
+                        v-model="form.tel_oficina" 
+                        :disabled="load"
+                        required>
+                    </b-form-input>
+                    <div v-if="errors && errors.tel_oficina" class="text-danger">{{ errors.tel_oficina[0] }}</div>
+                </div>
+            </b-row>
             <hr>
             <div align="right">
                 <b-button type="submit" :disabled="load" variant="success" pill>
@@ -28,7 +40,8 @@ export default {
                 estado_id: null,
                 email: null,
                 telefono: null,
-                user_id: null
+                tel_oficina: null
+                // user_id: null
             }
         }
     },

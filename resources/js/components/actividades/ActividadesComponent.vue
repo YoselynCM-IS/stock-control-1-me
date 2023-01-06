@@ -45,13 +45,13 @@
             </b-col>
         </b-row>
         <b-tabs content-class="mt-2" fill>
-            <b-tab title="Vencido" @click="actividades_byvencido('vencido')">
+            <b-tab title="Vencido" @click="actividades_bystatus('vencido')">
                 <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
             <b-tab title="Hoy" @click="actividades_byfechaactual()" active>
                 <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
-            <b-tab title="Proximo" @click="actividades_byvencido('proximo')">
+            <b-tab title="Proximo" @click="actividades_bystatus('proximo')">
                 <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
             </b-tab>
         </b-tabs>
@@ -66,14 +66,13 @@
 <script>
 import TipoActividadComponent from './partials/TipoActividadComponent.vue';
 import searchCliente from '../../mixins/searchCliente';
+import getActsStatus from '../../mixins/getActsStatus';
 export default {
     props: ['tipo_cliente'],
     components: {TipoActividadComponent},
-    mixins: [searchCliente],
+    mixins: [searchCliente, getActsStatus],
     data(){
         return {
-            load: false,
-            actividades: {},
             queryEstado: 'pendiente',
             queryTipo: 'cita',
             cliente_id: null,
@@ -93,16 +92,6 @@ export default {
             this.load = true;
             this.actividades = [];
             axios.get(`/actividades/by_user_fecha_actual`).then(response => {
-                this.actividades = response.data;
-                this.load = false;
-            }).catch(error => {
-                this.load = false;
-            });
-        },
-        actividades_byvencido(estado){
-            this.load = true;
-            this.actividades = [];
-            axios.get(`/actividades/by_user_estado`, {params: {estado: estado}}).then(response => {
                 this.actividades = response.data;
                 this.load = false;
             }).catch(error => {
@@ -180,7 +169,8 @@ export default {
         },
         getCompleted(){
             this.queryEstado = 'completado';
-            this.http_bytipoestado();
+            // this.http_bytipoestado();
+            location.href = `/information/actividades/get_status/${this.queryEstado}`;
         },
         get_by_tipocliente(){
             location.href = `/information/actividades/get_tipocliente/${this.tipo_cliente}`;

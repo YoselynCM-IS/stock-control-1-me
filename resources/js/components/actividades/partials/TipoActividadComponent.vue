@@ -18,6 +18,9 @@
                 <template v-slot:cell(index)="row">
                     {{ row.index + 1 }}
                 </template>
+                <template v-slot:cell(fecha)="row">
+                    {{ row.item.fecha | moment}}
+                </template>
                 <template v-slot:cell(show_details)="row">
                     <b-button variant="info" pill size="sm" @click="row.toggleDetails">
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
@@ -58,45 +61,7 @@
                             :actividad="actividad" @updatedActEstado="updatedActEstado"></cancelar-actividad-component>
                         <editar-actividad-component v-if="editarAct && (actividad.id == row.item.id)" 
                             :actividad="actividad" @updatedActEstado="updatedActEstado"></editar-actividad-component>
-                        <b-row class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Fecha de creación</b></label></b-col>
-                            <b-col>{{ row.item.created_at }}</b-col>
-                        </b-row>
-                        <b-row class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Nombre de la actividad</b></label></b-col>
-                            <b-col>{{ row.item.nombre }}</b-col>
-                        </b-row>
-                        <b-row class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Tipo</b></label></b-col>
-                            <b-col>{{ row.item.tipo }}</b-col>
-                        </b-row>
-                        <b-row class="mb-2" v-if="row.item.tipo == 'reunion' || row.item.tipo == 'videoconferencia'">
-                            <b-col sm="3" class="text-right"><label><b>{{setTitulo(row.item.tipo)}}</b></label></b-col>
-                            <b-col>{{ row.item.lugar }}</b-col>
-                        </b-row>
-                        <b-row class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Fecha y hora</b></label></b-col>
-                            <b-col>{{ row.item.fecha }}</b-col>
-                        </b-row>
-                        <b-row class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Descripción</b></label></b-col>
-                            <b-col><p v-html="row.item.descripcion"></p></b-col>
-                        </b-row>
-                        <b-row v-if="row.item.cliente_id != null" class="mb-2">
-                            <b-col sm="3" class="text-right"><label><b>Cliente relacionado</b></label></b-col>
-                            <b-col>{{ row.item.cliente.name }}</b-col>
-                        </b-row>
-                        <div v-if="row.item.estado == 'completado'" class="mb-2">
-                            <hr>
-                            <b-row>
-                                <b-col sm="3" class="text-right"><label><b>¿La actividad se completo con exito?</b></label></b-col>
-                                <b-col>{{ row.item.exitosa ? 'SI':'NO' }}</b-col>
-                            </b-row>
-                        </div>
-                        <b-row v-if="row.item.estado == 'completado' || row.item.estado == 'cancelado'">
-                            <b-col sm="3" class="text-right"><label><b>Observaciones</b></label></b-col>
-                            <b-col>{{ row.item.observaciones }}</b-col>
-                        </b-row>
+                        <details-actividad :actividad="row.item"></details-actividad>
                     </b-card>
                 </template>
                 <template #cell(selected)="{ rowSelected }">
@@ -118,14 +83,15 @@
 
 <script>
 import LoadComponent from '../../cortes/partials/LoadComponent.vue';
-import setTitulo from '../../../mixins/setTitulo';
 import MarkActividadComponent from './MarkActividadComponent.vue';
 import CancelarActividadComponent from './CancelarActividadComponent.vue';
 import EditarActividadComponent from './EditarActividadComponent.vue';
+import DetailsActividad from './DetailsActividad.vue';
+import formatFechaActs from '../../../mixins/formatFechaActs';
 export default {
     props: ['actividades', 'load'],
-    components: {LoadComponent, MarkActividadComponent, CancelarActividadComponent, EditarActividadComponent},
-    mixins: [setTitulo],
+    components: {LoadComponent, MarkActividadComponent, CancelarActividadComponent, EditarActividadComponent, DetailsActividad},
+    mixins: [formatFechaActs],
     data(){
         return {
             fields: [
@@ -134,7 +100,6 @@ export default {
                 {key: 'tipo', label: 'Tipo'},
                 {key: 'nombre', label: 'Actividad'},
                 {key: 'fecha', label: 'Fecha'},
-                {key: 'cliente.name', label: 'Cliente'},
                 {key: 'show_details', label: 'Detalles'}
             ],
             loaded: false,
@@ -181,7 +146,15 @@ export default {
             this.completarAct = completarAct;
             this.cancelarAct = cancelarAct;
             this.editarAct = editarAct;
-        }
+        },
+        // DISTINGUIR DE OTRO COLOR LAS ACTIVIDADES COMPLETADAS
+        rowClass(item, type) {
+            if (!item) return
+            if (item.estado == 'completado') return 'table-success'
+            if (item.estado == 'vencido') return 'table-warning'
+            if (item.estado == 'cancelado') return 'table-danger'
+            if (item.estado == 'proximo') return 'table-primary'
+        },
     }
 }
 </script>

@@ -1,11 +1,21 @@
 <template>
     <div>
         <b-form @submit.prevent="onSubmit()">
+            <b-row class="mb-3">
+                <b-col></b-col>
+                <b-col sm="3">
+                    <b-button type="submit" :disabled="loaded" variant="success"
+                        pill block>
+                        <i class="fa fa-check"></i> {{ !loaded ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="loaded"></b-spinner>
+                    </b-button>
+                </b-col>
+            </b-row>
             <div>
                 <b-row class="mb-2">
                     <b-col sm="3" class="text-right"><label>Nombre de la actividad</label></b-col>
                     <b-col>
-                        <b-form-input v-model="form.nombre" required :disabled="loaded" autofocus></b-form-input>
+                        <b-form-input v-model="form.nombre" required :disabled="loaded" autofocus
+                                style="text-transform:uppercase;"></b-form-input>
                     </b-col>
                 </b-row>
                 <b-row class="mb-2">
@@ -39,7 +49,7 @@
                     </b-col>
                 </b-row>
                 <b-row class="mb-2">
-                    <b-col sm="3" class="text-right"><label>Cliente relacionado</label></b-col>
+                    <b-col sm="3" class="text-right"><label>Relacionar cliente(s)</label></b-col>
                     <b-col>
                         <b-input v-model="queryCliente" @keyup="mostrarClientes()"
                             style="text-transform:uppercase;" :disabled="loaded">
@@ -51,17 +61,17 @@
                             </a>
                         </div>
                     </b-col>
+                    <b-col sm="2">
+                        <b-button variant="dark" pill block :disabled="loaded || !selCliente.id"
+                            @click="addCliente()">
+                            <i class="fa fa-plus-circle"></i> Agregar
+                        </b-button>
+                    </b-col>
                 </b-row>
+                <div v-if="form.clientes.length > 0">
+                    <list-clientes :clientes="form.clientes" :quitar="true"></list-clientes>
+                </div>
             </div>
-            <b-row class="mb-2">
-                <b-col></b-col>
-                <b-col sm="9">
-                    <b-button type="submit" :disabled="loaded" variant="success"
-                        pill block>
-                        <i class="fa fa-check"></i> {{ !loaded ? 'Guardar' : 'Guardando' }} <b-spinner small v-if="loaded"></b-spinner>
-                    </b-button>
-                </b-col>
-            </b-row>
         </b-form>
     </div>
 </template>
@@ -69,18 +79,20 @@
 <script>
 import searchCliente from '../../mixins/searchCliente';
 import setTitulo from '../../mixins/setTitulo';
+import ListClientes from './partials/ListClientes.vue';
 export default {
     mixins: [searchCliente, setTitulo],
+    components: {ListClientes},
     data(){
         return {
             loaded: false, 
             form: {
-                cliente_id: null,
                 tipo: null,
                 lugar: null,
                 fecha: null,
                 hora: null,
-                descripcion: null
+                descripcion: null,
+                clientes: []
             },
             errors: {},
             tipos: [
@@ -91,6 +103,7 @@ export default {
                 { value: 'enviarcorreo', text: 'Enviar correo' },
                 { value: 'nota', text: 'Nota' }
             ],
+            selCliente: {}
         }
     },
     created: function(){
@@ -102,9 +115,14 @@ export default {
             if(this.form.tipo == 'nota') this.form.hora = null;
         },
         selectCliente(cliente){
-            this.form.cliente_id = cliente.id;
+            this.selCliente = cliente;
             this.queryCliente = cliente.name;
             this.clientes = [];
+        },
+        addCliente(){
+            this.form.clientes.push(this.selCliente);
+            this.selCliente = {};
+            this.queryCliente = null;
         },
         onSubmit(){
             this.loaded = true;

@@ -52,7 +52,7 @@ class Cliente extends Model
     }
 
     public function actividades(){
-        return $this->hasMany(Actividade::class);
+        return $this->belongsToMany(Actividade::class);
     }
 
 }

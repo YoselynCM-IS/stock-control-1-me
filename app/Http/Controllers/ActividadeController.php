@@ -20,11 +20,15 @@ class ActividadeController extends Controller
         return view('information.actividades.lista', compact('tipo'));
     }
 
+    // OBTENER LAS ACTIVIDADES POR STATUS
+    public function get_status($status){
+        return view('information.actividades.status-lista', compact('status'));
+    }
+
     // GUARDAR ACTIVIDAD
     public function store(Request $request){
         \DB::beginTransaction();
         try {
-            $cliente_id = $request->cliente_id;
             $tipo = $request->tipo;
             $descripcion = $request->descripcion;
 
@@ -32,15 +36,19 @@ class ActividadeController extends Controller
             $estado = $this->set_tiempo_estado($fecha);
             
             $actividad = Actividade::create([
-                'user_id' => auth()->user()->id, 
-                'cliente_id' => $cliente_id, 
-                'nombre' => $request->nombre,
+                'user_id' => auth()->user()->id,
+                'nombre' => strtoupper($request->nombre),
                 'tipo' => $tipo, 
                 'descripcion' => $descripcion, 
                 'estado' => $estado, 
                 'fecha' => $fecha,
                 'lugar' => $request->lugar
             ]);
+
+            $clientes = collect($request->clientes);
+            $clientes->map(function($cliente) use(&$actividad){
+                $actividad->clientes()->attach($cliente['id']);
+            });
 
             $reporte = 'creo la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
             $this->create_report($actividad->id, $reporte, 'actividades');
@@ -58,11 +66,14 @@ class ActividadeController extends Controller
     public function update_estado(Request $request){
         \DB::beginTransaction();
         try {
+            $hoy = Carbon::now();
             $actividad = Actividade::find($request->id);
+            $observaciones = $actividad->observaciones.'<p><b>ACTIVIDAD COMPLETADA - '.$hoy.' :</b> '.$request->observaciones.'</p>';
+            
             $actividad->update([
                 'estado' => $request->estado,
                 'exitosa' => $request->exitosa, 
-                'observaciones' => $request->observaciones
+                'observaciones' => $observaciones
             ]);
 
             $reporte = 'marco como '.$actividad->estado.' la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
@@ -138,8 +149,8 @@ class ActividadeController extends Controller
     }
 
     public function get_user_actividades(){
-        return Actividade::where('user_id', auth()->user()->id)
-                ->with('cliente')->orderBy('fecha', 'desc');
+        return Actividade::with('clientes')->orderBy('fecha', 'desc');
+        // where('user_id', auth()->user()->id)
     }
 
     // *** FUNCIONES PENDIENTES POR REVISAR
@@ -178,4 +189,6 @@ class ActividadeController extends Controller
                     ->where('actividades.estado', $request->estado)
                     ->orderBy('actividades.created_at', 'desc');
     }
+
+    // *** FUNCIONES PENDIENTES POR REVISAR
 }

@@ -15,6 +15,14 @@
                 </b-col>
                 <b-col>
                     <b-row class="my-1">
+                        <b-col align="right">Responsable del cliente</b-col>
+                        <div class="col-md-9">
+                            <b-form-select v-model="form.user_id" :options="usuarios" required
+                                :disabled="load"
+                            ></b-form-select>
+                        </div>
+                    </b-row>
+                    <b-row class="my-1">
                         <b-col align="right">Condiciones de pago</b-col>
                         <div class="col-md-9">
                             <b-form-input 
@@ -104,9 +112,10 @@
 import DatosParte1 from './partials/DatosParte1.vue';
 import DatosParte2 from './partials/DatosParte2.vue';
 import catchError from '../../mixins/catchError';
+import getUsuarios from '../../mixins/getUsuarios';
     export default {
         components: { DatosParte1, DatosParte2 },
-        mixins: [catchError],
+        mixins: [catchError, getUsuarios],
         props: ['form', 'edit'],
         data() {
             return {
@@ -117,6 +126,9 @@ import catchError from '../../mixins/catchError';
                     { value: 'DISTRIBUIDOR', text: 'DISTRIBUIDOR' }
                 ]
             }
+        },
+        created: function(){
+            this.getUsuarios(6);
         },
         methods: {
             // GUARDAR NUEVO CLIENTE

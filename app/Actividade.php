@@ -9,12 +9,12 @@ use App\User;
 class Actividade extends Model
 {
     protected $fillable = [
-        'id', 'user_id', 'cliente_id', 'nombre', 'tipo', 'descripcion', 'estado', 'fecha', 'lugar',
+        'id', 'user_id', 'nombre', 'tipo', 'descripcion', 'estado', 'fecha', 'lugar',
         'exitosa', 'observaciones'
     ];   
 
-    public function cliente(){
-        return $this->belongsTo(Cliente::class);
+    public function clientes(){
+        return $this->belongsToMany(Cliente::class);
     }
 
     public function user(){

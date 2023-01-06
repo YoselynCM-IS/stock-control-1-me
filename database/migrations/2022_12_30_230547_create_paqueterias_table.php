@@ -13,16 +13,16 @@ class CreatePaqueteriasTable extends Migration
      */
     public function up()
     {
-        Schema::create('paqueterias', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('destinatario_id');
-            $table->foreign('destinatario_id')->references('id')->on('destinatarios');
-            $table->string('paqueteria');
-            $table->dateTime('fecha_envio');
-            $table->enum('tipo_envio', ['terrestre', 'aereo']);
-            $table->double('precio');
-            $table->timestamps();
-        });
+        // Schema::create('paqueterias', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('destinatario_id');
+        //     $table->foreign('destinatario_id')->references('id')->on('destinatarios');
+        //     $table->string('paqueteria');
+        //     $table->dateTime('fecha_envio');
+        //     $table->enum('tipo_envio', ['terrestre', 'aereo']);
+        //     $table->double('precio');
+        //     $table->timestamps();
+        // });
     }
 
     /**

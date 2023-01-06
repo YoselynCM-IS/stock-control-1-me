@@ -40,8 +40,13 @@ class ActsVencidos extends Command
     public function handle()
     {
         $hoy = Carbon::now();
+        $observaciones = '<p><b>ACTIVIDAD VENCIDA - '.$hoy.'</b></p>';
+            
         Actividade::where('estado', 'pendiente')
                         ->where('fecha', '<', $hoy)
-                        ->update(['estado' => 'vencido']);
+                        ->update([
+                            'estado' => 'vencido',
+                            'observaciones' => $observaciones
+                        ]);
     }
 }

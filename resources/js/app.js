@@ -136,7 +136,7 @@ Vue.component('add-pago-corte-component', require('./components/historial/AddPag
 
 // ACTIVIDADES
 Vue.component('actividades-component', require('./components/actividades/ActividadesComponent').default);
-Vue.component('actividades-component', require('./components/actividades/ActividadesComponent').default);
+Vue.component('status-actividades-component', require('./components/actividades/StatusActividadesComponent').default);
 Vue.component('new-actividad-component', require('./components/actividades/NewActividadComponent').default);
 
 // REPORTES

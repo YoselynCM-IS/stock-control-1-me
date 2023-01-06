@@ -13,15 +13,15 @@ class CreateDestinatariosTable extends Migration
      */
     public function up()
     {
-        Schema::create('destinatarios', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->string('destinatario', 100)->unique();
-            $table->string('rfc');
-            $table->text('direccion');
-            $table->enum('regimen_fiscal', ['pf con ae', 'pf sin ae', 'pm de lg', 'pm sin fl']);
-            $table->string('telefono');
-            $table->timestamps();
-        });
+        // Schema::create('destinatarios', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->string('destinatario', 100)->unique();
+        //     $table->string('rfc');
+        //     $table->text('direccion');
+        //     $table->enum('regimen_fiscal', ['pf con ae', 'pf sin ae', 'pm de lg', 'pm sin fl']);
+        //     $table->string('telefono');
+        //     $table->timestamps();
+        // });
     }
 
     /**

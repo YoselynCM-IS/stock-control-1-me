@@ -22,7 +22,7 @@
             </div>
         </b-row>
         <b-row class="my-1">
-            <b-col align="right">Teléfono</b-col>
+            <b-col align="right">Teléfono (Celular)</b-col>
             <div class="col-md-9">
                 <b-form-input 
                     id="input-telefono"
@@ -33,22 +33,12 @@
                 <div v-if="errors && errors.telefono" class="text-danger">{{ errors.telefono[0] }}</div>
             </div>
         </b-row>
-        <b-row class="my-1">
-            <b-col align="right">Responsable del cliente</b-col>
-            <div class="col-md-9">
-                <b-form-select v-model="form.user_id" :options="usuarios" required
-                    :disabled="load"
-                ></b-form-select>
-            </div>
-        </b-row>
     </div>
 </template>
 
 <script>
-import getUsuarios from '../../../mixins/getUsuarios';
 export default {
     props: ['form', 'load', 'errors'],
-    mixins: [getUsuarios],
     data(){
         return{
             estados: []
@@ -56,7 +46,6 @@ export default {
     },
     created: function(){
         this.getEstados();
-        this.getUsuarios(6);
     },
     methods: {
         getEstados(){

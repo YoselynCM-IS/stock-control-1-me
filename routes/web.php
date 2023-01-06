@@ -630,6 +630,7 @@ Route::name('historial.')->prefix('historial')->middleware(['auth'])->group(func
 Route::name('information.')->prefix('information')->middleware(['auth'])->group(function () {
     Route::name('actividades.')->prefix('actividades')->group(function () {
         Route::get('/get_tipocliente/{tipo}', 'ActividadeController@get_tipocliente')->name('get_tipocliente');
+        Route::get('/get_status/{status}', 'ActividadeController@get_status')->name('get_status');
     });
 
     Route::name('pedidos.')->prefix('pedidos')->group(function () {
@@ -648,6 +649,11 @@ Route::name('information.')->prefix('information')->middleware(['auth'])->group(
 
     Route::name('reportes.')->prefix('reportes')->group(function () {
         Route::get('/lista', 'ReporteController@lista')->name('lista');
+        Route::name('ventas.')->prefix('ventas')->group(function () {
+            Route::get('/lista/{fi}/{ff}', 'ReporteController@ventas_lista')->name('lista');
+            Route::get('/by_fecha', 'ReporteController@ventas_by_fecha')->name('by_fecha');
+            Route::get('/download/{fi}/{ff}', 'ReporteController@down_ventas_by_fecha')->name('download');
+        });
     });
 
     Route::name('entradas.')->prefix('entradas')->group(function () {
