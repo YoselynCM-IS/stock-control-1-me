@@ -24,7 +24,7 @@
                         {{ row.index + 1 }}
                     </template>
                     <template v-slot:cell(editar)="row">
-                        <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                        <b-button v-if="role_id === 1 || role_id === 2 || role_id === 5 || role_id == 6" 
                             v-b-modal.modal-editarCliente variant="warning" 
                             style="color: white;" pill size="sm" block
                             @click="editarCliente(row.item, row.index)">
@@ -38,10 +38,13 @@
                         </b-button>
                     </template>
                     <template v-slot:cell(options)="row">
-                        <b-dropdown variant="dark">
-                            <b-dropdown-item @click="showLibros(row.item)">Libros</b-dropdown-item>
+                        <b-button variant="dark" pill size="sm" block
+                            @click="showLibros(row.item)">
+                            <i class="fa fa-book"></i> Libros
+                        </b-button>
+                        <!-- <b-dropdown variant="dark">
                             <b-dropdown-item @click="registerLlamada(row.item)">Registrar llamada</b-dropdown-item>
-                        </b-dropdown>
+                        </b-dropdown> -->
                     </template>
                 </b-table>
                 <!-- PAGINACIÓN -->
@@ -173,17 +176,17 @@ export default {
     methods: {
         // OBTENER TODOS LOS CLIENTES
         getResults(page = 1){
-            if(this.addCliente){
-                var r1 = 'index';
-                var r2 = 'by_name';
-            } else {
-                var r1 = 'by_userid';
-                var r2 = 'by_name_userid';
-            }
+            // if(this.addCliente){
+            //     var r1 = 'index';
+            //     var r2 = 'by_name';
+            // } else {
+            //     var r1 = 'by_userid';
+            //     var r2 = 'by_name_userid';
+            // }
             if(!this.busquedaByName)
-                this.http_clientes(r1, page);
+                this.http_clientes('index', page);
             else 
-                this.http_byname(r2, page);
+                this.http_byname('by_name', page);
         },
         // INICIALIZAR PARA EDITAR CLIENTE
         editarCliente(cliente, i){

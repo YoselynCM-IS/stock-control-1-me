@@ -18,6 +18,9 @@ class RedirectIfAuthenticated
     public function handle($request, Closure $next, $guard = null)
     {
         if (Auth::guard($guard)->check()) {
+            if(auth()->user()->role_id == 5){
+                return redirect('/information/actividades/lista');
+            }
             return redirect('/information/remisiones/lista');
             // if(Auth::user()->role_id == 1){
             //     return redirect('/administrador/remisiones');

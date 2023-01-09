@@ -22,7 +22,7 @@
                     {{ row.item.fecha | moment}}
                 </template>
                 <template v-slot:cell(show_details)="row">
-                    <b-button variant="info" pill size="sm" @click="row.toggleDetails">
+                    <b-button variant="dark" pill size="sm" @click="row.toggleDetails">
                         {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
                     </b-button>
                 </template>
@@ -30,19 +30,19 @@
                     <b-card>
                         <b-row v-if="row.item.estado !== 'completado' && row.item.estado !== 'cancelado'" class="mb-3">
                             <b-col sm="2">
-                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="warning" 
+                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="dark" 
                                     block pill size="sm" @click="editar(row.item)">
                                     <i class="fa fa-pencil"></i> Editar
                                 </b-button>
                             </b-col>
                             <b-col sm="2">
-                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="danger" 
+                                <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="dark" 
                                     block pill size="sm" @click="cancelar(row.item)">
                                     <i class="fa fa-close"></i> Cancelar
                                 </b-button>
                             </b-col>
                             <b-col sm="2">
-                                <b-button v-if="!completarAct && !cancelarAct && !editarAct" variant="success" 
+                                <b-button v-if="!completarAct && !cancelarAct && !editarAct" variant="dark" 
                                     block pill size="sm" @click="markCompleted(row.item)">
                                     <i class="fa fa-check"></i> Completar
                                 </b-button>

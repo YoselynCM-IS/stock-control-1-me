@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\actividades\ActividadExport;
 use Illuminate\Http\Request;
 use App\Actividade;
+use Carbon\Carbon;
 use App\Cliente;
 use App\Reporte;
-use Carbon\Carbon;
+use Excel;
 
 class ActividadeController extends Controller
 {
@@ -16,8 +18,8 @@ class ActividadeController extends Controller
     // }
 
     // OBTENER ACTIVIDADES POR TIPO DE CLIENTE
-    public function get_tipocliente($tipo){
-        return view('information.actividades.lista', compact('tipo'));
+    public function lista(){
+        return view('information.actividades.lista');
     }
 
     // OBTENER LAS ACTIVIDADES POR STATUS
@@ -151,6 +153,10 @@ class ActividadeController extends Controller
     public function get_user_actividades(){
         return Actividade::with('clientes')->orderBy('fecha', 'desc');
         // where('user_id', auth()->user()->id)
+    }
+
+    public function download($id){
+        return Excel::download(new ActividadExport($id), 'actividad.xlsx');
     }
 
     // *** FUNCIONES PENDIENTES POR REVISAR

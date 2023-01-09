@@ -39,6 +39,9 @@ class LoginController extends Controller
     }
 
     public function redirectPath(){
+        if(auth()->user()->role_id == 5){
+            return '/information/actividades/lista';
+        }
         return '/information/remisiones/lista';
         // if(auth()->user()->role_id == 1){
         //     return '/administrador/remisiones';
@@ -51,9 +54,6 @@ class LoginController extends Controller
         // }
         // if(auth()->user()->role_id == 4){
         //     return '/contador/remisiones';
-        // }
-        // if(auth()->user()->role_id == 5){
-        //     return '/information/remisiones/lista';
         // }
         // if(auth()->user()->role_id == 6){
         //     return '/manager/remisiones/lista';

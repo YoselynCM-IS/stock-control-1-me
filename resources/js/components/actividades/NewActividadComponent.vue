@@ -28,7 +28,7 @@
                 <b-row class="mb-2" v-if="form.tipo == 'reunion' || form.tipo == 'videoconferencia'">
                     <b-col sm="3" class="text-right"><label>{{setTitulo(form.tipo)}}</label></b-col>
                     <b-col>
-                        <b-form-input v-model="form.lugar" required :disabled="loaded"></b-form-input>
+                        <b-form-textarea v-model="form.lugar" required :disabled="loaded" rows="3" max-rows="6"></b-form-textarea>
                     </b-col>
                 </b-row>
                 <b-row class="mb-2">

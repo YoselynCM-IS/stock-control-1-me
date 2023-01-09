@@ -84,6 +84,9 @@
 	</div>
 </li>
 <li>
+	<a class="nav-link" href="{{ route('information.actividades.lista') }}">{{ __("Actividades") }}</a>
+</li>
+<li>
 	<a class="nav-link" href="{{ route('information.majestic') }}" target="_blank">{{ __("MAJESTIC") }}</a>
 </li>
 @include('partials.navigations.logged')

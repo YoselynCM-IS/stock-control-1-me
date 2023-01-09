@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="!openPedido">
-            <b-row>
+            <b-row class="mb-3">
                 <b-col>
                     <!-- PAGINACIÓN -->
                     <pagination size="default" :limit="1" :data="pedidos" 
@@ -11,7 +11,7 @@
                     </pagination>
                 </b-col>
                 <b-col sm="2" class="text-right">
-                    <b-button v-if="role_id == 6 || role_id == 7"
+                    <b-button v-if="role_id == 5 || role_id == 6 || role_id == 7"
                         variant="success" pill @click="newPedido()" 
                         :disabled="load">
                         <i class="fa fa-plus-circle"></i> Nuevo pedido

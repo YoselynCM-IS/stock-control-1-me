@@ -3,7 +3,7 @@
         <b-row>
             <b-col></b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-if="role_id === 1 || role_id === 6 || role_id == 7"
+                <b-button v-if="role_id === 1 || role_id === 5 || role_id === 6 || role_id == 7"
                     variant="success" pill @click="addLibro()" block
                     :disabled="load">
                     <i class="fa fa-plus"></i> Agregar libro
@@ -101,7 +101,7 @@ export default {
                 {key: 'index', label: 'N.'},
                 {key: 'titulo', label: 'Libro'},
                 {key: 'pivot.costo_unitario', label: 'Costo unitario'},
-                {key: 'actions', label: 'Editar/Eliminar'}
+                {key: 'actions', label: ''}
             ],
             edit: false,
             position: null,

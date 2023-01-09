@@ -78,12 +78,13 @@ export default {
                 {value: 'realizada', text: 'Realizada'}
             ],
             respuestas: [
-                {value: 'sin respuesta', label: 'sin respuesta'},
-                {value: 'ocupado', label: 'ocupado'},
-                {value: 'buzon de voz', label: 'buzón de voz'},
-                {value: 'llamar mas tarde', label: 'llamar más tarde'},
-                {value: 'numero equivocado', label: 'número equivocado'},
-                {value: 'no interesado', label: 'no interesado'},
+                {value: null, text: 'Selecciona una opción', disabled: true},
+                {value: 'sin respuesta', text: 'sin respuesta'},
+                {value: 'ocupado', text: 'ocupado'},
+                {value: 'buzon de voz', text: 'buzón de voz'},
+                {value: 'llamar mas tarde', text: 'llamar más tarde'},
+                {value: 'numero equivocado', text: 'número equivocado'},
+                {value: 'no interesado', text: 'no interesado'},
             ]
         }
     },

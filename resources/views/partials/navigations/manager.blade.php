@@ -59,7 +59,7 @@
 		Información <span class="caret"></span>
 	</a>
 	<div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdown">
-		<a class="dropdown-item" href="{{ route('information.actividades.get_tipocliente', 'CLIENTE') }}">
+		<a class="dropdown-item" href="{{ route('information.actividades.lista') }}">
 			{{ __("Actividades") }}
 		</a>
 		<a class="dropdown-item" href="{{ route('information.reportes.lista') }}">

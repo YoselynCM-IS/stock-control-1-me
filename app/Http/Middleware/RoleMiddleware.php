@@ -18,6 +18,9 @@ class RoleMiddleware
             // abort(401, __("No puedes acceder a este sitio"));
             return $next($request);
         }
+        if(auth()->user()->role_id == 5){
+            return redirect()->route('/information/actividades/lista');
+        }
         // if(auth()->user()->role_id === 1){
         //     return redirect()->route('administrador.remisiones');
         // }

@@ -23,8 +23,8 @@
             <b-col sm="5">
                 <b-row>
                     <b-col>
-                        <b-button :variant="`${queryEstado != 'completado' ? 'dark':'primary'}`" pill block 
-                            :disabled="(load || queryEstado == 'completado')" @click="getCompleted()">
+                        <b-button variant="dark" pill block 
+                            :disabled="load" @click="getCompleted()">
                             <i class="fa fa-check-square-o"></i> Completadas
                         </b-button>
                     </b-col>
@@ -173,7 +173,7 @@ export default {
             location.href = `/information/actividades/get_status/${this.queryEstado}`;
         },
         get_by_tipocliente(){
-            location.href = `/information/actividades/get_tipocliente/${this.tipo_cliente}`;
+            location.href = `/information/actividades/lista`;
         }
     }
 }

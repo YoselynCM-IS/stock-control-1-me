@@ -629,8 +629,9 @@ Route::name('historial.')->prefix('historial')->middleware(['auth'])->group(func
 
 Route::name('information.')->prefix('information')->middleware(['auth'])->group(function () {
     Route::name('actividades.')->prefix('actividades')->group(function () {
-        Route::get('/get_tipocliente/{tipo}', 'ActividadeController@get_tipocliente')->name('get_tipocliente');
+        Route::get('/lista', 'ActividadeController@lista')->name('lista');
         Route::get('/get_status/{status}', 'ActividadeController@get_status')->name('get_status');
+        Route::get('/download/{id}', 'ActividadeController@download')->name('download');
     });
 
     Route::name('pedidos.')->prefix('pedidos')->group(function () {

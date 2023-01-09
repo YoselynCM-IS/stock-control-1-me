@@ -1,5 +1,14 @@
 <template>
     <div>
+        <!-- <b-row class="mb-2">
+            <b-col></b-col>
+            <b-col sm="2">
+                <b-button v-if="actividad.estado == 'completado' && (role_id == 1 || role_id == 6)"
+                    variant="dark" pill :href="`/information/actividades/download/${actividad.id}`">
+                    <i class="fa fa-download"></i> Descargar
+                </b-button>
+            </b-col>
+        </b-row> -->
         <b-row class="mb-2">
             <b-col sm="3" class="text-right"><label><b>Fecha de creación</b></label></b-col>
             <b-col>{{ actividad.created_at }}</b-col>
@@ -14,7 +23,7 @@
         </b-row>
         <b-row class="mb-2" v-if="actividad.tipo == 'reunion' || actividad.tipo == 'videoconferencia'">
             <b-col sm="3" class="text-right"><label><b>{{setTitulo(actividad.tipo)}}</b></label></b-col>
-            <b-col>{{ actividad.lugar }}</b-col>
+            <b-col><p v-html="actividad.lugar"></p></b-col>
         </b-row>
         <b-row class="mb-2">
             <b-col sm="3" class="text-right"><label><b>Fecha y hora</b></label></b-col>
@@ -50,7 +59,7 @@ import formatFechaActs from '../../../mixins/formatFechaActs';
 import ListClientes from './ListClientes.vue';
 export default {
   components: { ListClientes },
-    props: ['actividad'],
+    props: ['actividad', 'role_id'],
     mixins: [setTitulo, formatFechaActs]
 }
 </script>
