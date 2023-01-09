@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 use App\Element;
 use App\Reporte;
+use App\Cliente;
 use App\Order;
 
 class OrderController extends Controller
@@ -61,7 +63,7 @@ class OrderController extends Controller
         try{
             $order->update(['status' => 'cancelado']);
 
-            $reporte = ' cancelo un pedido al proveedor '.$order->provider.' PEDIDO: '.$order->identifier;
+            $reporte = 'cancelo un pedido al proveedor '.$order->provider.' PEDIDO: '.$order->identifier;
             $this->create_report($order->id, $reporte);
         \DB::commit();
         } catch (Exception $e) {
@@ -105,5 +107,44 @@ class OrderController extends Controller
             'name_table' => 'orders', 
             'id_table' => $order_id
         ]);
+    }
+
+    public function store(Request $request){
+        \DB::beginTransaction();
+        try{
+            $fecha_actual = Carbon::now();
+
+            $libros = collect($request->libros);
+            $editorial = $request->editorial;
+            $provider_count = Order::where('provider', $editorial)->count();
+            $identifier = 'PED '.($provider_count + 1).'-'.$fecha_actual->format('Y');
+            
+            $order = Order::create([
+                'pedido_id' => null,
+                'cliente_id' => $request->cliente_id,
+                'destination' => $request->cliente_name,
+                'identifier' => $identifier,
+                'date' => $fecha_actual->format('Y-m-d'),
+                'provider' => $editorial,
+                'creado_por' => auth()->user()->name
+            ]);
+
+            $libros->map(function($libro) use (&$order){
+                $element = Element::create([
+                    'order_id' => $order->id,
+                    'libro_id' => $libro['libro']['id'],
+                    'quantity' => (int) $libro['quantity']
+                ]);
+            });
+
+            $reporte = 'creo un pedido al proveedor '.$editorial.' PEDIDO: '.$order->identifier;
+            $this->create_report($order->id, $reporte);
+
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json(true);
     }
 }

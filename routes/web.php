@@ -409,6 +409,7 @@ Route::name('pedido.')->prefix('pedido')->group(function () {
 
 Route::name('order.')->prefix('order')->group(function () {
     Route::get('index', 'OrderController@index')->name('index');
+    Route::post('store', 'OrderController@store')->name('store');
     Route::get('/show/{order_id}', 'OrderController@show')->name('show');
     Route::put('change_status', 'OrderController@change_status')->name('change_status');
     Route::put('cancelar', 'OrderController@cancelar')->name('cancelar');

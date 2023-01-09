@@ -2816,14 +2816,28 @@ class DatabaseSeeder extends Seeder
 
         \DB::table('users')->insert([
             0 => [
-                'role_id'   => 7,
-                'name'      => 'Historial', 
-                'user_name' => 'historial-1',
-                'email'     => 'historial-1@gmail.com',
-                'password'  => bcrypt('historial'),
-                'created_at' => '2022-10-24 00:00:00',
-                'updated_at' => '2022-10-24 00:00:00'
+                'role_id'   => 5,
+                'name'      => 'Adriana', 
+                'user_name' => 'adriana-om',
+                'email'     => 'adriana@gmail.com',
+                'password'  => bcrypt('eL8439&'),
+                'created_at' => '2023-01-09 00:00:00',
+                'updated_at' => '2023-01-09 00:00:00'
             ]
         ]);
+
+        \DB::table('users')->insert([
+            0 => [
+                'role_id'   => 5,
+                'name'      => 'Mayra', 
+                'user_name' => 'mayra-om',
+                'email'     => 'mayra@gmail.com',
+                'password'  => bcrypt('qN1690%'),
+                'created_at' => '2023-01-09 00:00:00',
+                'updated_at' => '2023-01-09 00:00:00'
+            ]
+        ]);
+
+        
     }
 }
