@@ -53,6 +53,7 @@ return array(
     'App\\Exports\\ULibrosExport' => $baseDir . '/app/Exports/ULibrosExport.php',
     'App\\Exports\\UnidadesExport' => $baseDir . '/app/Exports/UnidadesExport.php',
     'App\\Exports\\VendidosDetallesExport' => $baseDir . '/app/Exports/VendidosDetallesExport.php',
+    'App\\Exports\\actividades\\ActividadExport' => $baseDir . '/app/Exports/actividades/ActividadExport.php',
     'App\\Exports\\codes\\ByRemisionExport' => $baseDir . '/app/Exports/codes/ByRemisionExport.php',
     'App\\Exports\\donaciones\\DonacionExport' => $baseDir . '/app/Exports/donaciones/DonacionExport.php',
     'App\\Exports\\entradas\\EntradaExport' => $baseDir . '/app/Exports/entradas/EntradaExport.php',

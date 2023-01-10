@@ -38,13 +38,10 @@
                         </b-button>
                     </template>
                     <template v-slot:cell(options)="row">
-                        <b-button variant="dark" pill size="sm" block
-                            @click="showLibros(row.item)">
-                            <i class="fa fa-book"></i> Libros
-                        </b-button>
-                        <!-- <b-dropdown variant="dark">
+                        <b-dropdown variant="dark">
+                            <b-dropdown-item @click="showLibros(row.item)">Libros</b-dropdown-item>
                             <b-dropdown-item @click="registerLlamada(row.item)">Registrar llamada</b-dropdown-item>
-                        </b-dropdown> -->
+                        </b-dropdown>
                     </template>
                 </b-table>
                 <!-- PAGINACIÓN -->
@@ -138,7 +135,7 @@
         </b-modal>
         <!-- MODAL PARA REGISTRAR LLAMADA DEL CLIENTE -->
         <b-modal id="modal-registerLlamada" title="Registrar llamada" hide-footer size="lg">
-            <register-llamada></register-llamada>
+            <register-llamada :cliente_id="cliente_id" @addedSeguimiento="addedSeguimiento"></register-llamada>
         </b-modal>
         <!-- MODAL PARA REGISTRAR PROSPECTO -->
         <b-modal id="modal-nuevoProspecto" title="Agregar prospecto" hide-footer size="lg">
@@ -230,6 +227,10 @@ export default {
         registerLlamada(cliente){
             this.$bvModal.show('modal-registerLlamada');
             this.cliente_id = cliente.id;
+        },
+        addedSeguimiento(){
+            this.$bvModal.hide('modal-registerLlamada');
+            swal("OK", "Guardado correctamente.", "success");
         },
         newProspecto(){
             this.$bvModal.show('modal-nuevoProspecto');

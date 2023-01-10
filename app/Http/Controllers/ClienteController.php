@@ -15,6 +15,7 @@ use App\Cctotale;
 use App\Reporte;
 use App\Corte;
 use App\Destinatario;
+use App\Seguimiento;
 
 class ClienteController extends Controller
 {
@@ -303,5 +304,30 @@ class ClienteController extends Controller
         $destinatarios = Destinatario::where('destinatario','like','%'.$request->queryDestinatario.'%')
                             ->orderBy('destinatario', 'asc')->get();
         return response()->json($destinatarios);
+    }
+
+    public function save_seguimiento(Request $request){
+        \DB::beginTransaction();
+        try {
+            $fecha = new Carbon($request->fecha.' '.$request->hora);
+            $duracion = $request->duracion['horas'].' horas '.$request->duracion['minutos'].' minutos '.$request->duracion['segundos'].' segundos';
+            $seguimiento = Seguimiento::create([
+                'user_id' => auth()->user()->id, 
+                'cliente_id' => $request->cliente_id, 
+                'tipo' => 'llamada',
+                'situacion' => $request->tipo, 
+                'respuesta' => $request->respuesta, 
+                'fecha_hora' => $fecha, 
+                'duracion' => $duracion, 
+                'comentario' => $request->comentario
+            ]);
+            $reporte = 'registro un(a) '.$seguimiento->tipo.' para '.$seguimiento->cliente->name;
+            $this->create_report($seguimiento->id, $reporte, 'seguimientos');
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json(true);
     }
 }

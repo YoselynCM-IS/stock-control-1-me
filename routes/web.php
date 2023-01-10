@@ -536,7 +536,10 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     Route::get('/by_tipo', 'ClienteController@by_tipo')->name('by_tipo');
 
     // BUSCAR DESTINATARIOS
-    Route::get('/get_destinatarios', 'ClienteController@get_destinatarios')->name('get_destinatarios');
+    Route::get('/get_destinatarios', 'ClienteController@get_destinatarios')->name('get_destinatarios');// Guardar libro relacionado al cliente
+    
+    Route::post('/save_seguimiento', 'ClienteController@save_seguimiento')->name('save_seguimiento'); 
+    
 });
 
 // MANAGER

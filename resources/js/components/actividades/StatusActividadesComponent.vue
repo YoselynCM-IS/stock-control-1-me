@@ -21,6 +21,15 @@
                     <h4 v-if="row.item.exitosa == 'REGULAR'"><b-badge variant="secondary"><i class="fa fa-meh-o"></i></b-badge></h4>
                 </div>
             </template>
+            <template v-slot:cell(fecha)="row">
+                {{ row.item.fecha | moment }}
+            </template>
+            <template v-slot:cell(seguimiento)="row">
+                <b-button v-if="row.item.tipo == 'llamar'" variant="dark" pill size="sm"
+                    @click="regSeguimiento(row.item)">
+                    <i class="fa fa-pencil-square-o"></i> Registrar
+                </b-button>
+            </template>
             <template v-slot:cell(show_details)="row">
                 <b-button variant="dark" pill size="sm" @click="row.toggleDetails">
                     {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
@@ -33,6 +42,11 @@
             </template>
         </b-table>
         <no-registros-component v-else></no-registros-component>
+        <!-- MODALS -->
+        <!-- REGISTRAR SEGUIMIENTO DE ACTIVIDAD -->
+        <b-modal id="modal-seguimiento" title="Seguimiento de la actividad" hide-footer size="lg">
+            
+        </b-modal>
     </div>
 </template>
 
@@ -40,10 +54,11 @@
 import getActsStatus from '../../mixins/getActsStatus';
 import NoRegistrosComponent from '../funciones/NoRegistrosComponent.vue';
 import DetailsActividad from './partials/DetailsActividad.vue';
+import formatFechaActs from '../../mixins/formatFechaActs';
 export default {
   components: { DetailsActividad, NoRegistrosComponent },
     props: ['status', 'role_id'],
-    mixins: [getActsStatus],
+    mixins: [getActsStatus, formatFechaActs],
     data(){
         return {
             fields: [
@@ -52,6 +67,7 @@ export default {
                 {key: 'tipo', label: 'Tipo'},
                 {key: 'nombre', label: 'Actividad'},
                 {key: 'fecha', label: 'Fecha'},
+                // {key: 'seguimiento', label: 'Seguimiento'},
                 {key: 'show_details', label: 'Detalles'}
             ],
         }
@@ -65,8 +81,11 @@ export default {
                 if (item.exitosa == 'REGULAR') return 'table-secondary'
                 if (item.exitosa == 'SI') return 'table-success'
                 if (item.exitosa == 'NO') return 'table-warning'
-            }
-            
+            }  
+        },
+        regSeguimiento(actividad){
+            this.$bvModal.show('modal-seguimiento');
+            console.log(actividad);
         }
     }
 }

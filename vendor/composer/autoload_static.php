@@ -652,6 +652,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Exports\\ULibrosExport' => __DIR__ . '/../..' . '/app/Exports/ULibrosExport.php',
         'App\\Exports\\UnidadesExport' => __DIR__ . '/../..' . '/app/Exports/UnidadesExport.php',
         'App\\Exports\\VendidosDetallesExport' => __DIR__ . '/../..' . '/app/Exports/VendidosDetallesExport.php',
+        'App\\Exports\\actividades\\ActividadExport' => __DIR__ . '/../..' . '/app/Exports/actividades/ActividadExport.php',
         'App\\Exports\\codes\\ByRemisionExport' => __DIR__ . '/../..' . '/app/Exports/codes/ByRemisionExport.php',
         'App\\Exports\\donaciones\\DonacionExport' => __DIR__ . '/../..' . '/app/Exports/donaciones/DonacionExport.php',
         'App\\Exports\\entradas\\EntradaExport' => __DIR__ . '/../..' . '/app/Exports/entradas/EntradaExport.php',

@@ -57,10 +57,12 @@
 
 <script>
 export default {
+    props: ['cliente_id'],
     data() {
         return {
             load: false,
             form: {
+                cliente_id: null,
                 tipo: null,
                 fecha: null,
                 hora: null,
@@ -90,7 +92,14 @@ export default {
     },
     methods: {
         onSubmit(){
-
+            this.load = true;
+            this.form.cliente_id = this.cliente_id;
+            axios.post('/clientes/save_seguimiento', this.form).then(response => {
+                this.load = false;
+                this.$emit('addedSeguimiento', response.data);
+            }).catch(error => {
+                this.load = false;
+            });
         }
     }
 }

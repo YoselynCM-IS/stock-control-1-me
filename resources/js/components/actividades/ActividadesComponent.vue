@@ -17,9 +17,7 @@
                     </a>
                 </div>
             </b-col> -->
-            <b-col sm="7">
-
-            </b-col>
+            <b-col sm="7"></b-col>
             <b-col sm="5">
                 <b-row>
                     <b-col>
