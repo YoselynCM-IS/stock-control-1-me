@@ -80,8 +80,9 @@
 import searchCliente from '../../mixins/searchCliente';
 import setTitulo from '../../mixins/setTitulo';
 import ListClientes from './partials/ListClientes.vue';
+import toast from '../../mixins/toast';
 export default {
-    mixins: [searchCliente, setTitulo],
+    mixins: [searchCliente, setTitulo, toast],
     components: {ListClientes},
     data(){
         return {
@@ -125,16 +126,20 @@ export default {
             this.queryCliente = null;
         },
         onSubmit(){
-            this.loaded = true;
-            axios.post('/actividades/store', this.form).then(response => {
-                this.$emit('actividadSaved', response.data);
-                this.loaded = false;
-            }).catch(error => {
-                this.loaded = false;
-                if (error.response.status === 422) {
-                    this.errors = error.response.data.errors || {};
-                }
-            });
+            if(this.form.clientes.length > 0){
+                this.loaded = true;
+                axios.post('/actividades/store', this.form).then(response => {
+                    this.$emit('actividadSaved', response.data);
+                    this.loaded = false;
+                }).catch(error => {
+                    this.loaded = false;
+                    if (error.response.status === 422) {
+                        this.errors = error.response.data.errors || {};
+                    }
+                });
+            } else {
+                this.makeToast('warning', 'Es necesario agregar mínimo un cliente');
+            }
         }
     }
 }
