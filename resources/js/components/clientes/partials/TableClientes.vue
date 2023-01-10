@@ -40,7 +40,7 @@
                     <template v-slot:cell(options)="row">
                         <b-dropdown variant="dark">
                             <b-dropdown-item @click="showLibros(row.item)">Libros</b-dropdown-item>
-                            <b-dropdown-item @click="registerLlamada(row.item)">Registrar llamada</b-dropdown-item>
+                            <b-dropdown-item @click="addRegistro(row.item)">Registro</b-dropdown-item>
                         </b-dropdown>
                     </template>
                 </b-table>
@@ -134,8 +134,8 @@
             <libros-cliente-component :cliente_id="cliente_id" :role_id="role_id"></libros-cliente-component>
         </b-modal>
         <!-- MODAL PARA REGISTRAR LLAMADA DEL CLIENTE -->
-        <b-modal id="modal-registerLlamada" title="Registrar llamada" hide-footer size="lg">
-            <register-llamada :cliente_id="cliente_id" @addedSeguimiento="addedSeguimiento"></register-llamada>
+        <b-modal id="modal-addRegistro" title="Agregar registro" hide-footer size="lg">
+            <register-component :cliente_id="cliente_id" @addedSeguimiento="addedSeguimiento"></register-component>
         </b-modal>
         <!-- MODAL PARA REGISTRAR PROSPECTO -->
         <b-modal id="modal-nuevoProspecto" title="Agregar prospecto" hide-footer size="lg">
@@ -151,12 +151,12 @@ import LibrosClienteComponent from '../LibrosClienteComponent.vue';
 import NewClientComponent from '../NewClientComponent.vue';
 import getClientes from '../../../mixins/getClientes';
 import AddDescarga from './AddDescarga.vue';
-import RegisterLlamada from './RegisterLlamada.vue';
 import NewProspecto from './NewProspecto.vue';
+import RegisterComponent from './RegisterComponent.vue';
 export default {
     props: ['fields', 'role_id', 'addCliente'],
     mixins: [getClientes],
-    components: {NoRegistrosComponent, LoadComponent, NewClientComponent, LibrosClienteComponent, AddDescarga, RegisterLlamada, NewProspecto},
+    components: {NoRegistrosComponent, LoadComponent, NewClientComponent, LibrosClienteComponent, AddDescarga, NewProspecto, RegisterComponent},
     data() {
         return {
             posicion: null,
@@ -224,12 +224,12 @@ export default {
             swal("OK", "El cliente se actualizo correctamente.", "success")
                 .then((value) => { location.reload(); });
         },
-        registerLlamada(cliente){
-            this.$bvModal.show('modal-registerLlamada');
+        addRegistro(cliente){
+            this.$bvModal.show('modal-addRegistro');
             this.cliente_id = cliente.id;
         },
         addedSeguimiento(){
-            this.$bvModal.hide('modal-registerLlamada');
+            this.$bvModal.hide('modal-addRegistro');
             swal("OK", "Guardado correctamente.", "success");
         },
         newProspecto(){

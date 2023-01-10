@@ -311,12 +311,20 @@ class ClienteController extends Controller
         try {
             $fecha = new Carbon($request->fecha.' '.$request->hora);
             $duracion = $request->duracion['horas'].' horas '.$request->duracion['minutos'].' minutos '.$request->duracion['segundos'].' segundos';
+            $registro = $request->registro;
+            $tipo = $request->tipo;
+            $respuesta = $request->respuesta;
+            if($registro == 'nota') {
+                $tipo = null;
+                $respuesta = null;
+            }
+
             $seguimiento = Seguimiento::create([
                 'user_id' => auth()->user()->id, 
                 'cliente_id' => $request->cliente_id, 
-                'tipo' => 'llamada',
-                'situacion' => $request->tipo, 
-                'respuesta' => $request->respuesta, 
+                'tipo' => $registro,
+                'situacion' => $tipo, 
+                'respuesta' => $respuesta, 
                 'fecha_hora' => $fecha, 
                 'duracion' => $duracion, 
                 'comentario' => $request->comentario
