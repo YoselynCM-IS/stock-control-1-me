@@ -10,7 +10,7 @@ class Actividade extends Model
 {
     protected $fillable = [
         'id', 'user_id', 'nombre', 'tipo', 'descripcion', 'estado', 'fecha', 'lugar',
-        'exitosa', 'observaciones'
+        'exitosa', 'observaciones', 'recordatorio', 'marcar_antesde'
     ];   
 
     public function clientes(){

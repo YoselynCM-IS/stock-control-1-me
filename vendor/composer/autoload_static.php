@@ -85,6 +85,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'f0906e6318348a765ffb6eb24e0d0938' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Foundation/helpers.php',
         '58571171fd5812e6e447dce228f52f4d' => __DIR__ . '/..' . '/laravel/framework/src/Illuminate/Support/helpers.php',
         '6124b4c8570aa390c21fafd04a26c69f' => __DIR__ . '/..' . '/myclabs/deep-copy/src/DeepCopy/deep_copy.php',
+        '3109cb1a231dcd04bee1f9f620d46975' => __DIR__ . '/..' . '/paragonie/sodium_compat/autoload.php',
         '801c31d8ed748cfa537fa45402288c95' => __DIR__ . '/..' . '/psy/psysh/src/functions.php',
         '0d8253363903f0ac7b0978dcde4e28a0' => __DIR__ . '/..' . '/beyondcode/laravel-dump-server/helpers.php',
     );
@@ -149,6 +150,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         ),
         'P' => 
         array (
+            'Pusher\\' => 7,
             'Psy\\' => 4,
             'Psr\\SimpleCache\\' => 16,
             'Psr\\Log\\' => 8,
@@ -383,6 +385,10 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         array (
             0 => __DIR__ . '/..' . '/ramsey/uuid/src',
         ),
+        'Pusher\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/pusher/pusher-php-server/src',
+        ),
         'Psy\\' => 
         array (
             0 => __DIR__ . '/..' . '/psy/psysh/src',
@@ -611,6 +617,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Code' => __DIR__ . '/../..' . '/app/Code.php',
         'App\\Comentario' => __DIR__ . '/../..' . '/app/Comentario.php',
         'App\\Console\\Commands\\ActsPendProx' => __DIR__ . '/../..' . '/app/Console/Commands/ActsPendProx.php',
+        'App\\Console\\Commands\\ActsRecordatorio' => __DIR__ . '/../..' . '/app/Console/Commands/ActsRecordatorio.php',
         'App\\Console\\Commands\\ActsVencidos' => __DIR__ . '/../..' . '/app/Console/Commands/ActsVencidos.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Corte' => __DIR__ . '/../..' . '/app/Corte.php',
@@ -629,6 +636,8 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Enteditoriale' => __DIR__ . '/../..' . '/app/Enteditoriale.php',
         'App\\Entrada' => __DIR__ . '/../..' . '/app/Entrada.php',
         'App\\Estado' => __DIR__ . '/../..' . '/app/Estado.php',
+        'App\\Events\\NewActividad' => __DIR__ . '/../..' . '/app/Events/NewActividad.php',
+        'App\\Events\\RecordatorioActividad' => __DIR__ . '/../..' . '/app/Events/RecordatorioActividad.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Exports\\ClienteVendidosExport' => __DIR__ . '/../..' . '/app/Exports/ClienteVendidosExport.php',
         'App\\Exports\\ClientesExport' => __DIR__ . '/../..' . '/app/Exports/ClientesExport.php',
@@ -706,6 +715,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Libro' => __DIR__ . '/../..' . '/app/Libro.php',
         'App\\Mail\\movimientos\\LibrosDay' => __DIR__ . '/../..' . '/app/Mail/movimientos/LibrosDay.php',
         'App\\Note' => __DIR__ . '/../..' . '/app/Note.php',
+        'App\\Notifications\\RecordarActividad' => __DIR__ . '/../..' . '/app/Notifications/RecordarActividad.php',
         'App\\Order' => __DIR__ . '/../..' . '/app/Order.php',
         'App\\Paqueteria' => __DIR__ . '/../..' . '/app/Paqueteria.php',
         'App\\Payment' => __DIR__ . '/../..' . '/app/Payment.php',
@@ -730,6 +740,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Role' => __DIR__ . '/../..' . '/app/Role.php',
         'App\\Saldevolucione' => __DIR__ . '/../..' . '/app/Saldevolucione.php',
         'App\\Salida' => __DIR__ . '/../..' . '/app/Salida.php',
+        'App\\Seguimiento' => __DIR__ . '/../..' . '/app/Seguimiento.php',
         'App\\Sregistro' => __DIR__ . '/../..' . '/app/Sregistro.php',
         'App\\User' => __DIR__ . '/../..' . '/app/User.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
@@ -4502,6 +4513,11 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'Psy\\VersionUpdater\\GitHubChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/GitHubChecker.php',
         'Psy\\VersionUpdater\\IntervalChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/IntervalChecker.php',
         'Psy\\VersionUpdater\\NoopChecker' => __DIR__ . '/..' . '/psy/psysh/src/VersionUpdater/NoopChecker.php',
+        'Pusher\\Pusher' => __DIR__ . '/..' . '/pusher/pusher-php-server/src/Pusher.php',
+        'Pusher\\PusherCrypto' => __DIR__ . '/..' . '/pusher/pusher-php-server/src/PusherCrypto.php',
+        'Pusher\\PusherException' => __DIR__ . '/..' . '/pusher/pusher-php-server/src/PusherException.php',
+        'Pusher\\PusherInstance' => __DIR__ . '/..' . '/pusher/pusher-php-server/src/PusherInstance.php',
+        'Pusher\\Webhook' => __DIR__ . '/..' . '/pusher/pusher-php-server/src/Webhook.php',
         'Ramsey\\Uuid\\BinaryUtils' => __DIR__ . '/..' . '/ramsey/uuid/src/BinaryUtils.php',
         'Ramsey\\Uuid\\Builder\\DefaultUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DefaultUuidBuilder.php',
         'Ramsey\\Uuid\\Builder\\DegradedUuidBuilder' => __DIR__ . '/..' . '/ramsey/uuid/src/Builder/DegradedUuidBuilder.php',

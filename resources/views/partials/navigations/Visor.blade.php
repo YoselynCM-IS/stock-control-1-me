@@ -7,4 +7,5 @@
 <li>
 	<a class="nav-link" href="{{ route('information.clientes.lista') }}">{{ __("Clientes") }}</a>
 </li>
+<user-notifications :user_id="{{auth()->user()->id}}" :noleidos="{{Auth::user()->unreadNotifications}}"></user-notifications>
 @include('partials.navigations.logged')

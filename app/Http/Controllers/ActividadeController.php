@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\NewActNotification;
 use App\Exports\actividades\ActividadExport;
 use Illuminate\Http\Request;
+// use App\Events\NewActividad;
 use App\Actividade;
 use Carbon\Carbon;
 use App\Cliente;
 use App\Reporte;
+use App\User;
 use Excel;
 
 class ActividadeController extends Controller
@@ -29,12 +32,13 @@ class ActividadeController extends Controller
 
     // GUARDAR ACTIVIDAD
     public function store(Request $request){
+
         \DB::beginTransaction();
         try {
             $tipo = $request->tipo;
             $descripcion = $request->descripcion;
-
-            $fecha = new Carbon($request->fecha.' '.$request->hora);
+            $fecha_hora = $request->fecha.' '.$request->hora;
+            $fecha = new Carbon($fecha_hora);
             $estado = $this->set_tiempo_estado($fecha);
             
             $actividad = Actividade::create([
@@ -44,7 +48,9 @@ class ActividadeController extends Controller
                 'descripcion' => $descripcion, 
                 'estado' => $estado, 
                 'fecha' => $fecha,
-                'lugar' => $request->lugar
+                'lugar' => $request->lugar,
+                'recordatorio' => $this->set_recordatorio($fecha_hora, $request->recordatorio),
+                'marcar_antesde' => $this->set_marcar_antesde($fecha_hora)
             ]);
 
             $clientes = collect($request->clientes);
@@ -55,6 +61,13 @@ class ActividadeController extends Controller
             $reporte = 'creo la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
             $this->create_report($actividad->id, $reporte, 'actividades');
 
+            // broadcast(new NewActividad($actividad))->toOthers();
+            $users = User::whereIn('role_id', [5,6])
+                            ->whereNotIn('id', [auth()->user()->id])->get();
+            foreach($users as $user){
+                $user->notify(new NewActNotification($actividad, $actividad->user));
+            }
+            
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();
@@ -62,6 +75,16 @@ class ActividadeController extends Controller
         }
 
         return response()->json($actividad);
+    }
+
+    public function set_recordatorio($fecha, $minutos){
+        $recordatorio = new Carbon($fecha);
+        return $recordatorio->subMinutes((int)$minutos);
+    }
+
+    public function set_marcar_antesde($fecha){
+        $marcar_antesde = new Carbon($fecha);
+        return $marcar_antesde->addMinutes(60);
     }
 
     // MARCAR ACTIVIDADES COMO TEMRINADAS
@@ -112,17 +135,25 @@ class ActividadeController extends Controller
         \DB::beginTransaction();
         try {
             $actividad = Actividade::find($request->id);
-            $hoy = Carbon::now();
 
+            $f1 = new Carbon($actividad->fecha);
+            $f2 = new Carbon($actividad->recordatorio);
+            $recordatorio = $f1->diffInMinutes($f2);
+
+            $hoy = Carbon::now();
             $descripcion = $actividad->descripcion.'<p><b>ACTUALIZACIÓN ('.$hoy.'):</b> '.$request->observaciones.'</p>';
             
-            $fecha = new Carbon($request->fecha.' '.$request->hora);
+            $fecha_hora = $request->fecha.' '.$request->hora;
+            $fecha = new Carbon($fecha_hora);
+
             $estado = $this->set_tiempo_estado($fecha);
 
             $actividad->update([
                 'estado' => $estado,
                 'fecha' => $fecha,
-                'descripcion' => $descripcion
+                'descripcion' => $descripcion,
+                'recordatorio' => $this->set_recordatorio($fecha_hora, $recordatorio),
+                'marcar_antesde' => $this->set_marcar_antesde($fecha_hora)
             ]);
 
             $reporte = 'edito la actividad '.$actividad->tipo.': '.$actividad->nombre.' / '.$actividad->descripcion;
@@ -157,6 +188,16 @@ class ActividadeController extends Controller
 
     public function download($id){
         return Excel::download(new ActividadExport($id), 'actividad.xlsx');
+    }
+
+    public function view_notification(Request $request){
+        $actividad = Actividade::whereId($request->actividad_id)->with('clientes')->first();
+        $notification = auth()->user()->unreadNotifications->where('id', $request->notification_id);
+        $notification->map(function($n){
+            $n->markAsRead();
+            $n->delete();
+        });
+        return response()->json($actividad);
     }
 
     // *** FUNCIONES PENDIENTES POR REVISAR

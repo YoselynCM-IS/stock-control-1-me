@@ -30,6 +30,14 @@
             <b-col>{{ actividad.fecha | moment }}</b-col>
         </b-row>
         <b-row class="mb-2">
+            <b-col sm="3" class="text-right"><label><b>Recordatorio antes de</b></label></b-col>
+            <b-col>{{ actividad.recordatorio | moment }}</b-col>
+        </b-row>
+        <b-row class="mb-2">
+            <b-col sm="3" class="text-right"><label><b>La actividad vence</b></label></b-col>
+            <b-col>{{ actividad.marcar_antesde | moment }}</b-col>
+        </b-row>
+        <b-row class="mb-2">
             <b-col sm="3" class="text-right"><label><b>Descripción</b></label></b-col>
             <b-col><p v-html="actividad.descripcion"></p></b-col>
         </b-row>

@@ -25,12 +25,12 @@ class InstalledVersions
 private static $installed = array (
   'root' => 
   array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
+    'pretty_version' => 'dev-main',
+    'version' => 'dev-main',
     'aliases' => 
     array (
     ),
-    'reference' => '59d2d7936550464ff7475367f9a7fbd6b7ac7b48',
+    'reference' => 'e8003a225e8929b29ed4af8287e1cdca15865107',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -457,12 +457,12 @@ private static $installed = array (
     ),
     'laravel/laravel' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => 'dev-main',
+      'version' => 'dev-main',
       'aliases' => 
       array (
       ),
-      'reference' => '59d2d7936550464ff7475367f9a7fbd6b7ac7b48',
+      'reference' => 'e8003a225e8929b29ed4af8287e1cdca15865107',
     ),
     'laravel/tinker' => 
     array (
@@ -620,6 +620,15 @@ private static $installed = array (
       array (
       ),
       'reference' => '84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95',
+    ),
+    'paragonie/sodium_compat' => 
+    array (
+      'pretty_version' => 'v1.19.0',
+      'version' => '1.19.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'cb15e403ecbe6a6cc515f855c310eb6b1872a933',
     ),
     'phar-io/manifest' => 
     array (
@@ -860,8 +869,8 @@ private static $installed = array (
     array (
       'provided' => 
       array (
-        0 => '1.0',
-        1 => '1.0.0',
+        0 => '1.0.0',
+        1 => '1.0',
       ),
     ),
     'psr/simple-cache' => 
@@ -881,6 +890,15 @@ private static $installed = array (
       array (
       ),
       'reference' => '90da7f37568aee36b116a030c5f99c915267edd4',
+    ),
+    'pusher/pusher-php-server' => 
+    array (
+      'pretty_version' => 'v4.1.5',
+      'version' => '4.1.5.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '251f22602320c1b1aff84798fe74f3f7ee0504a9',
     ),
     'ralouphie/getallheaders' => 
     array (

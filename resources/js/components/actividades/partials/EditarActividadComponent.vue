@@ -7,6 +7,8 @@
                     <b-form-textarea v-model="actividad.observaciones" rows="3" max-rows="6"
                                 :disabled="load" required></b-form-textarea>
                 </b-form-group>
+                <hr>
+                <strong><i>Modificar fecha solo en caso de posponer la actividad</i></strong>
                 <b-row class="mb-2">
                     <b-col sm="1"><label>Fecha</label></b-col>
                     <b-col>

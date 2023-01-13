@@ -678,6 +678,8 @@ Route::name('actividades.')->prefix('actividades')->group(function () {
     Route::get('/by_user_estado', 'ActividadeController@by_user_estado')->name('by_user_estado');
     // OBTENER ACTIVIDADES POR FECHA ACTUAL
     Route::put('/update', 'ActividadeController@update')->name('update');
+    // OBTENER ACTIVIDADES POR FECHA ACTUAL
+    Route::get('/view_notification', 'ActividadeController@view_notification')->name('view_notification');
     
     // **** POR REVISAR
     // OBTENER ACTIVIDADES POR TIPO Y ESTADO

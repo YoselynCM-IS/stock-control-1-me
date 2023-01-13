@@ -145,6 +145,8 @@ Vue.component('reportes-listado-component', require('./components/reportes/Lista
 // CRM
 Vue.component('crm-inicio-component', require('./components/crm/InicioComponent').default);
 
+// NOTIFICACIONES
+Vue.component('user-notifications', require('./components/notifications/UserNotifications').default);
 
 /** NO UTLIZADOS */
 Vue.component('pagos-remisiones', require('./components/nu/PagosRemisiones.vue').default);

@@ -4,19 +4,19 @@
             border-variant="success" header-bg-variant="success" header-text-variant="white">
             <b-form @submit.prevent="onUpdate()">
                 <b-form-group label="¿La actividad se completo con exito?">
-                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="SI">
+                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="SI" required>
                         <h6><b-badge variant="success"><i class="fa fa-smile-o"></i></b-badge> SI</h6>
                     </b-form-radio>
-                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="NO">
+                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="NO" required>
                         <h6><b-badge variant="warning"><i class="fa fa-frown-o"></i></b-badge> NO</h6>
                     </b-form-radio>
-                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="REGULAR">
+                    <b-form-radio v-model="actividad.exitosa" name="exitosa" value="REGULAR" required>
                         <h6><b-badge variant="secondary"><i class="fa fa-meh-o"></i></b-badge> REGULAR</h6> 
                     </b-form-radio>
                 </b-form-group>
                 <b-form-group label="Observaciones">
                     <b-form-textarea v-model="actividad.observaciones" rows="3" max-rows="6"
-                                :disabled="load"></b-form-textarea>
+                                :disabled="load" required></b-form-textarea>
                 </b-form-group>
                 <div class="mt-2 text-right">
                     <b-button type="submit" :disabled="load" variant="success" pill>

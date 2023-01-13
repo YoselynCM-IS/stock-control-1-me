@@ -43,7 +43,7 @@ class ActsVencidos extends Command
         $observaciones = '<p><b>ACTIVIDAD VENCIDA - '.$hoy.'</b></p>';
             
         Actividade::where('estado', 'pendiente')
-                        ->where('fecha', '<', $hoy)
+                        ->where('marcar_antesde', '<', $hoy)
                         ->update([
                             'estado' => 'vencido',
                             'observaciones' => $observaciones

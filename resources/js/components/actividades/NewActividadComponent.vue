@@ -49,6 +49,13 @@
                     </b-col>
                 </b-row>
                 <b-row class="mb-2">
+                    <b-col sm="3" class="text-right"><label>Recordar</label></b-col>
+                    <b-col>
+                        <b-form-select v-model="form.recordatorio" :options="horas" required
+                            :disabled="loaded"></b-form-select>
+                    </b-col>
+                </b-row>
+                <b-row class="mb-2">
                     <b-col sm="3" class="text-right"><label>Relacionar cliente(s)</label></b-col>
                     <b-col>
                         <b-input v-model="queryCliente" @keyup="mostrarClientes()"
@@ -93,7 +100,8 @@ export default {
                 fecha: null,
                 hora: null,
                 descripcion: null,
-                clientes: []
+                clientes: [],
+                recordatorio: null
             },
             errors: {},
             tipos: [
@@ -103,6 +111,13 @@ export default {
                 { value: 'llamar', text: 'Llamar' },
                 { value: 'enviarcorreo', text: 'Enviar correo' },
                 { value: 'nota', text: 'Nota' }
+            ],
+            horas: [
+                { value: null, text: 'Selecciona una opción', disabled: true},
+                { value: '15', text: '15 minutos antes' },
+                { value: '30', text: '30 minutos antes' },
+                { value: '60', text: '1 hora antes' },
+                { value: '120', text: '2 horas antes' }
             ],
             selCliente: {}
         }
