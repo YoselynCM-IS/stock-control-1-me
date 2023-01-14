@@ -27,6 +27,12 @@
                             <i class="fa fa-refresh"></i> Actualizar
                         </b-button>
                     </div>
+                    <!-- <div v-if="pedido.status == 'incompleto' || pedido.status == 'completo'">
+                        <b-button v-if="(role_id == 1 || role_id == 2 || role_id == 6)" variant="dark" 
+                            pill :disabled="load" @click="relacionarRems()">
+                            <i class="fa fa-exchange"></i> Relacionar
+                        </b-button>
+                    </div> -->
                 </b-col>
             </b-row>
             <datos-order :order="pedido"></datos-order>
@@ -97,6 +103,11 @@
             </b-row>
             <add-costos-order-component :order="pedido"></add-costos-order-component>
         </div>
+        <!-- MODASL -->
+        <!-- AGREGAR ACTIVIDAD -->
+        <!-- <b-modal id="modal-relacionarRemd" title="Relacionar remisiones" hide-footer size="xl">
+            <relacionar-remisiones :order_id="pedido.id"></relacionar-remisiones>
+        </b-modal> -->
     </div>
 </template>
 
@@ -106,6 +117,7 @@ import formatNumber from '../../mixins/formatNumber';
 import moment from '../../mixins/moment';
 import DatosOrder from './partials/DatosOrder.vue';
 import EstadoOrder from './partials/EstadoOrder.vue';
+// import RelacionarRemisiones from './RelacionarRemisiones.vue';
 export default {
     components: { DatosOrder, EstadoOrder },
     props: ['pedido', 'role_id'],
@@ -166,6 +178,9 @@ export default {
                 this.load = false;
             });
         },
+        // relacionarRems(){
+        //     this.$bvModal.show('modal-relacionarRemd');
+        // }
     }
 }
 </script>

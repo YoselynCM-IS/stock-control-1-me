@@ -110,7 +110,7 @@ export default {
                 fecha: null,
                 hora: null,
                 estado: null,
-                exitosa: 0,
+                exitosa: 'PENDIENTE',
                 observaciones: null
             },
             completarAct: false,
@@ -141,7 +141,7 @@ export default {
         setValues(id, estado, completarAct, cancelarAct, editarAct){
             this.actividad.id = id;
             this.actividad.estado = estado;
-            this.actividad.exitosa = 0;
+            this.actividad.exitosa = 'PENDIENTE';
             this.actividad.observaciones = null;
             this.completarAct = completarAct;
             this.cancelarAct = cancelarAct;

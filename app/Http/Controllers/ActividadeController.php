@@ -93,10 +93,14 @@ class ActividadeController extends Controller
         try {
             $hoy = Carbon::now();
             $actividad = Actividade::find($request->id);
-            $observaciones = $actividad->observaciones.'<p><b>ACTIVIDAD COMPLETADA - '.$hoy.' :</b> '.$request->observaciones.'</p>';
+            $estado = $request->estado;
+            $fecha_obs = $hoy.' :</b> '.$request->observaciones.'</p>';
+            
+            if($estado == 'cancelado') $observaciones = $actividad->observaciones.'<p><b>ACTIVIDAD CANCELADA - '.$fecha_obs;
+            if($estado == 'completado') $observaciones = $actividad->observaciones.'<p><b>ACTIVIDAD COMPLETADA - '.$fecha_obs;
             
             $actividad->update([
-                'estado' => $request->estado,
+                'estado' => $estado,
                 'exitosa' => $request->exitosa, 
                 'observaciones' => $observaciones
             ]);
