@@ -30,7 +30,8 @@ class OrderController extends Controller
 
     // DETALLES DEL PEDIDO
     public function show($order_id){
-        $order = Order::whereId($order_id)->with('elements.libro')->first();
+        $order = Order::whereId($order_id)->with('elements.libro')
+                    ->withCount('remisiones')->first();
         return view('information.orders.details-order', compact('order'));
     }
 
@@ -140,6 +141,26 @@ class OrderController extends Controller
             $reporte = 'creo un pedido al proveedor '.$editorial.' PEDIDO: '.$order->identifier;
             $this->create_report($order->id, $reporte);
 
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+        return response()->json(true);
+    }
+
+    public function relacionar(Request $request){
+        \DB::beginTransaction();
+        try{
+        $order = Order::find($request->order_id);
+
+        $remisiones = collect($request->selected);
+        $remisiones->map(function($remision) use(&$order){
+            $folio = (int)$remision['id'];
+            $order->remisiones()->attach($folio);
+            $reporte = 'relaciono una remisión al pedido al proveedor '.$order->provider.' / '.$order->identifier.' REMISIÓN: '.$folio;
+            $this->create_report($order->id, $reporte);
+        });
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();

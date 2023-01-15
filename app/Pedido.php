@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Peticione;
 use App\Cliente;
+use App\Order;
 Use App\User;
 
 class Pedido extends Model
@@ -28,5 +29,9 @@ class Pedido extends Model
 
     public function peticiones(){
         return $this->hasMany(Peticione::class);
+    }
+
+    public function orders(){
+        return $this->hasMany(Order::class);
     }
 }

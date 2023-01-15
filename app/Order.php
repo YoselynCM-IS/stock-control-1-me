@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Remisione;
 use App\Element;
 use App\Pedido;
 
@@ -29,5 +30,10 @@ class Order extends Model
 
     public function pedido(){
         return $this->belongsTo(Pedido::class);
+    }
+
+    // Muchos a muchos
+    public function remisiones(){
+        return $this->belongsToMany(Remisione::class);
     }
 }

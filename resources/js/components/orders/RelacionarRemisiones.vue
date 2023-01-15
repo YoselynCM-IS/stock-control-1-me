@@ -112,8 +112,8 @@ export default {
             this.form.order_id = this.order_id;
             axios.post('/order/relacionar', this.form).then(response => {
                 this.load = false;
-                console.log(response.data);
-                // this.$emit('actualizarClientes', response.data);
+                swal("OK", "Las remisiones se relacionaron correctamente.", "success")
+                    .then((value) => { location.reload(); });
             }).catch(error => {
                 this.load = false;
             });

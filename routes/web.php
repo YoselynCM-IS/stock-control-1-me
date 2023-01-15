@@ -414,6 +414,7 @@ Route::name('order.')->prefix('order')->group(function () {
     Route::put('change_status', 'OrderController@change_status')->name('change_status');
     Route::put('cancelar', 'OrderController@cancelar')->name('cancelar');
     Route::put('add_costo', 'OrderController@add_costo')->name('add_costo');
+    Route::post('relacionar', 'OrderController@relacionar')->name('relacionar');
 });
 
 //REMCLIENTE

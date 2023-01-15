@@ -12,6 +12,7 @@ use App\Vendido;
 use App\Deposito;
 use App\Comentario;
 use App\Fecha;
+use App\Order;
 
 class Remisione extends Model
 {
@@ -86,5 +87,10 @@ class Remisione extends Model
     //UNa remision puede tener muchos comentarios
     public function comentarios(){
         return $this->hasMany(Comentario::class);
+    }
+
+    // Muchos a muchos
+    public function orders(){
+        return $this->belongsToMany(Order::class);
     }
 }

@@ -26,7 +26,7 @@ class PedidoController extends Controller
 
     // DETALLES DEL PEDIDO
     public function show($pedido_id){
-        $pedido = $this->get_pedido($pedido_id);
+        $pedido = Pedido::whereId($pedido_id)->with('user', 'cliente', 'peticiones.libro', 'orders.remisiones.cliente')->first();
         return view('information.pedidos.details-pedido', compact('pedido'));
     }
 
