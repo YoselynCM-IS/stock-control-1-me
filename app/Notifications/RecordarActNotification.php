@@ -58,7 +58,7 @@ class RecordarActNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'mensaje' => 'La actividad está por iniciar: ',
+            'mensaje' => 'La actividad está por iniciar: '.$this->actividad->nombre,
             'actividad' => $this->actividad
         ];
     }
@@ -66,7 +66,7 @@ class RecordarActNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'mensaje' => 'La actividad está por iniciar: ',
+            'mensaje' => 'La actividad está por iniciar: '.$this->actividad->nombre,
             'actividad' => $this->actividad
         ]);
     }

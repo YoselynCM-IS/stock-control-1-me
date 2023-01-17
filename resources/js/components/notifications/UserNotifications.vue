@@ -24,11 +24,15 @@
                 </div><hr>
 
                 <!-- All-->
-                <button v-for="(notification, index) in notifications"
-                    :key="index" style="font-size: 12px;"
-                    class="dropdown-item notify-item notify-all" @click="getActividad(notification, index)"
-                    v-html="notification.title">
-                </button>
+                <div v-for="(notification, index) in notifications" :key="index">
+                    <button v-if="notification.tipo == 'ActNotification'" style="font-size: 12px;" class="dropdown-item notify-item notify-all"
+                        @click="getActividad(notification, index)" v-html="notification.title">
+                    </button>
+                    <b-button v-if="notification.tipo == 'PedClienteNotification'" style="font-size: 12px;" class="dropdown-item notify-item notify-all"
+                        :href="`/pedido/show/${notification.id}/${notification.notification_id}`" target="_blank"
+                        v-html="notification.title">
+                    </b-button>
+                </div>
             </div>
         </li>
         <b-modal id="modal-detailsActividad" title="Detalles de la actividad" hide-footer size="lg">
@@ -62,10 +66,14 @@ import DetailsActividad from '../actividades/partials/DetailsActividad.vue';
         },
         methods: {
             get_notificaciones(datos, actividad, mensaje){
+                if(datos.type.includes('PedClienteNotification')) var tipo = 'PedClienteNotification';
+                else var tipo = 'ActNotification';
+                
                 return {
+                    notification_id: datos.id,
                     id: actividad.id,
-                    title: `${mensaje} <b>${actividad.nombre}</b>`,
-                    notification_id: datos.id
+                    title: mensaje,
+                    tipo: tipo
                 };
             },
             getActividad(notification, index){

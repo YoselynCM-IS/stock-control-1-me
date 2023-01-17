@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\NewPedClienteNotification;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Peticione;
@@ -9,6 +10,7 @@ use App\Element;
 use App\Reporte;
 use App\Pedido;
 use App\Order;
+use App\User;
 
 class PedidoController extends Controller
 {
@@ -25,8 +27,13 @@ class PedidoController extends Controller
     }
 
     // DETALLES DEL PEDIDO
-    public function show($pedido_id){
+    public function show($pedido_id, $notification_id = null){
         $pedido = Pedido::whereId($pedido_id)->with('user', 'cliente', 'peticiones.libro', 'orders.remisiones.cliente')->first();
+        $notification = auth()->user()->unreadNotifications->where('id', $notification_id);
+        $notification->map(function($n){
+            $n->markAsRead();
+            $n->delete();
+        });
         return view('information.pedidos.details-pedido', compact('pedido'));
     }
 
@@ -55,6 +62,12 @@ class PedidoController extends Controller
 
             $reporte = 'creo un pedido del cliente '.$pedido->cliente->name;
             $this->create_report($pedido->id, $reporte);
+
+            $users = User::whereIn('role_id', [1,2,6])
+                            ->whereNotIn('id', [auth()->user()->id])->get();
+            foreach($users as $user){
+                $user->notify(new NewPedClienteNotification($pedido, $pedido->user));
+            }
 
             \DB::commit();
         } catch (Exception $e) {

@@ -40,7 +40,7 @@ class NewActNotification extends Notification
     public function toArray($notifiable)
     {
         return [
-            'mensaje' => $this->user->name.' creo la actividad: ',
+            'mensaje' => $this->user->name.' creo la actividad: '.$this->actividad->nombre,
             'actividad' => $this->actividad
         ];
     }
@@ -48,7 +48,7 @@ class NewActNotification extends Notification
     public function toBroadcast($notifiable)
     {
         return new BroadcastMessage([
-            'mensaje' => $this->user->name.' creo la actividad: ',
+            'mensaje' => $this->user->name.' creo la actividad: '.$this->actividad->nombre,
             'actividad' => $this->actividad
         ]);
     }

@@ -70,4 +70,5 @@
 <li>
 	<a class="nav-link" href="{{ route('information.majestic') }}" target="_blank">{{ __("MAJESTIC") }}</a>
 </li>
+<user-notifications :user_id="{{auth()->user()->id}}" :noleidos="{{Auth::user()->unreadNotifications}}"></user-notifications>
 @include('partials.navigations.logged')

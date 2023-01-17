@@ -399,7 +399,7 @@ Route::get('show_editoriales', 'OficinaController@show_editoriales')->name('show
 Route::name('pedido.')->prefix('pedido')->group(function () {
     Route::get('index', 'PedidoController@index')->name('index');
     Route::post('store', 'PedidoController@store')->name('store');
-    Route::get('/show/{pedido_id}', 'PedidoController@show')->name('show');
+    Route::get('/show/{pedido_id}/{notification_id?}', 'PedidoController@show')->name('show');
     Route::get('/preparar/{pedido_id}', 'PedidoController@preparar')->name('preparar');
     Route::put('/preparado', 'PedidoController@preparado')->name('preparado');
     Route::put('/despachar', 'PedidoController@despachar')->name('despachar');
