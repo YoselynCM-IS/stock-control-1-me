@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Entdevolucione;
+use App\Comprobante;
 use App\Repayment;
 use App\Registro;
 use App\Imprenta;
@@ -21,8 +22,7 @@ class Entrada extends Model
         'total_pagos',
         'total_devolucion',
         'lugar',
-        'creado_por',
-        'name', 'size', 'extension', 'public_url'
+        'creado_por'
     ];
 
     //Uno a muchos
@@ -45,6 +45,10 @@ class Entrada extends Model
 
     public function imprenta(){
         return $this->belongsTo(Imprenta::class);
+    }
+
+    public function comprobantes(){
+        return $this->hasMany(Comprobante::class);
     }
 
 }

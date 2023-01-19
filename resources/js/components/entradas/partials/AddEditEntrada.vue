@@ -141,8 +141,23 @@
                             <label><b>Editorial:</b> {{form.editorial}}</label>
                         </b-col>
                         <b-col class="text-right">
-                            <subir-foto-component :disabled="load" :allowExt="allowExt"
-                                :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component>
+                            <b-form-group>
+                                <input :disabled="load" type="file" id="archivoType" 
+                                    v-on:change="fileChange" name="file" multiple>
+                                <label for="archivoType">
+                                    <i class="fa fa-upload"></i> Subir factura
+                                </label>
+                                <ul>
+                                    <li v-for="(file, i) in form.files" v-bind:key="i">
+                                        {{ file.name }}
+                                    </li>
+                                </ul>
+                                <!-- <div v-if="errors && errors.file" class="text-danger">
+                                    La foto debe tener un tamaño máximo de 3MB y solo formato jpg, png, jpeg
+                                </div> -->
+                            </b-form-group>
+                            <!-- <subir-foto-component :disabled="load" :allowExt="allowExt"
+                                :titulo="'Subir factura'" @uploadImage="uploadImage"></subir-foto-component> -->
                         </b-col>
                     </b-row>
                     <b-table :items="form.registros" :fields="form.queretaro ? fieldsQO:fieldsRE">
@@ -168,7 +183,7 @@
                             </b-alert>
                         </b-col>
                         <b-col sm="2" align="right">
-                            <b-button type="submit" variant="success" :disabled="load || form.file == null">
+                            <b-button type="submit" variant="success" :disabled="load || form.files.length == 0">
                                 <i class="fa fa-check"></i> Confirmar
                             </b-button>
                         </b-col>
@@ -223,7 +238,7 @@ export default {
             total_unidades_que: 0,
             total_unidades: 0,
             imprentas: [],
-            allowExt: /(\.jpg|\.jpeg|\.png)$/i
+            allowExt: /(\.jpg|\.jpeg|\.png|\.pdf)$/i
         }
     },
     created: function(){
@@ -289,7 +304,11 @@ export default {
             this.load = true;
 
             let formData = new FormData();
-            formData.append('file', this.form.file, this.form.file.name);
+            // formData.append('file', this.form.file, this.form.file.name);
+            for (var i = 0; i < this.form.files.length; i++) {
+                let file = this.form.files[i];
+                formData.append('files[]', file);
+            }
             formData.append('unidades', this.form.unidades);
             formData.append('folio', this.form.folio);
             formData.append('editorial', this.form.editorial);
@@ -399,8 +418,20 @@ export default {
         goBack(){
             this.$emit('goBack', true);
         },
-        uploadImage(file){
-            this.form.file = file;
+        fileChange(e){
+            var fileInput = document.getElementById('archivoType');
+            
+            if(this.allowExt.exec(fileInput.value)){
+                let files = e.target.files || e.dataTransfer.files;
+                if (!files.length) return;
+                
+                for (let i = files.length - 1; i >= 0; i--) {
+                    this.form.files.push(files[i]);
+                }
+                document.getElementById("archivoType").value = [];
+            } else {
+                swal("Revisar formato de archivo", "Formato de archivo no permitido", "warning");
+            }
         }
     }
 }

@@ -13,6 +13,7 @@ return array(
     'App\\Comentario' => $baseDir . '/app/Comentario.php',
     'App\\Console\\Commands\\ActsPendProx' => $baseDir . '/app/Console/Commands/ActsPendProx.php',
     'App\\Console\\Commands\\ActsVencidos' => $baseDir . '/app/Console/Commands/ActsVencidos.php',
+    'App\\Console\\Commands\\BajaCodeCommand' => $baseDir . '/app/Console/Commands/BajaCodeCommand.php',
     'App\\Console\\Commands\\RecordarActCommand' => $baseDir . '/app/Console/Commands/RecordarActCommand.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\Corte' => $baseDir . '/app/Corte.php',

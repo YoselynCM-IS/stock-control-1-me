@@ -76,6 +76,9 @@
             <!-- LISTADO DE LIBROS -->
             <b-table v-if="libros.length > 0" 
                     responsive :fields="fields" :items="libros">
+                <template v-slot:cell(index)="data">
+                    {{ data.index + 1 }}
+                </template>
                 <template v-slot:cell(piezas)="data">
                     {{ data.item.piezas | formatNumber }}
                 </template>

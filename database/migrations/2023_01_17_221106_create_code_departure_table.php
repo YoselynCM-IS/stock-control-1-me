@@ -13,14 +13,14 @@ class CreateCodeDepartureTable extends Migration
      */
     public function up()
     {
-        Schema::create('code_departure', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('code_id')->nullable();
-            $table->foreign('code_id')->references('id')->on('codes');
-            $table->unsignedBigInteger('departure_id')->nullable();
-            $table->foreign('departure_id')->references('id')->on('departures');
-            $table->timestamps();
-        });
+        // Schema::create('code_departure', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('code_id')->nullable();
+        //     $table->foreign('code_id')->references('id')->on('codes');
+        //     $table->unsignedBigInteger('departure_id')->nullable();
+        //     $table->foreign('departure_id')->references('id')->on('departures');
+        //     $table->timestamps();
+        // });
     }
 
     /**

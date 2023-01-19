@@ -618,6 +618,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Comentario' => __DIR__ . '/../..' . '/app/Comentario.php',
         'App\\Console\\Commands\\ActsPendProx' => __DIR__ . '/../..' . '/app/Console/Commands/ActsPendProx.php',
         'App\\Console\\Commands\\ActsVencidos' => __DIR__ . '/../..' . '/app/Console/Commands/ActsVencidos.php',
+        'App\\Console\\Commands\\BajaCodeCommand' => __DIR__ . '/../..' . '/app/Console/Commands/BajaCodeCommand.php',
         'App\\Console\\Commands\\RecordarActCommand' => __DIR__ . '/../..' . '/app/Console/Commands/RecordarActCommand.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\Corte' => __DIR__ . '/../..' . '/app/Corte.php',

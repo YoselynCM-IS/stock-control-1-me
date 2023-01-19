@@ -12,6 +12,7 @@ use App\Exports\EAccountExport;
 use Illuminate\Http\Request;
 use App\Entdevolucione;
 use App\Enteditoriale;
+use App\Comprobante;
 use App\Entdeposito;
 use App\Editoriale;
 use Carbon\Carbon;
@@ -57,13 +58,7 @@ class EntradaController extends Controller
             $folio = strtoupper($request->folio);
             $lugar = 'CMX';
             if($request->queretaro == 'true') $lugar = 'DOS';
-            
-            // *** SUBIR IMAGEN
-            $file = $request->file('file');
-            $extension = $file->getClientOriginalExtension();
-            $name_file = $folio."_".time().".".$extension;
-            $response = $this->upload_archivo($request, $name_file, 'entradas', $extension);
-            // *** SUBIR IMAGEN
+
             if($editorial == 'MAJESTIC EDUCATION') $imprenta_id = $request->imprenta_id; 
             else $imprenta_id = null;
             
@@ -75,11 +70,7 @@ class EntradaController extends Controller
                 'imprenta_id' => $imprenta_id,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
-                'creado_por' => auth()->user()->name,
-                'name' => $response['name'],
-                'extension' => $extension,
-                'size' => $response['size'],
-                'public_url' => $response['url'],
+                'creado_por' => auth()->user()->name
             ]);
 
             $rs = json_decode($request->registros);
@@ -111,6 +102,28 @@ class EntradaController extends Controller
             });
             
             $entrada->update(['unidades' => $unidades]);
+            // *** SUBIR COMPROBANTE
+            $files = $request->file('files');
+            foreach($files as $file) {
+                $extension = $file->getClientOriginalExtension();
+                $name_file = time().".".$extension;
+                Storage::disk('dropbox')->putFileAs(
+                    '/stock1/entradas/', $file, $name_file
+                );
+                $response = $this->dropbox->createSharedLinkWithSettings(
+                    '/stock1/entradas/'.$name_file, 
+                    ["requested_visibility" => "public"]
+                );
+
+                Comprobante::create([
+                    'entrada_id' => $entrada->id,
+                    'name' => $response['name'],
+                    'extension' => $extension,
+                    'size' => $response['size'],
+                    'public_url' => $response['url']
+                ]);
+            }
+            // *** SUBIR COMPROBANTE
             $get_entrada = Entrada::whereId($entrada->id)->first();
 
             $reporte = 'creo la entrada '.$entrada->folio.' de '.$entrada->editorial;
@@ -125,13 +138,13 @@ class EntradaController extends Controller
     }
 
     public function upload_archivo($request, $name_file, $ruta, $extension){
-        if($extension == 'pdf'){
+        // if($extension == 'pdf'){
             Storage::disk('dropbox')->putFileAs(
                 '/stock1/'.$ruta.'/', $request->file('file'), $name_file
             );
-        } else {
-            $this->upload_image($request, $name_file, $ruta);
-        }
+        // } else {
+        //     $this->upload_image($request, $name_file, $ruta);
+        // }
         
         $response = $this->dropbox->createSharedLinkWithSettings(
             '/stock1/'.$ruta.'/'.$name_file, 
@@ -314,7 +327,7 @@ class EntradaController extends Controller
     // Función utilizada en EditarEntradasComponent, EntradasComponent
     public function detalles_entrada(){
         $entrada_id = Input::get('entrada_id');
-        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes', 'imprenta'])->first(); 
+        $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes', 'imprenta', 'comprobantes'])->first(); 
         $entdevoluciones = Entdevolucione::where('entrada_id', $entrada_id)->with('registro.libro')->get();
         return response()->json(['entrada' => $entrada, 'entdevoluciones' => $entdevoluciones]);
     }

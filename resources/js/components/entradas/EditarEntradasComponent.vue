@@ -153,10 +153,19 @@
                     </b-button>
                 </b-col> -->
                 <b-col>
-                    <a v-if="entrada.public_url.length > 0"
-                        :href="entrada.public_url" target="_blank">
-                        Ver factura
-                    </a>
+                    <b-button v-if="entrada.comprobantes.length > 0"
+                        v-b-toggle.collapse-comp variant="dark" >
+                        <i class="fa fa-file-o"></i> Factura
+                    </b-button>
+                    <b-collapse id="collapse-comp" class="mt-2">
+                        <ul>
+                            <li v-for="(comprobante, i) in entrada.comprobantes" v-bind:key="i" >
+                                <a :href="comprobante.public_url" target="_blank">
+                                    Archivo {{ i + 1 }}
+                                </a>
+                            </li>
+                        </ul>
+                    </b-collapse>
                 </b-col>
                 <b-col class="text-right">
                     <b-button variant="dark" :href="'/downloadEntrada/' + entrada.id">
@@ -465,7 +474,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     items: [],
                     lugar: null,
                     creado_por: null,
-                    public_url: null
+                    comprobantes: []
                 },
                 total: 0,
                 total_pagos: 0,
@@ -504,7 +513,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     imprenta_id: null,
                     queretaro: false,
                     registros: [],
-                    file: {}
+                    files: []
                 },
                 mostrarAdd: false,
                 mostrarDevolucion: false,
@@ -762,7 +771,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                 this.entrada.lugar = response.data.entrada.lugar;
                 this.entrada.creado_por = response.data.entrada.creado_por;
                 this.entrada.created_at = response.data.entrada.created_at;
-                this.entrada.public_url = response.data.entrada.public_url;
+                this.entrada.comprobantes = response.data.entrada.comprobantes;
                 this.entrada.imprenta_id = response.data.entrada.imprenta_id;
                 if (this.entrada.editorial == 'MAJESTIC EDUCATION' && this.entrada.imprenta_id != null)
                     this.entrada.imprenta = response.data.entrada.imprenta.imprenta;
@@ -812,7 +821,7 @@ import DevolucionEntrada from './partials/DevolucionEntrada.vue';
                     imprenta_id: null,
                     queretaro: false,
                     registros: [],
-                    file: null
+                    files: []
                 };
                 this.mostrarAdd = true;
             },
