@@ -105,7 +105,7 @@ export default {
         // BUSCAR LIBRO POR ISBN
         buscarLibroISBN(){
             this.load = true;
-            axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.isbn, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+            axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.isbn, editorial: 'MAJESTIC EDUCATION', typeNot: 'digital'}}).then(response => {
                 this.datosLibro(response.data[0]);
                 this.load = false;
             }).catch(error => {
@@ -116,7 +116,7 @@ export default {
         // MOSTRAR COINCIDENCIA DE LIBROS
         mostrarLibros(){
             if(this.temporal.titulo.length > 0){
-                axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+                axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION', typeNot: 'digital'}}).then(response => {
                     this.resultslibros = response.data;
                 }).catch(error => {
                     // this.makeToast('danger', 'ISBN incorrecto');

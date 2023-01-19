@@ -601,7 +601,7 @@ import searchCliente from '../../mixins/searchCliente';
                         this.makeToast('danger', 'ISBN incorrecto');
                     });
                 } else {
-                    axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.ISBN, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+                    axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.ISBN, editorial: 'MAJESTIC EDUCATION', typeNot: 'digital'}}).then(response => {
                         this.assignar_valores(response.data[0]);
                     }).catch(error => {
                         this.makeToast('danger', 'ISBN incorrecto');
@@ -623,7 +623,7 @@ import searchCliente from '../../mixins/searchCliente';
                     if(this.role_id == 6){
                         this.getLibros(this.temporal.titulo);
                     } else {
-                        axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+                        axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION', typeNot: 'digital'}}).then(response => {
                             this.resultslibros = response.data;
                         }).catch(error => {
                             this.makeToast('danger', 'ISBN incorrecto');

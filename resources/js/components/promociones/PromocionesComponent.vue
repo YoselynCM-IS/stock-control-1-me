@@ -178,7 +178,27 @@
                     <tr>
                         <th colspan="3"></th>
                         <th>{{ promotion.unidades }}</th>
+                        <th></th>
                     </tr>
+                </template>
+                <template #cell(show_details)="row">
+                    <b-button v-if="row.item.libro.type == 'digital'"
+                        size="sm" @click="row.toggleDetails" variant="info" pill>
+                        Códigos
+                    </b-button>
+                </template>
+                <template #row-details="row">
+                    <b-row>
+                        <b-col sm="3"></b-col>
+                        <b-col sm="6">
+                            <b-table :items="row.item.codes" :fields="fieldsCodes">
+                                <template v-slot:cell(index)="data">
+                                    {{ data.index + 1 }}
+                                </template>
+                            </b-table>
+                        </b-col>
+                        <b-col sm="3"></b-col>
+                    </b-row>
                 </template>
             </b-table>
             <div class="mt-5" v-if="promotion.prodevoluciones.length > 0">
@@ -255,6 +275,7 @@
                             <th colspan="1"></th>
                             <th>ISBN</th>
                             <th>Libro</th>
+                            <th></th>
                             <th>Unidades</th>
                         </tr>
                         <tr>
@@ -293,7 +314,11 @@
                                 <label v-if="!inputLibro">{{ temporal.titulo }}</label>
                             </th>
                             <th>
-                                <b-form-input 
+                                <b-form-select v-if="temporal.type == 'digital'" v-model="temporal.tipo" :options="code_tipos"
+                                    required :disabled="load" @change="checkDisponible()"></b-form-select>
+                            </th>
+                            <th>
+                                <b-form-input
                                     id="input-unidades"
                                     autofocus
                                     @keyup.enter="guardarRegistro()"
@@ -315,7 +340,7 @@
                             </th>
                         </tr>
                         <tr>
-                            <th colspan="3"></th>
+                            <th colspan="4"></th>
                             <th>{{ unidades_crear | formatNumber }}</th>
                             <th></th>
                         </tr>
@@ -338,7 +363,7 @@
                     <template v-slot:cell(titulo)="row">{{ row.item.titulo }}</template>
                     <template #thead-top="row">
                         <tr>
-                            <th colspan="3"></th>
+                            <th colspan="4"></th>
                             <th>{{ unidades_crear | formatNumber }}</th>
                         </tr>
                     </template>
@@ -385,7 +410,8 @@
                 <b-table :items="formDev.departures" :fields="fieldsD">
                     <template v-slot:cell(index)="row">{{ row.index + 1 }}</template>
                     <template v-slot:cell(unidades)="row">
-                        <b-form-input :id="`inpDev-${row.index}`" type="number" 
+                        <b-form-input v-if="row.item.type != 'digital'"
+                            :id="`inpDev-${row.index}`" type="number" 
                             required :disabled="load"
                             @change="checkUnidades(row.item, row.index)"
                             v-model="row.item.unidades">
@@ -471,14 +497,16 @@ import searchCliente from '../../mixins/searchCliente';
                     {key: 'index', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    'unidades',
+                    {key: 'tipo', label: ''},
+                    'unidades', 
                     {key: 'eliminar', label: ''}
                 ],
                 fieldsD: [
                     {key: 'index', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    'unidades'
+                    'unidades',
+                    {key: 'show_details', label: ''}, 
                 ],
                 fieldsPD: [
                     {key: 'index', label: 'N.'}, 
@@ -491,10 +519,13 @@ import searchCliente from '../../mixins/searchCliente';
                 options: [],
                 temporal: {
                     id: 0,
+                    type: null,
                     ISBN: '',
                     titulo: '',
+                    tipo: null,
                     unidades: null,
-                    piezas: 0
+                    piezas: 0,
+                    codigos: 0
                 },
                 promocion: {
                     id: null,
@@ -534,7 +565,17 @@ import searchCliente from '../../mixins/searchCliente';
                 },
                 promotionsData: {},
                 searchPlantel: false,
-                searchFecha: false
+                searchFecha: false,
+                code_tipos: [
+                    {value: null, text: 'Seleccionar', disabled: true},
+                    {value: 'demo', text: 'demo'},
+                    {value: 'profesor', text: 'profesor'}
+                ],
+                fieldsCodes: [
+                    {key:'index', label:'N.'},
+                    {key:'tipo', label:'Tipo'},
+                    {key:'codigo', label:'Código'}
+                ],
             }
         },
         filters: {
@@ -742,7 +783,9 @@ import searchCliente from '../../mixins/searchCliente';
                         this.makeToast('danger', 'ISBN incorrecto');
                     });
                 } else {
-                    axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.ISBN, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+                    axios.get('/libro/by_editorial_type_isbn', {params: {
+                        isbn: this.temporal.ISBN, editorial: 'MAJESTIC EDUCATION', typeNot: 'null'
+                    }}).then(response => {
                         this.assignar_valores(response.data[0]);
                     }).catch(error => {
                         this.makeToast('danger', 'ISBN incorrecto');
@@ -751,6 +794,7 @@ import searchCliente from '../../mixins/searchCliente';
             },
             assignar_valores(libro){
                 this.temporal.id = libro.id;
+                this.temporal.type = libro.type;
                 this.temporal.ISBN = libro.ISBN;
                 this.temporal.titulo = libro.titulo;
                 this.temporal.piezas = libro.piezas;
@@ -764,7 +808,7 @@ import searchCliente from '../../mixins/searchCliente';
                     if(this.role_id == 6){
                         this.getLibros(this.temporal.titulo);
                     } else {
-                        axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION'}}).then(response => {
+                        axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: 'MAJESTIC EDUCATION', typeNot: 'null'}}).then(response => {
                             this.resultslibros = response.data;
                         }).catch(error => {
                             // this.makeToast('danger', 'ISBN incorrecto');
@@ -776,28 +820,46 @@ import searchCliente from '../../mixins/searchCliente';
             datosLibro(libro){
                 this.temporal = {
                     id: libro.id,
+                    type: libro.type,
                     ISBN: libro.ISBN,
                     titulo: libro.titulo,
+                    tipo: null,
                     unidades: null,
-                    piezas: libro.piezas
+                    piezas: libro.piezas,
+                    codigos: 0
                 };
                 this.resultslibros = [];
                 this.inputISBN = false;
                 this.inputLibro = false;
                 this.inputUnidades = true;
             },
+            validar_insert(condicion, existencia){
+                if(condicion){
+                    var pzs = existencia;
+                    if(this.registros.length > 0){
+                        var acum = 0;
+                        this.registros.forEach(registro => {
+                            if(this.temporal.id == registro.id && this.temporal.tipo == registro.tipo) {
+                                acum += parseInt(registro.unidades);
+                                pzs = existencia - acum;
+                            }
+                        });
+                    }
+                    if(this.temporal.unidades <= pzs){
+                        this.registros.push(this.temporal);
+                        this.acum_unidades_crear();
+                        this.eliminarTemporal();
+                    }else{
+                        this.makeToast('warning', `${pzs} unidades en existencia`);
+                    }
+                }
+            },
             // VERIFICAR UNIDADES
             guardarRegistro(){
                 if(this.temporal.unidades > 0){
                     if(this.temporal.unidades < 11){
-                        if(this.temporal.unidades <= this.temporal.piezas){
-                            this.registros.push(this.temporal);
-                            this.acum_unidades_crear();
-                            this.eliminarTemporal();
-                        }
-                        else{
-                            this.makeToast('warning', `${this.temporal.piezas} unidades en existencia`);
-                        }
+                        this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
+                        this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
                     } else{
                         this.makeToast('warning', 'Las unidades no pueden ser mayor a 10');
                     }
@@ -809,10 +871,13 @@ import searchCliente from '../../mixins/searchCliente';
             eliminarTemporal(){
                 this.temporal = {
                     id: 0,
+                    type: null,
                     ISBN: '',
                     titulo: '',
+                    tipo: null,
                     unidades: null,
-                    piezas: 0
+                    piezas: 0,
+                    codigos: 0
                 };
                 this.inputUnidades = false;
                 this.inputLibro = true;
@@ -868,6 +933,7 @@ import searchCliente from '../../mixins/searchCliente';
                         let datos = {
                             departure_id: departure.id,
                             libro_id: departure.libro_id,
+                            type: departure.libro.type,
                             ISBN: departure.libro.ISBN,
                             titulo: departure.libro.titulo,
                             unidades_pendientes: departure.unidades_pendientes,
@@ -888,10 +954,10 @@ import searchCliente from '../../mixins/searchCliente';
                 let unidades = parseInt(departure.unidades);
                 if(unidades >= 0){
                     if(unidades <= departure.unidades_pendientes){
-                        if(i + 1 < this.formDev.departures.length){
-                            document.getElementById('inpDev-'+(i+1)).focus();
-                            document.getElementById('inpDev-'+(i+1)).select();
-                        }
+                        // if(i + 1 < this.formDev.departures.length){
+                        //     document.getElementById('inpDev-'+(i+1)).focus();
+                        //     document.getElementById('inpDev-'+(i+1)).select();
+                        // }
                     } else {
                         departure.unidades = 0;
                         this.makeToast('warning', 'El numero de unidades que ingresaste es mayor a las unidades pendientes.');
@@ -928,6 +994,16 @@ import searchCliente from '../../mixins/searchCliente';
                 this.promocion.cliente_id = cliente.id;
                 this.promocion.plantel = cliente.name;
                 this.clientes = [];
+            },
+            checkDisponible(){
+                this.load = true;
+                axios.get('/codes/by_libro_count', {params: {libro_id: this.temporal.id, tipo: this.temporal.tipo, estado: 'inventario'}}).then(response => {
+                    this.temporal.codigos = response.data;
+                    this.temporal.unidades = 0;
+                    this.load = false;
+                }).catch(error => {
+                    this.load = false;
+                });
             }
         }
     }

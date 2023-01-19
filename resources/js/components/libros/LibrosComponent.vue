@@ -52,6 +52,12 @@
                 </pagination>
             </b-col>
             <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6"
+                    variant="dark" pill block href="/codes/licencias_demos" target="_blank">
+                    Licencias / Demos
+                </b-button>
+            </b-col>
+            <b-col sm="2" class="text-right">
                 <!-- DESCARGAR LIBROS downloadExcel -->
                 <b-button :href="`/downloadExcel/${queryEditorial}`" 
                     variant="dark" pill block> 
@@ -177,7 +183,8 @@
                 queryTitulo: '',
                 queryEditorial: 'TODO',
                 fields: [
-                    // {key:'type', label:'Tipo'},
+                    {key:'index', label:'N.'},
+                    {key:'type', label:'Tipo'},
                     'ISBN', 
                     'titulo', 
                     'editorial', 

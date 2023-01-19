@@ -88,26 +88,29 @@ class CodeController extends Controller
         try {
             $count = 0;
             $libro = Libro::find($request->libro_id);
+            $tipo = $request->tipo;
             $lista = collect($array[0]);
             $codigos = collect();
 
-            $lista->map(function($row) use(&$codigos, &$count, $libro){
+            $lista->map(function($row) use(&$codigos, &$count, $libro, $tipo){
                 if($row[0] == $libro->titulo){
-                    $code = Code::where('codigo', $row[1])->firstOr(function () use($libro, $row, &$codigos, &$count) {
-                        $code = Code::create([
-                            'libro_id' => $libro->id, 
-                            'codigo' => $row[1],
-                            'tipo'  => 'alumno'
-                        ]);
-                        $codigos->push($code);
-                        $count++;
-                        return $code;
-                    });
+                    if($row[2] == $tipo){
+                        $code = Code::where('codigo', $row[1])->firstOr(function () use($libro, $row, &$codigos, &$count) {
+                            $code = Code::create([
+                                'libro_id' => $libro->id, 
+                                'codigo' => $row[1],
+                                'tipo'  => $row[2]
+                            ]);
+                            $codigos->push($code);
+                            $count++;
+                            return $code;
+                        });
+                    }
                 }                
             });
 
             // $libro->update(['piezas' => $libro->piezas + $count]);
-            $datos = ['codes' => $codigos, 'libro_id' => $libro->id, 'libro' => $libro->titulo, 'unidades' => $count];
+            $datos = ['codes' => $codigos, 'libro_id' => $libro->id, 'libro' => $libro->titulo, 'tipo' => $tipo,'unidades' => $count];
         }  catch (Exception $e) {
             $success = $exception->getMessage();
         }
@@ -118,5 +121,27 @@ class CodeController extends Controller
     // DESCARGAR CODIGOS POR REMISION
     public function download_byremision($remisione_id){
         return Excel::download(new ByRemisionExport($remisione_id), 'rem-'.$remisione_id.'-codigos.xlsx');
+    }
+
+    public function by_libro_count(Request $request){
+        $count = Code::where('libro_id', $request->libro_id)
+                    ->where('estado', $request->estado)
+                    ->where('tipo', $request->tipo)->count();
+        return response()->json($count);
+    }
+
+    public function licencias_demos(){
+        $profesor = $this->group_count_codes('profesor');
+        $demo = $this->group_count_codes('demo');
+        return view('information.codes.lista', compact('profesor', 'demo'));
+    }
+
+    public function group_count_codes($tipo) {
+        return Code::select('libro_id', \DB::raw('COUNT(id) as inventario'))
+                    ->with('libro')
+                    ->where('estado', 'inventario')
+                    ->where('tipo', $tipo)
+                    ->groupBy('libro_id')
+                    ->get();
     }
 }

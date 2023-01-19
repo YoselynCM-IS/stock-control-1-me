@@ -110,6 +110,7 @@ return array(
     'App\\Mail\\movimientos\\LibrosDay' => $baseDir . '/app/Mail/movimientos/LibrosDay.php',
     'App\\Note' => $baseDir . '/app/Note.php',
     'App\\Notifications\\NewActNotification' => $baseDir . '/app/Notifications/NewActNotification.php',
+    'App\\Notifications\\NewPedClienteNotification' => $baseDir . '/app/Notifications/NewPedClienteNotification.php',
     'App\\Notifications\\RecordarActNotification' => $baseDir . '/app/Notifications/RecordarActNotification.php',
     'App\\Order' => $baseDir . '/app/Order.php',
     'App\\Paqueteria' => $baseDir . '/app/Paqueteria.php',

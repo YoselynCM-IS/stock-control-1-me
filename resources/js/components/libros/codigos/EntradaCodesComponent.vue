@@ -96,7 +96,7 @@ export default {
             stateE: null,
             fields: [
                 {key:'index', label:'N.'},
-                'libro', 'unidades',
+                'libro', 'unidades', 'tipo',
                 {key:'codes', label:'Códigos'},
             ],
             fieldsCodes: [

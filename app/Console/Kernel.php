@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('actividades:vencidos')->everyMinute();
         $schedule->command('actividades:pendprox')->hourly();
         $schedule->command('actividades:recordatorio')->everyTenMinutes();
+        $schedule->command('codes:baja')->daily();
         // ->twiceDaily(7, 19);
     }
 

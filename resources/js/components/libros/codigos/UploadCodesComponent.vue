@@ -17,6 +17,9 @@
                     </a>
                 </div>
             </b-form-group>
+            <b-form-group label="Tipo">
+                <b-form-select v-model="form.tipo" :options="options" required :disabled="load"></b-form-select>
+            </b-form-group>
             <input :disabled="load" type="file" required id="archivoType"
                 class="custom-file" v-on:change="fileChange">
             <label for="archivoType"><i class="fa fa-cloud-upload"></i>  Seleccionar archivo</label> <br>
@@ -52,9 +55,16 @@ export default {
             form: {
                 libro_id: null,
                 libro: null,
-                file: null
+                file: null,
+                tipo: null
             },
-            resultslibros: []
+            resultslibros: [],
+            options: [
+                { value: null, text: 'Selecciona una opción', disabled: true },
+                { value: 'alumno', text: 'alumno' },
+                { value: 'profesor', text: 'profesor' },
+                { value: 'demo', text: 'demo' }
+            ]
         }
     },
     methods: {
@@ -73,6 +83,7 @@ export default {
                 let formData = new FormData();
                 formData.append('libro_id', this.form.libro_id);
                 formData.append('file', this.form.file);
+                formData.append('tipo', this.form.tipo);
                 axios.post('/codes/upload', formData, { headers: { 'content-type': 'multipart/form-data' } })
                 .then(response => {
                     this.$emit('addListaLibros', response.data);

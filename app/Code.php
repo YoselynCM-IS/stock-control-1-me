@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Departure;
 use App\Registro;
 use App\Libro;
 use App\Dato;
@@ -31,5 +32,10 @@ class Code extends Model
     // Muchos a muchos
     public function registros(){
         return $this->belongsToMany(Registro::class)->withPivot('devolucion');
+    }
+
+    // Muchos a muchos
+    public function departures(){
+        return $this->belongsToMany(Departure::class);
     }
 }

@@ -19,7 +19,7 @@ class PromotionExport implements FromView
 
     public function view(): View
     {
-        $promotion = Promotion::whereId($this->id)->with('departures.libro')->first();
+        $promotion = Promotion::whereId($this->id)->with('departures.libro', 'departures.codes')->first();
         return view('download.excel.promotions.promotion', [
             'promotion' => $promotion
         ]);

@@ -165,7 +165,7 @@ class LibroController extends Controller
         $editorial = $request->editorial;
         if($editorial == 'OMEGA BOOK') $editorial = 'MAJESTIC EDUCATION';
         $libros = Libro::where('editorial', $editorial)
-                    ->whereNotIn('type', ['digital'])
+                    ->whereNotIn('type', [$request->typeNot])
                     ->where('titulo','like','%'.$request->titulo.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->get();
@@ -176,7 +176,7 @@ class LibroController extends Controller
         $editorial = $request->editorial;
         if($editorial == 'OMEGA BOOK') $editorial = 'MAJESTIC EDUCATION';
         $libros = Libro::where('editorial', $editorial)
-                    ->whereNotIn('type', ['digital'])
+                    ->whereNotIn('type', [$request->typeNot])
                     ->where('ISBN','like','%'.$request->isbn.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->get();

@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Promotion;
 use App\Libro;
+use App\Code;
 
 class Departure extends Model
 {
@@ -26,6 +27,11 @@ class Departure extends Model
     //Una salida solo puede tener un libro
     public function libro(){
         return $this->belongsTo(Libro::class);
+    }
+
+    // Muchos a muchos
+    public function codes(){
+        return $this->belongsToMany(Code::class);
     }
 
 }

@@ -12,6 +12,7 @@ use App\Departure;
 use Carbon\Carbon;
 use App\Reporte;
 use App\Libro;
+use App\Code;
 use Excel;
 use PDF;
 
@@ -47,7 +48,7 @@ class PromotionController extends Controller
     public function obtener_departures(){
         $promotion_id = Input::get('promotion_id');
         $promotion = Promotion::whereId($promotion_id)
-            ->with('departures.libro', 'prodevoluciones.libro')->first();
+            ->with('departures.libro', 'prodevoluciones.libro', 'departures.codes')->first();
         // $departures = Departure::where('promotion_id', $promotion_id)->with('libro')->get();
         return response()->json($promotion);
     }
@@ -70,6 +71,7 @@ class PromotionController extends Controller
             if($num >= 1000 && $num < 10000){
                 $folio = 'A-P'.$num;
             }
+            
             $promotion = Promotion::create([
                 'cliente_id' => $request->cliente_id,
                 'folio' => $folio,
@@ -79,24 +81,56 @@ class PromotionController extends Controller
                 'creado_por' => auth()->user()->name
             ]);
 
+            $lista_codes = collect();
             $unidades = 0;
             $departures = collect($request->departures);
-            $departures->map(function($departure) use($promotion, &$unidades){
+            $departures->map(function($departure) use(&$lista_codes, $promotion, &$unidades){
                 $u = (int) $departure['unidades'];
                 $libro_id = $departure['id'];
+                $type = $departure['type'];
                 $d = Departure::create([
                     'promotion_id' => $promotion->id,
                     'libro_id' => $libro_id,
                     'unidades' => $u,
                     'unidades_pendientes' => $u
                 ]);
+                
                 $libro = Libro::whereId($libro_id)->first();
-                $libro->update(['piezas' => $libro->piezas - $u]);
+                if($type != 'digital'){
+                    $libro->update(['piezas' => $libro->piezas - $u]);
+                }
+                if($type == 'digital'){
+                    $lista_codes->push([
+                        'departure_id'   => $d->id,
+                        'libro_id'  => $libro->id,
+                        'tipo' => $departure['tipo'],
+                        'unidades'  => $u
+                    ]);
+                }
+                
                 $unidades += $u;
-
                 $reporte = 'registro la salida (promoción) de '.$d->unidades.' unidades - '.$libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo.' para '.$d->promotion->folio.' / '.$d->promotion->plantel;
                 $this->create_report($d->id, $reporte, 'libro', 'departures');
             });
+
+            $lista_codes->map(function($lc) {
+                $codes = Code::where('libro_id', $lc['libro_id'])
+                                ->where('estado', 'inventario')
+                                ->where('tipo', $lc['tipo'])
+                                ->orderBy('created_at', 'asc')
+                                ->limit($lc['unidades'])
+                                ->get();
+
+                $code_departure = [];
+                $codes->map(function($code) use (&$code_departure){
+                    $code_departure[] = $code->id;
+                    $code->update(['estado' => 'ocupado']);
+                });
+    
+                $departure = Departure::find($lc['departure_id']);
+                $departure->codes()->sync($code_departure);
+            });
+            
             $promotion->update([
                 'unidades' => $unidades,
                 'unidades_pendientes' => $unidades
@@ -165,9 +199,17 @@ class PromotionController extends Controller
             $promotion = Promotion::find($request->promotion_id);
 
             $promotion->departures->map(function($departure){
-                \DB::table('libros')->whereId($departure->libro_id)
-                        ->increment('piezas', $departure->unidades);
-                        
+                if($departure->libro->type != 'digital'){
+                    \DB::table('libros')->whereId($departure->libro_id)->increment('piezas', $departure->unidades);
+                } 
+                if($departure->libro->type == 'digital'){
+                    // BORRAR CODIGOS
+                    $departure->codes->map(function($code){
+                        $code->update(['estado' => 'inventario']);
+                    });
+                    $departure->codes()->detach();
+                }
+                
                 $reporte = 'registro la cancelación (promoción) de '.$departure->unidades.' unidades - '.$departure->libro->editorial.': '.$departure->libro->type.' '.$departure->libro->ISBN.' / '.$departure->libro->titulo.' para '.$departure->promotion->folio.' / '.$departure->promotion->plantel;
                 $this->create_report($departure->id, $reporte, 'libro', 'departures');
             });

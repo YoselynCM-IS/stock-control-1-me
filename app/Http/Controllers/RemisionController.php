@@ -689,6 +689,7 @@ class RemisionController extends Controller
         $lista_codes->map(function($lc, $hoy){
             $codes = Code::where('libro_id', $lc['libro_id'])
                             ->where('estado', 'inventario')
+                            ->where('tipo', 'alumno')
                             ->orderBy('created_at', 'asc')
                             ->limit($lc['unidades'])
                             ->get();

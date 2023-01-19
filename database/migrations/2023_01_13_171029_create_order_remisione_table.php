@@ -13,14 +13,14 @@ class CreateOrderRemisioneTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_remisione', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('order_id');
-            $table->unsignedBigInteger('remisione_id');
-            $table->foreign('order_id')->references('id')->on('orders');
-            $table->foreign('remisione_id')->references('id')->on('remisiones');
-            $table->timestamps();
-        });
+        // Schema::create('order_remisione', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('order_id');
+        //     $table->unsignedBigInteger('remisione_id');
+        //     $table->foreign('order_id')->references('id')->on('orders');
+        //     $table->foreign('remisione_id')->references('id')->on('remisiones');
+        //     $table->timestamps();
+        // });
     }
 
     /**

@@ -335,7 +335,7 @@ export default {
         },
         buscarLibroISBN(){
             if(this.temporal.isbn.length > 0){
-                axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.isbn, editorial: this.form.editorial}}).then(response => {
+                axios.get('/libro/by_editorial_type_isbn', {params: {isbn: this.temporal.isbn, editorial: this.form.editorial, typeNot: 'digital'}}).then(response => {
                     this.resultsISBNS = response.data;
                 }).catch(error => {
                     this.makeToast('warning', 'ISBN es incorrecto o pertenece a otra editorial.');
@@ -354,7 +354,7 @@ export default {
         },
         mostrarLibros(){
             if(this.temporal.titulo.length > 0){ 
-                axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: this.form.editorial}}).then(response => {
+                axios.get('/libro/by_editorial_type_titulo', {params: {titulo: this.temporal.titulo, editorial: this.form.editorial, typeNot: 'digital'}}).then(response => {
                     this.resultslibros = response.data;
                 }).catch(error => {
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');

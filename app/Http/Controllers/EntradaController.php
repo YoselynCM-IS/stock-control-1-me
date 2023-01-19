@@ -209,9 +209,11 @@ class EntradaController extends Controller
 
                 $registro->codes()->sync($code_registro);
     
-                // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
-                \DB::table('libros')->whereId($libro_id)
-                    ->increment('piezas', $unidades_base);
+                if($item->tipo == 'alumno'){
+                    // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
+                    \DB::table('libros')->whereId($libro_id)
+                        ->increment('piezas', $unidades_base);
+                }
             });
 
             $reporte = 'creo la entrada de códigos '.$entrada->folio.' de '.$entrada->editorial;

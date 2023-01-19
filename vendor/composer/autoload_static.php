@@ -715,6 +715,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Mail\\movimientos\\LibrosDay' => __DIR__ . '/../..' . '/app/Mail/movimientos/LibrosDay.php',
         'App\\Note' => __DIR__ . '/../..' . '/app/Note.php',
         'App\\Notifications\\NewActNotification' => __DIR__ . '/../..' . '/app/Notifications/NewActNotification.php',
+        'App\\Notifications\\NewPedClienteNotification' => __DIR__ . '/../..' . '/app/Notifications/NewPedClienteNotification.php',
         'App\\Notifications\\RecordarActNotification' => __DIR__ . '/../..' . '/app/Notifications/RecordarActNotification.php',
         'App\\Order' => __DIR__ . '/../..' . '/app/Order.php',
         'App\\Paqueteria' => __DIR__ . '/../..' . '/app/Paqueteria.php',

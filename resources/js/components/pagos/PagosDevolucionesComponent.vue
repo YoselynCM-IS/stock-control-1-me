@@ -706,10 +706,10 @@
                 if(devolucion.unidades_base >= 0){
                     if(devolucion.unidades_base <= devolucion.unidades_resta){
                         this.devoluciones[i].total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
-                        if(i + 1 < this.devoluciones.length){
-                            document.getElementById('inpDev-'+(i+1)).focus();
-                            document.getElementById('inpDev-'+(i+1)).select();
-                        }
+                        // if(i + 1 < this.devoluciones.length){
+                        //     document.getElementById('inpDev-'+(i+1)).focus();
+                        //     document.getElementById('inpDev-'+(i+1)).select();
+                        // }
                     }
                     else{
                         this.item = devolucion.id;
