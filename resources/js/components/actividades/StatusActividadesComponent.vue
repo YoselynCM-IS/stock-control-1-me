@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-row>
-            <b-col><h4>Actividades completadas</h4></b-col>
+            <b-col><h4>Actividades - Estado: {{status}}</h4></b-col>
             <b-col sm="2">
                 <b-button variant="secondary" pill :href="`/information/actividades/lista`">
                     <i class="fa fa-arrow-left"></i> Regresar

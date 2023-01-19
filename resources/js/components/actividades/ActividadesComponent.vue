@@ -17,13 +17,19 @@
                     </a>
                 </div>
             </b-col> -->
-            <b-col sm="7"></b-col>
-            <b-col sm="5">
+            <b-col sm="5"></b-col>
+            <b-col sm="7">
                 <b-row>
                     <b-col>
                         <b-button variant="dark" pill block 
-                            :disabled="load" @click="getCompleted()">
+                            :disabled="load" @click="getCompleted('completado')">
                             <i class="fa fa-check-square-o"></i> Completadas
+                        </b-button>
+                    </b-col>
+                    <b-col>
+                        <b-button variant="danger" pill block 
+                            :disabled="load" @click="getCompleted('cancelado')">
+                            <i class="fa fa-close"></i> Canceladas
                         </b-button>
                     </b-col>
                     <!-- <b-col>
@@ -165,10 +171,8 @@ export default {
         updatedActEstado(){
             this.http_byusertipoestado();
         },
-        getCompleted(){
-            this.queryEstado = 'completado';
-            // this.http_bytipoestado();
-            location.href = `/information/actividades/get_status/${this.queryEstado}`;
+        getCompleted(status){
+            location.href = `/information/actividades/get_status/${status}`;
         },
         get_by_tipocliente(){
             location.href = `/information/actividades/lista`;
