@@ -165,8 +165,8 @@ class ClienteController extends Controller
         $this->validate($request, [
             'name' => 'min:3|max:100|required|string|unique:clientes',
             'email' => 'min:8|max:50|required|email',
-            'telefono' => 'required|numeric|max:9999999999|min:1000000',
-            'tel_oficina' => 'required|numeric|max:9999999999|min:1000000'
+            'telefono' => 'required|numeric|max:999999999999999|min:1000000',
+            'tel_oficina' => 'required|numeric|max:999999999999999|min:1000000'
         ]);
         \DB::beginTransaction();
         try {
@@ -196,7 +196,7 @@ class ClienteController extends Controller
         $this->validate($request, [
             'name' => 'min:3|max:100|required|string|unique:clientes',
             'email' => 'min:8|max:50|required|email',
-            'telefono' => 'required|numeric|max:9999999999|min:1000000',
+            'telefono' => 'required|numeric|max:999999999999999|min:1000000',
             'direccion' => 'min:3|max:250|required|string',
             'condiciones_pago' => 'min:3|max:150|required|string',
             'rfc' => 'min:3|max:50|required|string',
