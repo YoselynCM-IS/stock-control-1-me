@@ -30,7 +30,7 @@
             <b-col>{{ actividad.fecha | moment }}</b-col>
         </b-row>
         <b-row class="mb-2">
-            <b-col sm="3" class="text-right"><label><b>Recordatorio antes de</b></label></b-col>
+            <b-col sm="3" class="text-right"><label><b>Recordatorio</b></label></b-col>
             <b-col>{{ actividad.recordatorio | moment }}</b-col>
         </b-row>
         <b-row class="mb-2">

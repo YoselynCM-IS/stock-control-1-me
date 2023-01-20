@@ -41,6 +41,7 @@
                         <b-dropdown variant="dark">
                             <b-dropdown-item @click="showLibros(row.item)">Libros</b-dropdown-item>
                             <b-dropdown-item @click="addRegistro(row.item)">Registro</b-dropdown-item>
+                            <b-dropdown-item @click="showSeguimiento(row.item)">Seguimiento</b-dropdown-item>
                         </b-dropdown>
                     </template>
                 </b-table>
@@ -130,16 +131,20 @@
             <new-client-component :form="form" :edit="true" @actualizarClientes="actClientes"></new-client-component>
         </b-modal>
         <!-- MODAL PARA RELACIONAR LIBROS VENDIDOS A ESE CLIENTE -->
-        <b-modal id="modal-showLibros" title="Libros" hide-footer size="xl">
+        <b-modal id="modal-showLibros" :title="`${cliente_name} - Libros`" hide-footer size="xl">
             <libros-cliente-component :cliente_id="cliente_id" :role_id="role_id"></libros-cliente-component>
         </b-modal>
         <!-- MODAL PARA REGISTRAR LLAMADA DEL CLIENTE -->
-        <b-modal id="modal-addRegistro" title="Agregar registro" hide-footer size="lg">
+        <b-modal id="modal-addRegistro" :title="`${cliente_name} - Agregar registro`" hide-footer size="lg">
             <register-component :cliente_id="cliente_id" @addedSeguimiento="addedSeguimiento"></register-component>
         </b-modal>
         <!-- MODAL PARA REGISTRAR PROSPECTO -->
         <b-modal id="modal-nuevoProspecto" title="Agregar prospecto" hide-footer size="lg">
             <new-prospecto @agregadoProspecto="agregadoProspecto"></new-prospecto>
+        </b-modal>
+        <!-- MODAL PARA MOSTRAR SEGUIMIENTOS -->
+        <b-modal id="modal-showseguimiento" :title="`${cliente_name} - Seguimiento`" hide-footer size="xl">
+            <seguimientos-component :cliente_id="cliente_id"></seguimientos-component>
         </b-modal>
     </div>
 </template>
@@ -153,10 +158,11 @@ import getClientes from '../../../mixins/getClientes';
 import AddDescarga from './AddDescarga.vue';
 import NewProspecto from './NewProspecto.vue';
 import RegisterComponent from './RegisterComponent.vue';
+import SeguimientosComponent from './SeguimientosComponent.vue';
 export default {
     props: ['fields', 'role_id', 'addCliente'],
     mixins: [getClientes],
-    components: {NoRegistrosComponent, LoadComponent, NewClientComponent, LibrosClienteComponent, AddDescarga, NewProspecto, RegisterComponent},
+    components: {NoRegistrosComponent, LoadComponent, NewClientComponent, LibrosClienteComponent, AddDescarga, NewProspecto, RegisterComponent, SeguimientosComponent},
     data() {
         return {
             posicion: null,
@@ -164,6 +170,7 @@ export default {
             loadDetails: false,
             datosCliente: {},
             cliente_id: null,
+            cliente_name: null,
             queryCliente: null,
         }
     },
@@ -216,8 +223,9 @@ export default {
             });
         },
         showLibros(cliente){
-            this.$bvModal.show('modal-showLibros');
+            this.cliente_name = cliente.name;
             this.cliente_id = cliente.id;
+            this.$bvModal.show('modal-showLibros');
         },
         actClientes(cliente){
             this.$bvModal.hide('modal-editarCliente');
@@ -225,8 +233,9 @@ export default {
                 .then((value) => { location.reload(); });
         },
         addRegistro(cliente){
-            this.$bvModal.show('modal-addRegistro');
+            this.cliente_name = cliente.name;
             this.cliente_id = cliente.id;
+            this.$bvModal.show('modal-addRegistro');
         },
         addedSeguimiento(){
             this.$bvModal.hide('modal-addRegistro');
@@ -239,6 +248,11 @@ export default {
             this.$bvModal.hide('modal-nuevoProspecto');
             swal("OK", "El cliente prospecto se agrego correctamente.", "success")
                 .then((value) => { location.reload(); });
+        },
+        showSeguimiento(cliente){
+            this.cliente_name = cliente.name;
+            this.cliente_id = cliente.id;
+            this.$bvModal.show('modal-showseguimiento');
         }
     }
 

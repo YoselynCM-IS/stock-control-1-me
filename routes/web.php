@@ -540,7 +540,8 @@ Route::name('clientes.')->prefix('clientes')->group(function () {
     Route::get('/get_destinatarios', 'ClienteController@get_destinatarios')->name('get_destinatarios');// Guardar libro relacionado al cliente
     
     Route::post('/save_seguimiento', 'ClienteController@save_seguimiento')->name('save_seguimiento'); 
-    
+    // Obtener seguimiento de clientes
+    Route::get('/get_seguimiento', 'ClienteController@get_seguimiento')->name('get_seguimiento');
 });
 
 // MANAGER

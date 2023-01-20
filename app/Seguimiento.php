@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Cliente;
+use App\User;
 
 class Seguimiento extends Model
 {
@@ -11,5 +12,9 @@ class Seguimiento extends Model
 
     public function cliente(){
         return $this->belongsTo(Cliente::class);
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class);
     }
 }

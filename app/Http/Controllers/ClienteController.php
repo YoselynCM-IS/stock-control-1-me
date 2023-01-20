@@ -338,4 +338,10 @@ class ClienteController extends Controller
         }
         return response()->json(true);
     }
+
+    public function get_seguimiento(Request $request){
+        $seguimientos = Seguimiento::where('cliente_id', $request->cliente_id)
+                            ->with('user')->orderBy('created_at', 'desc')->get();
+        return response()->json($seguimientos);
+    }
 }
