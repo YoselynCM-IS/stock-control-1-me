@@ -10,6 +10,9 @@
                         <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
                     </pagination>
                 </b-col>
+                <b-col>
+                    <search-select-cliente-component :load="load" @sendCliente="sendCliente"></search-select-cliente-component>
+                </b-col>
                 <b-col sm="2" class="text-right">
                     <b-button v-if="role_id == 5 || role_id == 6 || role_id == 7"
                         variant="success" pill @click="newPedido()" 
@@ -57,11 +60,12 @@
 </template>
 
 <script>
+import SearchSelectClienteComponent from '../funciones/SearchSelectClienteComponent.vue';
 import NewPedidoComponent from './NewPedidoComponent.vue';
 import EstadoPedido from './partials/EstadoPedido.vue';
 export default {
     props: ['role_id'],
-  components: { NewPedidoComponent, EstadoPedido },
+  components: { NewPedidoComponent, EstadoPedido, SearchSelectClienteComponent },
     data(){
         return {
             load: false,
@@ -75,7 +79,8 @@ export default {
                 {key: 'created_at', label: 'Creado el'},
                 {key: 'details', label: 'Detalles'},
                 {key: 'estado', label: 'Estado'}
-            ]
+            ],
+            cliente_id: null
         }
     },
     created: function(){
@@ -83,7 +88,8 @@ export default {
     },
     methods: {
         getResults(page = 1){
-            this.http_pedidos(page);
+            if(this.cliente_id == null) this.http_pedidos(page);
+            else this.http_bycliente(page);
         },
         http_pedidos(page = 1){
             this.load = true;
@@ -104,6 +110,19 @@ export default {
             if (item.estado == 'de inventario') return 'table-success';
             if (item.estado == 'en orden') return 'table-primary';
         },
+        sendCliente(cliente){
+            this.cliente_id = cliente.id;
+            this.http_bycliente();
+        },
+        http_bycliente(page = 1){
+            this.load = true;
+            axios.get(`/pedido/by_cliente?page=${page}`, {params: {cliente_id: this.cliente_id}}).then(response => {
+                this.pedidos = response.data;
+                this.load = false;
+            }).catch(error => {
+                this.load = true;
+            });
+        }
     }
 }
 </script>

@@ -9,11 +9,14 @@
                         <span slot="next-nav"><i class="fa fa-angle-right"></i></span>
                     </pagination>
                 </b-col>
-                <b-col sm="4">
+                <b-col>
                     <label><b>Buscar por proveedor</b></label>
                     <b-form-select v-model="provider" :options="options" 
-                        @change="change_provider()" :disabled="load">
+                        @change="http_byprovider()" :disabled="load">
                     </b-form-select>
+                </b-col>
+                <b-col>
+                    <search-select-cliente-component :titulo="'Buscar por cliente'" :load="load" @sendCliente="sendCliente"></search-select-cliente-component>
                 </b-col>
                 <b-col sm="2">
                     <b-button v-if="role_id == 1 || role_id == 2 || role_id == 6"
@@ -82,8 +85,9 @@ import getEditoriales from '../../mixins/getEditoriales';
 import formatNumber from '../../mixins/formatNumber';
 import moment from '../../mixins/moment';
 import NewOrderComponent from './NewOrderComponent.vue';
+import SearchSelectClienteComponent from '../funciones/SearchSelectClienteComponent.vue';
     export default {
-        components: { EstadoOrder, NewOrderComponent },
+        components: { EstadoOrder, NewOrderComponent, SearchSelectClienteComponent },
         mixins: [formatNumber, moment, getEditoriales],
         props: ['role_id'],
         data(){
@@ -103,7 +107,8 @@ import NewOrderComponent from './NewOrderComponent.vue';
                 load: false,
                 pedidosData: {},
                 searchProveedor: false,
-                openPedido: false
+                openPedido: false,
+                cliente_id: null
             }
         },
         created: function(){
@@ -115,10 +120,15 @@ import NewOrderComponent from './NewOrderComponent.vue';
                 this.openPedido = true;
             },
             getResults(page = 1){
-                if(!this.searchProveedor)
+                if(!this.searchProveedor && this.cliente_id == null){
                     this.http_pedidos(page);
-                if(this.searchProveedor)
-                    this.change_provider(page);
+                }
+                if(this.searchProveedor){
+                    this.http_byprovider(page);
+                }
+                if(this.cliente_id != null){
+                    this.http_bycliente(page);
+                }
             },
             http_pedidos(page){
                 this.load = true;
@@ -131,18 +141,34 @@ import NewOrderComponent from './NewOrderComponent.vue';
                     this.load = false;
                 });
             },
-            change_provider(page = 1){
+            http_byprovider(page = 1){
                 this.load = true;
+                this.searchProveedor = true;
+                this.cliente_id = null;
                 axios.get(`/pedido/by_provider?page=${page}`, {params: {provider: this.provider}}).then(response => {
                     this.pedidos = response.data.data;
                     this.pedidosData = response.data;
-                    this.searchProveedor = true;
                     this.load = false;
                 }).catch(error => {
                     this.load = false;
                 });
             },
-            
+            sendCliente(cliente){
+                this.cliente_id = cliente.id;
+                this.searchProveedor = false;
+                this.provider = null;
+                this.http_bycliente();
+            },
+            http_bycliente(page = 1){
+                this.load = true;
+                axios.get(`/order/by_cliente?page=${page}`, {params: {cliente_id: this.cliente_id}}).then(response => {
+                    this.pedidosData = response.data; 
+                    this.pedidos = response.data.data;
+                    this.load = false;   
+                }).catch(error => {
+                    this.load = false;
+                });
+            }
         }
     }
 </script>

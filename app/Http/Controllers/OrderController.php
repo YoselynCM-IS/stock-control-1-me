@@ -28,6 +28,12 @@ class OrderController extends Controller
         return response()->json($pedidos);
     }
 
+    public function by_cliente(Request $request){
+        $orders = Order::where('cliente_id', $request->cliente_id)
+                    ->orderBy('created_at', 'desc')->paginate(20);
+        return response()->json($orders);
+    }
+
     // DETALLES DEL PEDIDO
     public function show($order_id){
         $order = Order::whereId($order_id)->with('elements.libro')

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form-group label="PARA:" label-class="font-weight-bold">
+        <b-form-group :label="titulo" label-class="font-weight-bold">
             <b-input v-model="queryCliente" @keyup="mostrarClientes()" autofocus
                 style="text-transform:uppercase;" :disabled="load" required
                 placeholder="BUSCAR CLIENTE">
@@ -18,7 +18,7 @@
 <script>
 import searchCliente from '../../mixins/searchCliente';
 export default {
-    props: ['load'],
+    props: ['load', 'titulo'],
     mixins: [searchCliente],
     methods: {
         selectCliente(cliente){

@@ -249,4 +249,10 @@ class PedidoController extends Controller
             'id_table' => $pedido_id
         ]);
     }
+
+    public function by_cliente(Request $request){
+        $pedidos = Pedido::where('cliente_id', $request->cliente_id)->orderBy('created_at', 'desc')
+                    ->with('user', 'cliente')->paginate(20);
+        return response()->json($pedidos);
+    }
 }
