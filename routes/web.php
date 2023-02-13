@@ -100,6 +100,7 @@ Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])
     Route::get('/pedidos', 'AlmacenController@pedidos')->name('pedidos');
     Route::get('/donaciones', 'AlmacenController@donaciones')->name('donaciones');
     Route::get('/movimientos', 'AlmacenController@movimientos')->name('movimientos');
+    Route::get('/entradas-salidas', 'AlmacenController@entradas_salidas')->name('entradas-salidas');
 });
 
 //CLIENTES

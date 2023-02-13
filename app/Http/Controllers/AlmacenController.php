@@ -54,4 +54,8 @@ class AlmacenController extends Controller
         $editoriales = \DB::table('editoriales')->orderBy('editorial', 'asc')->get();
         return view('almacen.movimientos', compact('editoriales'));
     }
+
+    public function entradas_salidas(){
+        return view('almacen.entradas-salidas');
+    }
 }

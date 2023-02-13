@@ -13,4 +13,7 @@
 <li>
 	<a class="nav-link" href="{{ route('almacen.libros') }}">{{ __("Libros") }}</a>
 </li>
+<li>
+	<a class="nav-link" href="{{ route('almacen.entradas-salidas') }}">{{ __("Entradas / Salidas") }}</a>
+</li>
 @include('partials.navigations.logged')
