@@ -66,7 +66,7 @@
             </b-col>
             <b-col sm="2" class="text-right">
                 <!-- AGREGAR UN NUEVO LIBRO -->
-                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6"
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6"
                     variant="success" pill block v-b-modal.modal-newLibro>
                     <i class="fa fa-plus"></i> Nuevo libro
                 </b-button>

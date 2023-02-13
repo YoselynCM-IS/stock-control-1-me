@@ -219,7 +219,7 @@ class LibroController extends Controller
 
             $libro = Libro::create($datos);
 
-            if($editorial == 'MAJESTIC EDUCATION'){
+            if($editorial == 'MAJESTIC EDUCATION' && $request->type != 'digital'){
                 \DB::connection('majesticeducation')->table('libros')
                     ->insert($datos);
             }
