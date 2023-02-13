@@ -86,11 +86,12 @@
                     {{ data.item.defectuosos | formatNumber }}
                 </template>
                 <template v-slot:cell(accion)="data">
+                    <b-button v-if="role_id == 6 || role_id == 1"
+                        style="color:white;" variant="warning" pill size="sm"
+                        v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
+                        <i class="fa fa-pencil"></i>
+                    </b-button>
                     <div v-if="role_id == 6">
-                        <b-button style="color:white;" variant="warning" pill size="sm"
-                            v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
-                            <i class="fa fa-pencil"></i>
-                        </b-button>
                         <b-button variant="danger" pill @click="inactivarLibro(data.item)"
                              size="sm">
                             <i class="fa fa-close"></i>
