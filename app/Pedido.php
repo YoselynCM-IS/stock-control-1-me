@@ -14,6 +14,7 @@ class Pedido extends Model
         'user_id',
         'cliente_id', 
         'total_quantity',
+        'total',
         'total_solicitar',
         'estado',
         'comentarios'

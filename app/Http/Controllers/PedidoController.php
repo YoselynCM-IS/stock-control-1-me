@@ -48,7 +48,8 @@ class PedidoController extends Controller
             $pedido = Pedido::create([
                 'user_id' => auth()->user()->id,
                 'cliente_id' => $request->cliente_id, 
-                'total_quantity' => $request->total_quantity
+                'total_quantity' => (int) $request->total_quantity,
+                'total' => (double) $request->total
             ]);
             
             $peticiones = collect($request->libros);
@@ -56,7 +57,9 @@ class PedidoController extends Controller
                 Peticione::create([
                     'pedido_id' => $pedido->id,
                     'libro_id' => $peticione['libro']['id'], 
-                    'quantity' => (int) $peticione['quantity']
+                    'quantity' => (int) $peticione['quantity'],
+                    'price' => (float) $peticione['price'],
+                    'total' => (double) $peticione['total']
                 ]);
             });
 

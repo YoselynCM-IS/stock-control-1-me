@@ -20,7 +20,7 @@ class OrderController extends Controller
     public function index(){
         $ps = Order::orderBy('created_at', 'desc');
         if(auth()->user()->role_id == 3){
-            $pedidos = $ps->where('total_bill', '>', 0)->paginate(20);
+            $pedidos = $ps->where('status', 'espera')->paginate(20);
         } else {
             $pedidos = $ps->paginate(20);
         }
@@ -36,7 +36,7 @@ class OrderController extends Controller
 
     // DETALLES DEL PEDIDO
     public function show($order_id){
-        $order = Order::whereId($order_id)->with('elements.libro')
+        $order = Order::whereId($order_id)->with('elements.libro', 'remisiones.cliente')
                     ->withCount('remisiones')->first();
         return view('information.orders.details-order', compact('order'));
     }
@@ -47,10 +47,29 @@ class OrderController extends Controller
         \DB::beginTransaction();
         try{
             $status = $request->status;
-            $order->update([
-                'status' => $status,
-                'observations' => $order->observations.'<br>'.$request->observations
-            ]);
+            if($status == 'espera'){
+                $order->update(['status' => $status]);
+            } else {
+                $actual_total_bill = 0;
+                if($status == 'incompleto'){
+                    $elements = collect($request->elements);
+                    $elements->map(function($e) use (&$actual_total_bill){
+                        $element = Element::find($e['id']);
+                        $aq = (int) $e['actual_quantity'];
+                        $at = $aq * $element->unit_price;
+                        $element->update([
+                            'actual_quantity' => $aq,
+                            'actual_total' => $at
+                        ]);
+                        $actual_total_bill += $at;
+                    });
+                }
+                $order->update([
+                    'status' => $status,
+                    'observations' => $order->observations.'<br>'.$request->observations,
+                    'actual_total_bill' => $actual_total_bill
+                ]);
+            }
 
             $reporte = 'actualizo el estado de un pedido al proveedor '.$order->provider.' PEDIDO: '.$order->identifier.' / '.$status;
             $this->create_report($order->id, $reporte);
@@ -93,7 +112,8 @@ class OrderController extends Controller
 
             $order = Order::find($request->id);
             $order->update([
-                'total_bill' => $request->total_bill
+                'total_bill' => $request->total_bill,
+                'status' => 'espera'
             ]);
 
             $reporte = 'registro los costos del pedido al proveedor '.$order->provider.' PEDIDO: '.$order->identifier;
@@ -133,6 +153,7 @@ class OrderController extends Controller
                 'identifier' => $identifier,
                 'date' => $fecha_actual->format('Y-m-d'),
                 'provider' => $editorial,
+                'total_bill' => (double) $request->total_bill,
                 'creado_por' => auth()->user()->name
             ]);
 
@@ -140,7 +161,9 @@ class OrderController extends Controller
                 $element = Element::create([
                     'order_id' => $order->id,
                     'libro_id' => $libro['libro']['id'],
-                    'quantity' => (int) $libro['quantity']
+                    'quantity' => (int) $libro['quantity'],
+                    'unit_price' => (float) $libro['price'],
+                    'total' => (double) $libro['total']
                 ]);
             });
 

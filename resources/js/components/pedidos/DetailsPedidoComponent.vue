@@ -35,10 +35,21 @@
             <template v-slot:cell(index)="row">
                 {{ row.index + 1 }}
             </template>
+            <template v-slot:cell(quantity)="row">
+                {{ row.item.quantity | formatNumber }}
+            </template>
+            <template v-slot:cell(price)="row">
+                ${{ row.item.price | formatNumber }}
+            </template>
+            <template v-slot:cell(total)="row">
+                ${{ row.item.total | formatNumber }}
+            </template>
             <template #thead-top="row">
                 <tr>
                     <th colspan="3"></th>
-                    <th>{{ pedido.total_quantity }}</th>
+                    <th>{{ pedido.total_quantity | formatNumber }}</th>
+                    <th></th>
+                    <th>${{ pedido.total | formatNumber }}</th>
                 </tr>
             </template>
         </b-table>
@@ -74,8 +85,10 @@
 <script>
 import DatosPedido from './partials/DatosPedido.vue'
 import EstadoPedido from './partials/EstadoPedido.vue';
+import formatNumber from '../../mixins/formatNumber';
 export default {
     components: { DatosPedido, EstadoPedido },
+    mixins: [formatNumber],
     props: ['pedido', 'role_id'],
     data(){
         return {
@@ -83,7 +96,9 @@ export default {
                 {key: 'index', label: 'N.'},
                 {key: 'libro.ISBN', label: 'ISBN'},
                 {key: 'libro.titulo', label: 'Titulo'},
-                {key: 'quantity', label: 'Unidades'}
+                {key: 'quantity', label: 'Unidades'},
+                {key: 'price', label: 'Precio'},
+                {key: 'total', label: 'Total'}
             ],
             load: false
         }

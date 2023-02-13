@@ -32,6 +32,15 @@
                     v-model="row.item.solicitar" :disabled="load"
                     @change="guardarSolicitar(row.item, row.index)"/>
             </template>
+            <template v-slot:cell(quantity)="row">
+                {{ row.item.quantity | formatNumber }}
+            </template>
+            <template v-slot:cell(existencia)="row">
+                {{ row.item.existencia | formatNumber }}
+            </template>
+            <template v-slot:cell(faltante)="row">
+                {{ row.item.faltante | formatNumber }}
+            </template>
             <template #thead-top="row">
                 <b-tr>
                     <b-th colspan="3"></b-th>
@@ -39,9 +48,9 @@
                 </b-tr>
                 <b-tr>
                     <b-th colspan="3"></b-th>
-                    <b-th>{{ pedido.total_quantity }}</b-th>
+                    <b-th>{{ pedido.total_quantity | formatNumber }}</b-th>
                     <b-th colspan="2"></b-th>
-                    <b-th>{{ total_solicitar }}</b-th>
+                    <b-th>{{ total_solicitar | formatNumber }}</b-th>
                 </b-tr>
             </template>
         </b-table>
@@ -51,9 +60,10 @@
 <script>
 import DatosPedido from './partials/DatosPedido.vue'
 import toast from '../../mixins/toast';
+import formatNumber from '../../mixins/formatNumber';
 export default {
     components: { DatosPedido },
-    mixins: [toast],
+    mixins: [toast, formatNumber],
     props: ['pedido'],
     data(){
         return {

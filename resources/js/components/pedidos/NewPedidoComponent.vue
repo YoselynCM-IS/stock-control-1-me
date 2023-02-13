@@ -26,6 +26,7 @@ export default {
             form: {
                 cliente_id: null,
                 total_quantity: 0,
+                total: 0,
                 libros: []
             },
             load: false,
@@ -47,6 +48,7 @@ export default {
         },
         sendPedidos(form){
             this.form.total_quantity = form.total_quantity;
+            this.form.total = form.total;
             this.form.libros = form.libros;
         }
     }

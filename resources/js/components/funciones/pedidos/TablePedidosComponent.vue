@@ -7,6 +7,12 @@
             <template v-slot:cell(quantity)="data">
                 {{ data.item.quantity | formatNumber }}
             </template>
+            <template v-slot:cell(price)="data">
+                ${{ data.item.price | formatNumber }}
+            </template>
+            <template v-slot:cell(total)="data">
+                ${{ data.item.total | formatNumber }}
+            </template>
             <template v-slot:cell(edit)="data">
                 <b-button variant="warning" pill @click="edit_register(data.item, data.index)"
                     :disabled="load">
@@ -24,6 +30,8 @@
                     <th>ISBN</th>
                     <th>Titulo</th>
                     <th>Cantidad</th>
+                    <th>Precio</th>
+                    <th></th>
                     <th></th>
                 </tr>
                 <tr>
@@ -63,6 +71,10 @@
                         <b-input required type="number" v-model="registro.quantity" :disabled="load"></b-input>
                     </th>
                     <th>
+                        <b-input required type="number" v-model="registro.price" :disabled="load"></b-input>
+                    </th>
+                    <th></th>
+                    <th>
                         <b-button variant="success" pill size="sm" 
                             :disabled="(load || registro.libro.id == null)" 
                             @click="save_register()">
@@ -71,10 +83,13 @@
                     </th>
                 </tr>
                 <tr class="mt-5">
-                    <th colspan="2"></th>
-                    <th class="text-right"><b>Total unidades</b></th>
+                    <th colspan="3"></th>
                     <th>
                         <b>{{ form.total_quantity | formatNumber }}</b>
+                    </th>
+                    <th></th>
+                    <th>
+                        <b>${{ form.total | formatNumber }}</b>
                     </th>
                     <th></th>
                 </tr>
@@ -94,6 +109,7 @@ export default {
         return {
             form: {
                 total_quantity: 0,
+                total: 0,
                 libros: []
             },
             fields: [
@@ -101,13 +117,17 @@ export default {
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
                 {label: 'Cantidad', key: 'quantity'},
+                {label: 'Precio', key: 'price'},
+                {label: 'Total', key: 'total'},
                 {label: '', key: 'edit'}
             ],
             editar2: false,
             position: null,
             registro: {
                 libro: { id: null, ISBN: '', titulo: ''},
-                quantity: 0
+                quantity: 0,
+                price: 0,
+                total: 0
             },
             queryTitulo: null
         }
@@ -120,6 +140,8 @@ export default {
         },
         edit_register(register, index){
             this.registro.quantity = register.quantity;
+            this.registro.price = register.price;
+            this.registro.total = register.total;
             this.assign_datos(register.libro);
             this.position = index;
             this.editar2 = true;
@@ -127,15 +149,19 @@ export default {
         delete_register(register, index){
             this.form.libros.splice(index, 1);
             this.form.total_quantity = this.form.total_quantity - register.quantity;
+            this.form.total = this.form.total - register.total;
             this.inicializar_registro();
             this.$emit('sendPedidos', this.form);
         },
         save_register(){
-            if(this.registro.libro.id != null && this.registro.quantity > 0){
+            if(this.registro.libro.id != null && this.registro.quantity > 0 && parseFloat(this.registro.price) >= 0){
+                this.registro.total = parseInt(this.registro.quantity) * parseFloat(this.registro.price);
                 if(!this.editar2){
                     this.form.libros.push(this.registro);
                 } else{
                     this.form.libros[this.position].quantity = this.registro.quantity;
+                    this.form.libros[this.position].price = this.registro.price;
+                    this.form.libros[this.position].total = this.registro.total;
                     this.form.libros[this.position].libro.id = this.registro.libro.id;
                     this.form.libros[this.position].libro.ISBN = this.registro.libro.ISBN;
                     this.form.libros[this.position].libro.titulo = this.registro.libro.titulo;
@@ -143,19 +169,20 @@ export default {
                 this.inicializar_registro();
 
                 this.form.total_quantity = 0;
+                this.form.total = 0;
                 this.form.libros.forEach(registro => {
                     this.form.total_quantity += parseInt(registro.quantity);
+                    this.form.total += parseFloat(registro.total);
                 });
             } else {
-                this.makeToast('warning', 'Las unidades deben ser mayor a 0');
-                this.form.total_quantity = 0;
+                this.makeToast('warning', 'Las unidades deben ser mayor a 0 y el precio igual o mayor a 0');
             }
             this.$emit('sendPedidos', this.form);
         },
         inicializar_registro(){
             this.registro = { 
                 libro: { id: null, ISBN: '', titulo: ''},
-                quantity: 0,
+                quantity: 0, price: 0, total: 0
             };
             this.queryISBN = null;
             this.queryTitulo = null;

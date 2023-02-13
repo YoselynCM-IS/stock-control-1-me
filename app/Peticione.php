@@ -11,6 +11,8 @@ class Peticione extends Model
         'pedido_id',
         'libro_id', 
         'quantity',
+        'price',
+        'total',
         'existencia',
         'faltante',
         'solicitar'

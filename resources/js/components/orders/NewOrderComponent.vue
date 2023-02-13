@@ -36,6 +36,7 @@ export default {
                 editorial: null,
                 cliente_id: null,
                 cliente_name: null,
+                total_bill: 0,
                 libros: []
             }
         }
@@ -50,6 +51,7 @@ export default {
         },
         sendPedidos(form){
             this.form.libros = form.libros;
+            this.form.total_bill = form.total;
         },
         save_pedido(){
             this.load = true;

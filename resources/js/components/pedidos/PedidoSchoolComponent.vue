@@ -28,6 +28,12 @@
                     <template v-slot:cell(index)="row">
                         {{ row.index + 1 }}
                     </template>
+                    <template v-slot:cell(total_quantity)="row">
+                        {{ row.item.total_quantity |formatNumber }}
+                    </template>
+                    <template v-slot:cell(total)="row">
+                        ${{ row.item.total |formatNumber }}
+                    </template>
                     <template v-slot:cell(estado)="row">
                         <estado-pedido :id="row.item.id" :comentarios="row.item.comentarios" :estado="row.item.estado"></estado-pedido>
                     </template>
@@ -63,9 +69,11 @@
 import SearchSelectClienteComponent from '../funciones/SearchSelectClienteComponent.vue';
 import NewPedidoComponent from './NewPedidoComponent.vue';
 import EstadoPedido from './partials/EstadoPedido.vue';
+import formatNumber from '../../mixins/formatNumber';
 export default {
     props: ['role_id'],
-  components: { NewPedidoComponent, EstadoPedido, SearchSelectClienteComponent },
+    components: { NewPedidoComponent, EstadoPedido, SearchSelectClienteComponent },
+    mixins: [formatNumber],
     data(){
         return {
             load: false,
@@ -75,6 +83,7 @@ export default {
                 {key: 'index', label: 'N.'},
                 {key: 'cliente.name', label: 'Cliente'},
                 {key: 'total_quantity', label: 'Unidades'},
+                {key: 'total', label: 'Total'},
                 {key: 'user.name', label: 'Creado por'},
                 {key: 'created_at', label: 'Creado el'},
                 {key: 'details', label: 'Detalles'},
