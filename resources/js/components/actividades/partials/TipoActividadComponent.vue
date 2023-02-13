@@ -28,7 +28,8 @@
                 </template>
                 <template #row-details="row">
                     <b-card>
-                        <b-row v-if="row.item.estado !== 'completado' && row.item.estado !== 'cancelado'" class="mb-3">
+                        <b-row v-if="role_id != 7 && row.item.estado !== 'completado' && 
+                                    row.item.estado !== 'cancelado'" class="mb-3">
                             <b-col sm="2">
                                 <b-button v-if="!cancelarAct && !completarAct && !editarAct" variant="dark" 
                                     block pill size="sm" @click="editar(row.item)">
@@ -89,7 +90,7 @@ import EditarActividadComponent from './EditarActividadComponent.vue';
 import DetailsActividad from './DetailsActividad.vue';
 import formatFechaActs from '../../../mixins/formatFechaActs';
 export default {
-    props: ['actividades', 'load'],
+    props: ['actividades', 'load', 'role_id'],
     components: {LoadComponent, MarkActividadComponent, CancelarActividadComponent, EditarActividadComponent, DetailsActividad},
     mixins: [formatFechaActs],
     data(){

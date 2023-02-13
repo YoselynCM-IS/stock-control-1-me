@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-row class="mb-4">
+        <b-row v-if="role_id != 7" class="mb-4">
             <!-- <b-col>
                 <b-form-select v-model="tipo_cliente" :options="options" 
                     @change="get_by_tipocliente()"></b-form-select>
@@ -50,13 +50,13 @@
         </b-row>
         <b-tabs content-class="mt-2" fill>
             <b-tab title="Vencido" @click="actividades_bystatus('vencido')">
-                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado" :role_id="role_id"></tipo-actividad-component> 
             </b-tab>
             <b-tab title="Hoy" @click="actividades_byfechaactual()" active>
-                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado" :role_id="role_id"></tipo-actividad-component> 
             </b-tab>
             <b-tab title="Proximo" @click="actividades_bystatus('proximo')">
-                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado"></tipo-actividad-component> 
+                <tipo-actividad-component :load="load" :actividades="actividades" @updatedActEstado="updatedActEstado" :role_id="role_id"></tipo-actividad-component> 
             </b-tab>
         </b-tabs>
         <!-- MODASL -->
@@ -72,7 +72,7 @@ import TipoActividadComponent from './partials/TipoActividadComponent.vue';
 import searchCliente from '../../mixins/searchCliente';
 import getActsStatus from '../../mixins/getActsStatus';
 export default {
-    props: ['tipo_cliente'],
+    props: ['tipo_cliente', 'role_id'],
     components: {TipoActividadComponent},
     mixins: [searchCliente, getActsStatus],
     data(){

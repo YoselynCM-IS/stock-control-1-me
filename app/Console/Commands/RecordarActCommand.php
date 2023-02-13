@@ -48,7 +48,7 @@ class RecordarActCommand extends Command
                         ->where('fecha', '>', $hoy)
                         ->get();
 
-        $users = User::whereIn('role_id', [5,6])->get();
+        $users = User::whereIn('role_id', [5,6,7])->get();
         foreach($actividades as $actividad){
             foreach($users as $user){
                 $user->notify(new RecordarActNotification($actividad));

@@ -21,6 +21,9 @@ class RedirectIfAuthenticated
             if(auth()->user()->role_id == 5){
                 return redirect('/information/actividades/lista');
             }
+            if(auth()->user()->role_id == 7){
+                return redirect('/information/actividades/simple');
+            }
             return redirect('/information/remisiones/lista');
             // if(Auth::user()->role_id == 1){
             //     return redirect('/administrador/remisiones');

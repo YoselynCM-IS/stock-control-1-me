@@ -21,6 +21,9 @@ class RoleMiddleware
         if(auth()->user()->role_id == 5){
             return redirect()->route('/information/actividades/lista');
         }
+        if(auth()->user()->role_id == 7){
+            return redirect()->route('/information/actividades/simple');
+        }
         // if(auth()->user()->role_id === 1){
         //     return redirect()->route('administrador.remisiones');
         // }

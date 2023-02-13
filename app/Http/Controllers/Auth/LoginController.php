@@ -42,6 +42,9 @@ class LoginController extends Controller
         if(auth()->user()->role_id == 5){
             return '/information/actividades/lista';
         }
+        if(auth()->user()->role_id == 7){
+            return '/information/actividades/simple';
+        }
         return '/information/remisiones/lista';
         // if(auth()->user()->role_id == 1){
         //     return '/administrador/remisiones';

@@ -25,6 +25,10 @@ class ActividadeController extends Controller
         return view('information.actividades.lista');
     }
 
+    public function simple(){
+        return view('information.actividades.simple');
+    }
+
     // OBTENER LAS ACTIVIDADES POR STATUS
     public function get_status($status){
         return view('information.actividades.status-lista', compact('status'));
@@ -62,7 +66,7 @@ class ActividadeController extends Controller
             $this->create_report($actividad->id, $reporte, 'actividades');
 
             // broadcast(new NewActividad($actividad))->toOthers();
-            $users = User::whereIn('role_id', [5,6])
+            $users = User::whereIn('role_id', [5,6,7])
                             ->whereNotIn('id', [auth()->user()->id])->get();
             foreach($users as $user){
                 $user->notify(new NewActNotification($actividad, $actividad->user));
