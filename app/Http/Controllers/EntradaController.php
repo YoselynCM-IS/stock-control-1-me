@@ -105,23 +105,7 @@ class EntradaController extends Controller
             // *** SUBIR COMPROBANTE
             $files = $request->file('files');
             foreach($files as $file) {
-                $extension = $file->getClientOriginalExtension();
-                $name_file = time().".".$extension;
-                Storage::disk('dropbox')->putFileAs(
-                    '/stock1/entradas/', $file, $name_file
-                );
-                $response = $this->dropbox->createSharedLinkWithSettings(
-                    '/stock1/entradas/'.$name_file, 
-                    ["requested_visibility" => "public"]
-                );
-
-                Comprobante::create([
-                    'entrada_id' => $entrada->id,
-                    'name' => $response['name'],
-                    'extension' => $extension,
-                    'size' => $response['size'],
-                    'public_url' => $response['url']
-                ]);
+                $this->upload_comprobante($file, $entrada);
             }
             // *** SUBIR COMPROBANTE
             $get_entrada = Entrada::whereId($entrada->id)->first();
@@ -171,15 +155,8 @@ class EntradaController extends Controller
             $editorial = $request->editorial;
             $lugar = 'CMX';
             $folio = strtoupper($request->folio);
-            
-            // *** SUBIR IMAGEN
-            $file = $request->file('file');
-            $extension = $file->getClientOriginalExtension();
-            $name_file = $folio."_".time().".".$extension;
-            $response = $this->upload_archivo($request, $name_file, 'entradas', $extension);
-            // *** SUBIR IMAGEN
-
             $corte = $this->get_corte();
+
             $entrada = null;
             $entrada = Entrada::create([
                 'folio' => $folio,
@@ -187,11 +164,7 @@ class EntradaController extends Controller
                 'editorial' => $editorial,
                 'unidades' => $request->unidades,
                 'lugar' => $lugar,
-                'creado_por' => auth()->user()->name,
-                'name' => $response['name'],
-                'extension' => $extension,
-                'size' => $response['size'],
-                'public_url' => $response['url']
+                'creado_por' => auth()->user()->name
             ]);
 
             $libros = collect(json_decode($request->libros));
@@ -229,6 +202,11 @@ class EntradaController extends Controller
                 }
             });
 
+            // *** SUBIR COMPROBANTE
+            $file = $request->file('file');
+            $this->upload_comprobante($file, $entrada);
+            // *** SUBIR COMPROBANTE
+
             $reporte = 'creo la entrada de códigos '.$entrada->folio.' de '.$entrada->editorial;
             $this->create_report($entrada->id, $reporte, 'proveedor', 'entradas');
 
@@ -238,6 +216,26 @@ class EntradaController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json(true);
+    }
+
+    public function upload_comprobante($file, $entrada){
+        $extension = $file->getClientOriginalExtension();
+        $name_file = time().".".$extension;
+        Storage::disk('dropbox')->putFileAs(
+            '/stock1/entradas/', $file, $name_file
+        );
+        $response = $this->dropbox->createSharedLinkWithSettings(
+            '/stock1/entradas/'.$name_file, 
+            ["requested_visibility" => "public"]
+        );
+
+        Comprobante::create([
+            'entrada_id' => $entrada->id,
+            'name' => $response['name'],
+            'extension' => $extension,
+            'size' => $response['size'],
+            'public_url' => $response['url']
+        ]);
     }
 
     public function save_registros($request_items, $entrada){
