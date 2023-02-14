@@ -50,6 +50,8 @@ Route::name('administrador.')->prefix('administrador')->middleware(['auth', 'rol
     Route::get('/entradas-salidas', 'AdministradorController@entradas_salidas')->name('entradas-salidas');
     Route::get('/salidas', 'AdministradorController@salidas')->name('salidas');
     Route::get('/cerrar', 'AdministradorController@cerrar')->name('cerrar');
+
+    Route::get('/codes', 'AdministradorController@codes')->name('codes');
 });
 
 // CONTADOR
@@ -101,6 +103,7 @@ Route::name('almacen.')->prefix('almacen')->middleware(['auth', 'role:Almacen'])
     Route::get('/donaciones', 'AlmacenController@donaciones')->name('donaciones');
     Route::get('/movimientos', 'AlmacenController@movimientos')->name('movimientos');
     Route::get('/entradas-salidas', 'AlmacenController@entradas_salidas')->name('entradas-salidas');
+    Route::get('/codes', 'AlmacenController@codes')->name('codes');
 });
 
 //CLIENTES

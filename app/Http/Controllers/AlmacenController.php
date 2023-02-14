@@ -58,4 +58,8 @@ class AlmacenController extends Controller
     public function entradas_salidas(){
         return view('almacen.entradas-salidas');
     }
+
+    public function codes(){
+        return view('almacen.codes');
+    }
 }

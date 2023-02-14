@@ -305,4 +305,8 @@ class AdministradorController extends Controller
         $responsables = \DB::table('responsables')->orderBy('responsable', 'asc')->get();
         return view('administrador.cerrar', compact('responsables'));
     }
+
+    public function codes(){
+        return view('administrador.codes');
+    }
 }

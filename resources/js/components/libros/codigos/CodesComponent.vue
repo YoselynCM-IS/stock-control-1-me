@@ -66,7 +66,8 @@
                 <b-col sm="2" class="text-right">
                     <!-- CARGAR CODIGOS -->
                     <!-- v-if="role_id === 1 || role_id === 2 || role_id == 6" -->
-                    <b-button variant="success" pill block @click="showAddEntrada = !showAddEntrada">
+                    <b-button v-if="role_id !== 3" variant="success" pill 
+                        block @click="showAddEntrada = !showAddEntrada">
                         <i class="fa fa-plus-circle"></i> Crear entrada
                     </b-button>
                 </b-col>
@@ -126,6 +127,7 @@ import getEditoriales from '../../../mixins/getEditoriales';
 import searchCliente from '../../../mixins/searchCliente';
 import LoadComponent from '../../cortes/partials/LoadComponent.vue';
 export default {
+    props: ['role_id'],
   components: { LoadComponent },
     mixins: [getEditoriales, searchCliente],
     data(){
