@@ -4,7 +4,7 @@
         <b-row>
             <b-col><h5><b>Remisión {{ remision.id }}</b></h5></b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado'"
+                <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 3 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado'"
                     variant="dark" v-b-modal.modal-cancelar pill block>
                     <i class="fa fa-close"></i> Cancelar
                 </b-button>
@@ -17,7 +17,7 @@
                 </b-button>
             </b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6" 
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 3 || role_id == 6" 
                     :href="`/download_remision/${remision.id}`" variant="dark" pill block>
                     <i class="fa fa-download"></i> Remisión
                 </b-button>
