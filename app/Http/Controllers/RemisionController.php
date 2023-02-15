@@ -802,11 +802,31 @@ class RemisionController extends Controller
     }
 
     // Asignar responsable de entregar la remisión
+    public function save_responsable(Request $request){
+        \DB::beginTransaction();
+        try {
+            $remision = Remisione::whereId($request->remisione_id)->first();
+            $remision->update([
+                'responsable' => $request->responsable
+            ]);
+
+            $reporte = 'asigno como responsable de la entrega a '.$remision->responsable.' Entrega de la remisión '.$remision->id.' / '.$remision->cliente->name;
+            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
+            \DB::commit();
+        } catch (Exception $e) {
+            \DB::rollBack();
+            return response()->json($exception->getMessage());
+        }
+
+        return response()->json($remision);
+    }
+
+    // Informacion del envio de la remision
     public function save_envio(Request $request){
         $remision = Remisione::whereId($request->remisione_id)->first();
         \DB::beginTransaction();
         try {
-            $paqueteria_id = null;
+            $paqueteria_id = 0;
             $precio = (double) $request->paqueteria['precio'];
             if($precio > 0){
                 $id = $request->destinatario['id'];
@@ -836,13 +856,8 @@ class RemisionController extends Controller
                 $this->create_report($paqueteria->id, $reporte, 'cliente', 'paqueterias');
             }
 
-            $remision->update([
-                'paqueteria_id' => $paqueteria_id,
-                'responsable' => $request->responsable
-            ]);
+            $remision->update(['paqueteria_id' => $paqueteria_id]);
 
-            $reporte = 'asigno como responsable de la entrega a '.$remision->responsable.' Entrega de la remisión '.$remision->id.' / '.$remision->cliente->name;
-            $this->create_report($remision->id, $reporte, 'cliente', 'remisiones');
             \DB::commit();
         } catch (Exception $e) {
             \DB::rollBack();

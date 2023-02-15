@@ -148,11 +148,16 @@
                             </b-button>
                         </template>
                         <template v-slot:cell(responsable)="row">
-                            <b-button
-                                @click="selectResponsable(row.item, row.index)"
-                                v-if="(role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6) && row.item.responsable === null && row.item.estado !== 'Cancelado'"
-                                variant="dark"><i class="fa fa-truck"></i>
-                            </b-button>
+                            <div>
+                                <b-button @click="selectResponsable(row.item, row.index)"
+                                    v-if="(role_id === 1 || role_id == 6 || role_id === 3) && row.item.responsable === null && row.item.estado !== 'Cancelado'"
+                                    variant="dark" block><i class="fa fa-male"></i>
+                                </b-button>
+                                <b-button @click="selectPaqueteria(row.item, row.index)"
+                                    v-if="(role_id === 1 || role_id == 6 || role_id === 2) && row.item.paqueteria_id == null && row.item.estado !== 'Cancelado'"
+                                    variant="dark" block><i class="fa fa-truck"></i>
+                                </b-button>
+                            </div>
                         </template>
                         <template v-slot:cell(editar)="row">
                             <b-button v-if="(role_id == 6) && row.item.updated_at === row.item.created_at && row.item.total_pagar === row.item.total && row.item.estado !== 'Cancelado'"
@@ -190,8 +195,29 @@
             </div>
             <!-- MODALS -->
             <!-- ELEGIR RESPONSABLE DE LA ENTREGA -->
-            <b-modal ref="modalMarcarE" id="modal-marcar" title="Información de la entrega" size="lg" hide-footer>
-                <envio-remision :remisione_id="remisione_id" @savedResponsable="savedResponsable"></envio-remision>
+            <b-modal ref="modalMarcarE" id="modal-marcar" title="Responsable de la entrega" hide-footer>
+                <b-form @submit.prevent="saveResponsable()">
+                    <b-row>
+                        <b-col>
+                            <b-form-group label="Responsable de la entrega">
+                                <b-form-select :disabled="load" v-model="form.responsable" :options="options" required></b-form-select>
+                            </b-form-group>
+                        </b-col>
+                        <b-col sm="5">
+                            <br>
+                            <b-button type="submit" :disabled="load" variant="success" block pill>
+                                <i class="fa fa-check"></i> Guardar <b-spinner v-if="load" small></b-spinner>
+                            </b-button>
+                        </b-col>
+                    </b-row>
+                </b-form>
+                <b-alert show variant="info">
+                    <i class="fa fa-exclamation-circle"></i> Verificar los datos antes de presionar <b>Guardar</b>, ya que después no se podrán realizar cambios.
+                </b-alert>
+            </b-modal>
+            <!-- SELECCIONAR INFORMACIÓN DE PAQUETERIA -->
+            <b-modal ref="modalPaqueteria" id="modal-paqueteria" title="información de paquetería" size="lg" hide-footer>
+                <envio-remision :remisione_id="remisione_id" @savedEnvio="savedEnvio"></envio-remision>
             </b-modal>
         </div>
     </div>
@@ -200,12 +226,13 @@
 <script>
     import formatNumber from '../../mixins/formatNumber';
     import rowClass from '../../mixins/rowClass';
+    import setResponsables from '../../mixins/setResponsables';
     import EnvioRemision from './partials/EnvioRemision.vue';
     moment.locale('es');
     export default {
         components: { EnvioRemision },
         props: ['role_id'],
-        mixins: [formatNumber,rowClass],
+        mixins: [formatNumber,rowClass,setResponsables],
         data() {
             return {
                 clientes: [],
@@ -324,7 +351,11 @@
                 sTCliente: false,
                 sTFecha: false,
                 sTEstado: false,
-                loadTotales: false
+                loadTotales: false,
+                form: {
+                    remisione_id: null,
+                    responsable: null
+                }
             }
         },
         mounted: function(){
@@ -511,14 +542,38 @@
             //     }
             // },
             selectResponsable(remision, i){
+                this.load = true;
+                this.options = [];
+                axios.get('/remisiones/get_responsables').then(response => {
+                    this.assign_responsables(this.options, response.data);
+                    this.form.remisione_id = remision.id;
+                    this.position = i;
+                    this.$refs['modalMarcarE'].show();
+                    this.load = false;
+                }).catch(error => {
+                    this.load = false;
+                });
+            },
+            selectPaqueteria(remision, i){
                 this.remisione_id = remision.id;
                 this.position = i;
-                this.$refs['modalMarcarE'].show();
+                this.$refs['modalPaqueteria'].show();
             },
-            savedResponsable(remision){
-                this.remisiones[this.position].responsable = remision.responsable;
+            saveResponsable(){
+                this.load = true;
+                axios.post('/remisiones/save_responsable', this.form).then(response => {
+                    this.remisiones[this.position].responsable = response.data.responsable;
+                    this.makeToast('success', 'El responsable de la entrega se guardo correctamente.');
+                    this.$refs['modalMarcarE'].hide();
+                    this.load = false;
+                }).catch(error => {
+                    this.load = false;
+                });
+            },
+            savedEnvio(remision){
+                this.remisiones[this.position].paqueteria_id = remision.paqueteria_id;
                 this.makeToast('success', 'Los datos se guardaron correctamente.');
-                this.$refs['modalMarcarE'].hide();
+                this.$refs['modalPaqueteria'].hide();
             },
             // AGREGAR LA NUEVA REMISIÓN A LA LISTA
             actualizarRs(remision){

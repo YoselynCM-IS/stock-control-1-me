@@ -139,6 +139,8 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     //Buscar remision
     Route::get('obtener_devoluciones', 'RemisionController@obtener_devoluciones')->name('obtener_devoluciones');
     // Asignar responsable de la remision
+    Route::post('save_responsable', 'RemisionController@save_responsable')->name('save_responsable');
+    // Guardar informacion de envio de la remision
     Route::post('save_envio', 'RemisionController@save_envio')->name('save_envio');
 
     // HISTORIAL

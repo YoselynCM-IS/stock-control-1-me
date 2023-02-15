@@ -3,22 +3,17 @@
         <b-form @submit.prevent="saveEnvio()">
             <b-row>
                 <b-col>
-                    <b-form-group label="Responsable de la entrega">
-                        <b-form-select :disabled="load" v-model="form.responsable" :options="options" required></b-form-select>
-                    </b-form-group>
-                </b-col>
-                <b-col>
                     <div v-if="envio == null">
-                        <p><b>¿La remisión se envió mediante paquetería?</b></p>
                         <b-row>
-                            <b-col></b-col>
+                            <b-col>
+                                <p><b>¿La remisión se envió mediante paquetería?</b></p>
+                            </b-col>
                             <b-col sm="2">
                                 <b-button size="sm" @click="envio = true" pill block variant="dark">SI</b-button>
                             </b-col>
                             <b-col sm="2">
                                 <b-button size="sm" @click="envio = false" pill block variant="dark">NO</b-button>
                             </b-col>
-                            <b-col></b-col>
                         </b-row>
                     </div>
                 </b-col>
@@ -89,6 +84,9 @@
                     </div>
                 </b-col>
             </b-row>
+            <b-alert v-if="envio == false" show variant="success">
+                <i class="fa fa-info-circle"></i> Presiona en <b>Guardar</b> para guardar la opción seleccionada.
+            </b-alert>
             <b-row class="mt-3">
                 <b-col>
                     <b-alert show variant="info">
@@ -106,10 +104,8 @@
 </template>
 
 <script>
-import setResponsables from '../../../mixins/setResponsables';
 export default {
     props: ['remisione_id'],
-    mixins: [setResponsables],
     data(){
         return {
             options: [],
@@ -118,7 +114,6 @@ export default {
             destinatario: null,
             form: {
                 remisione_id: null,
-                responsable: null,
                 paqueteria: {
                     paqueteria: null,
                     tipo_envio: null,
@@ -150,26 +145,13 @@ export default {
             destinatarios: []
         }
     },
-    mounted: function(){
-        this.getResponsable();
-    },
     methods: {
-        getResponsable(){
-            this.load = true;
-            this.options = [];
-            axios.get('/remisiones/get_responsables').then(response => {
-                this.assign_responsables(this.options, response.data);
-                this.load = false;
-            }).catch(error => {
-                this.load = false;
-            });
-        },
-        // ASIGNAR RESPONSABLE DE LA REMISIÓN
+        // GUARDAR INFORMACION DE PAQUETERIA DE LA REMISION
         saveEnvio(){
             this.load = true;
             this.form.remisione_id = this.remisione_id;
             axios.post('/remisiones/save_envio', this.form).then(response => {
-                this.$emit('savedResponsable', response.data);
+                this.$emit('savedEnvio', response.data);
                 this.load = false;
             }).catch(error => {
                 this.load = false;
