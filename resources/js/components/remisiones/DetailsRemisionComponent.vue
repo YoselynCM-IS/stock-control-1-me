@@ -32,7 +32,7 @@
                             :href="`/codes/download_byremision/${remision.id}`" variant="dark" pill block>
                             <i class="fa fa-download"></i> Códigos
                         </b-button>
-                        <b-button v-if="remision.paqueteria_id != null" 
+                        <b-button v-if="remision.paqueteria_id != null && remision.paqueteria_id != 0" 
                             variant="dark" pill block v-b-modal.modal-envio>
                             <i class="fa fa-truck"></i> Envió
                         </b-button>
@@ -197,7 +197,7 @@
         </b-modal>
         <!-- MODAL PARA MOSTRAR DETALLES DE ENVIO -->
         <b-modal id="modal-envio" title="Detalles de envió" hide-footer size="lg">
-            <div v-if="remision.paqueteria_id != null">
+            <div v-if="remision.paqueteria_id != null && remision.paqueteria_id != 0">
                 <b-row>
                     <b-col sm="3" class="text-right"><b>Destinatario:</b></b-col>
                     <b-col>{{ remision.paqueteria.destinatario.destinatario }}</b-col>
