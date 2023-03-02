@@ -85,7 +85,6 @@ class LibroController extends Controller
     public function show(){
         $isbn = Input::get('isbn');
         $libros = \DB::table('libros')
-                    ->select('id', 'ISBN', 'titulo', 'editorial', 'piezas', 'defectuosos')
                     ->where('ISBN','like','%'.$isbn.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->get();
@@ -135,7 +134,6 @@ class LibroController extends Controller
     public function buscar(){
         $queryTitulo = Input::get('queryTitulo');
         $libros = \DB::table('libros')
-                    ->select('id', 'ISBN', 'titulo', 'editorial', 'piezas', 'defectuosos')
                     ->where('titulo','like','%'.$queryTitulo.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->get();

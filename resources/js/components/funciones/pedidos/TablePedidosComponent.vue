@@ -29,6 +29,7 @@
                     <th><b>{{ !editar2 ? 'Agregar':'Editar' }}</b></th>
                     <th>ISBN</th>
                     <th>Titulo</th>
+                    <th></th>
                     <th>Cantidad</th>
                     <th>Precio</th>
                     <th></th>
@@ -68,6 +69,10 @@
                         </div>
                     </th>
                     <th>
+                        <b-form-select v-if="registro.libro.type == 'digital'" v-model="registro.tipo" :options="code_tipos"
+                                    required :disabled="load"></b-form-select>
+                    </th>
+                    <th>
                         <b-input required type="number" v-model="registro.quantity" :disabled="load"></b-input>
                     </th>
                     <th>
@@ -83,7 +88,7 @@
                     </th>
                 </tr>
                 <tr class="mt-5">
-                    <th colspan="3"></th>
+                    <th colspan="4"></th>
                     <th>
                         <b>{{ form.total_quantity | formatNumber }}</b>
                     </th>
@@ -116,6 +121,7 @@ export default {
                 {label: 'N.', key: 'index'},
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
+                {label: '', key: 'tipo'},
                 {label: 'Cantidad', key: 'quantity'},
                 {label: 'Precio', key: 'price'},
                 {label: 'Total', key: 'total'},
@@ -124,12 +130,19 @@ export default {
             editar2: false,
             position: null,
             registro: {
-                libro: { id: null, ISBN: '', titulo: ''},
+                libro: { id: null, ISBN: '', titulo: '', type: null},
+                tipo: null, 
                 quantity: 0,
                 price: 0,
                 total: 0
             },
-            queryTitulo: null
+            queryTitulo: null,
+            code_tipos: [
+                {value: null, text: 'Seleccionar', disabled: true},
+                {value: 'alumno', text: 'alumno'},
+                {value: 'demo', text: 'demo'},
+                {value: 'profesor', text: 'profesor'}
+            ],
         }
     },
     methods: {
@@ -142,6 +155,7 @@ export default {
             this.registro.quantity = register.quantity;
             this.registro.price = register.price;
             this.registro.total = register.total;
+            this.registro.tipo = register.tipo;
             this.assign_datos(register.libro);
             this.position = index;
             this.editar2 = true;
@@ -165,6 +179,8 @@ export default {
                     this.form.libros[this.position].libro.id = this.registro.libro.id;
                     this.form.libros[this.position].libro.ISBN = this.registro.libro.ISBN;
                     this.form.libros[this.position].libro.titulo = this.registro.libro.titulo;
+                    this.form.libros[this.position].libro.type = this.registro.libro.type;
+                    this.form.libros[this.position].tipo = this.registro.tipo;
                 }
                 this.inicializar_registro();
 
@@ -181,8 +197,8 @@ export default {
         },
         inicializar_registro(){
             this.registro = { 
-                libro: { id: null, ISBN: '', titulo: ''},
-                quantity: 0, price: 0, total: 0
+                libro: { id: null, ISBN: '', titulo: '', type: null},
+                quantity: 0, price: 0, total: 0, tipo: null
             };
             this.queryISBN = null;
             this.queryTitulo = null;
@@ -193,6 +209,7 @@ export default {
             this.registro.libro.id = libro.id;
             this.registro.libro.ISBN = libro.ISBN;
             this.registro.libro.titulo = libro.titulo;
+            this.registro.libro.type = libro.type;
             this.queryISBN = libro.ISBN;
             this.queryTitulo = libro.titulo;
         },

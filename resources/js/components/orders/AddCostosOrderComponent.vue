@@ -4,6 +4,19 @@
             <b-col>
                 <datos-order :order="order"></datos-order>
             </b-col>
+            <b-col sm="2">
+                <div v-if="order.tipo == 'digitales'">
+                    <b><i>¿Enviar a almacén?</i></b>
+                    <b-form-radio-group
+                        v-model="form.almacen"
+                        :options="options"
+                        class="mb-3"
+                        value-field="item"
+                        text-field="name"
+                        disabled-field="notEnabled"
+                    ></b-form-radio-group>
+                </div>
+            </b-col>
             <b-col sm="2" class="text-right">
                 <b-button variant="success" block pill @click="saveCostos()"
                     :disabled="(load || form.total_bill == 0)">
@@ -30,7 +43,7 @@
             </template>
             <template #thead-top="row">
                 <tr class="mt-5">
-                    <th colspan="4"></th>
+                    <th colspan="5"></th>
                     <th class="text-right"><b>Total Factura</b></th>
                     <th>
                         <b>${{ form.total_bill | formatNumber }}</b>
@@ -55,17 +68,23 @@ export default {
             form: {
                 id: null,
                 elements: [],
+                almacen: 'SI',
                 total_bill: 0
             },
             fieldsRegistros: [
                 {label: 'N.', key: 'index'},
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
+                {label: '', key: 'tipo'},
                 {label: 'Cantidad', key: 'quantity'},
                 {label: 'Precio unitario', key: 'unit_price'},
                 {label: 'Total', key: 'total'}
             ],
-            load: false
+            load: false,
+            options: [
+                { item: 'SI', name: 'SI' },
+                { item: 'NO', name: 'NO' },
+            ]
         }
     },
     created: function(){
@@ -79,6 +98,7 @@ export default {
                     id: element.id,
                     order_id: element.order_id,
                     libro_id: element.libro_id,
+                    tipo: element.tipo,
                     quantity: element.quantity,
                     unit_price: 0,
                     total: 0,

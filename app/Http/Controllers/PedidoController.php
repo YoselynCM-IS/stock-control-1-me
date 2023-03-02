@@ -11,6 +11,7 @@ use App\Reporte;
 use App\Pedido;
 use App\Order;
 use App\User;
+use App\Code;
 
 class PedidoController extends Controller
 {
@@ -57,6 +58,7 @@ class PedidoController extends Controller
                 Peticione::create([
                     'pedido_id' => $pedido->id,
                     'libro_id' => $peticione['libro']['id'], 
+                    'tipo' => $peticione['tipo'], 
                     'quantity' => (int) $peticione['quantity'],
                     'price' => (float) $peticione['price'],
                     'total' => (double) $peticione['total']
@@ -83,16 +85,30 @@ class PedidoController extends Controller
     // PREPRAR PEDIDO
     public function preparar($pedido_id){
         $p = $this->get_pedido($pedido_id);
+
+        $tipo = 'fisicos';
         $peticiones = collect();
-        $p->peticiones->map(function($peticione) use (&$peticiones){
+        $p->peticiones->map(function($peticione) use (&$peticiones, &$tipo){
             $quantity = $peticione->quantity;
-            $piezas = $peticione->libro->piezas;
+            if($peticione->tipo == NULL || $peticione->tipo == 'alumno'){
+                $piezas = $peticione->libro->piezas;
+            } 
+            if($peticione->tipo == 'profesor' || $peticione->tipo == 'demo') {
+                $piezas = Code::where('libro_id', $peticione->libro_id)
+                    ->where('estado', 'inventario')
+                    ->where('tipo', $peticione->tipo)
+                    ->groupBy('libro_id')
+                    ->count();
+            }
+
+            if($peticione->tipo != NULL) $tipo = 'digitales';
 
             $faltante = 0;
             if($quantity > $piezas) $faltante = $quantity - $piezas;
             
             $peticiones->push([
                 'id' => $peticione->id,
+                'tipo' => $peticione->tipo,
                 'libro_id' => $peticione->libro_id, 
                 'editorial' => $peticione->libro->editorial,
                 'ISBN' => $peticione->libro->ISBN,
@@ -106,6 +122,7 @@ class PedidoController extends Controller
         
         $pedido = collect([
             'id' => $p->id,
+            'tipo' => $tipo,
             'user_name' => $p->user->name,
             'cliente_name' => $p->cliente->name, 
             'total_quantity' => $p->total_quantity,
@@ -134,12 +151,19 @@ class PedidoController extends Controller
 
             $fecha_actual = Carbon::now();
             $order_ids = collect();
-            $editoriales->map(function($editorial) use(&$order_ids, $fecha_actual, $pedido){
+            $tipo = $request->tipo;
+            $editoriales->map(function($editorial) use(&$order_ids, $fecha_actual, $pedido, $tipo){
                 $provider_count = Order::where('provider', $editorial)->count();
                 $identifier = 'PED '.($provider_count + 1).'-'.$fecha_actual->format('Y');
+                
+                $almacen = 'SI';
+                if($tipo == 'digitales') $almacen = 'NO';
+
                 $order = Order::create([
                     'pedido_id' => $pedido->id,
                     'cliente_id' => $pedido->cliente_id,
+                    'tipo'  => $tipo,
+                    'almacen' => $almacen,
                     'destination' => $pedido->cliente->name,
                     'identifier' => $identifier,
                     'date' => $fecha_actual->format('Y-m-d'),
@@ -156,16 +180,16 @@ class PedidoController extends Controller
                 ]);
             });
 
-            $prueba = [];
             $peticiones = $pedido->peticiones;
-            $peticiones->map(function($peticione) use($order_ids, &$prueba){
+            $peticiones->map(function($peticione) use($order_ids){
                 if($peticione->solicitar > 0){
-                    $order_ids->map(function($oi) use(&$prueba, $peticione){
+                    $order_ids->map(function($oi) use($peticione){
                         $editorial = $peticione->libro->editorial;
                         if($oi['editorial'] == $editorial) {
                             $element = Element::create([
                                 'order_id' => $oi['order_id'],
                                 'libro_id' => $peticione->libro_id,
+                                'tipo'  => $peticione->tipo,
                                 'quantity' => $peticione->solicitar
                             ]);
                         }
@@ -178,7 +202,7 @@ class PedidoController extends Controller
             return response()->json($exception->getMessage());
         }
 
-        return response()->json($prueba);
+        return response()->json(true);
     }
 
     public function create_peticiones($ps){
@@ -235,12 +259,6 @@ class PedidoController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json(true);
-    }
-
-    public function by_provider(Request $request){
-        $pedidos = Order::where('provider', $request->provider)
-                    ->orderBy('created_at', 'desc')->paginate(20);
-        return response()->json($pedidos);
     }
 
     public function create_report($pedido_id, $reporte){

@@ -145,7 +145,7 @@ import SearchSelectClienteComponent from '../funciones/SearchSelectClienteCompon
                 this.load = true;
                 this.searchProveedor = true;
                 this.cliente_id = null;
-                axios.get(`/pedido/by_provider?page=${page}`, {params: {provider: this.provider}}).then(response => {
+                axios.get(`/order/by_provider?page=${page}`, {params: {provider: this.provider}}).then(response => {
                     this.pedidos = response.data.data;
                     this.pedidosData = response.data;
                     this.load = false;

@@ -18,20 +18,32 @@ class OrderController extends Controller
 
     // OBTENER TODOS LOS PEDIDOS
     public function index(){
-        $ps = Order::orderBy('created_at', 'desc');
-        if(auth()->user()->role_id == 3){
-            $pedidos = $ps->where('status', 'espera')->paginate(20);
-        } else {
-            $pedidos = $ps->paginate(20);
-        }
-        
-        return response()->json($pedidos);
+        $os = Order::orderBy('created_at', 'desc');
+        $orders = $this->rol_oficina_almacen($os);
+        return response()->json($orders);
     }
 
     public function by_cliente(Request $request){
-        $orders = Order::where('cliente_id', $request->cliente_id)
-                    ->orderBy('created_at', 'desc')->paginate(20);
+        $os = Order::where('cliente_id', $request->cliente_id)
+                    ->orderBy('created_at', 'desc');
+        $orders = $this->rol_oficina_almacen($os);
         return response()->json($orders);
+    }
+
+    public function by_provider(Request $request){
+        $os = Order::where('provider', $request->provider)
+                    ->orderBy('created_at', 'desc');
+        $orders = $this->rol_oficina_almacen($os);
+        return response()->json($orders);
+    }
+
+    public function rol_oficina_almacen($orders){
+        if(auth()->user()->role_id == 3){
+            return $orders->where('status', 'espera')
+                            ->where('almacen', 'SI')->paginate(20);
+        } else {
+            return $orders->paginate(20);
+        }
     }
 
     // DETALLES DEL PEDIDO
@@ -112,6 +124,7 @@ class OrderController extends Controller
 
             $order = Order::find($request->id);
             $order->update([
+                'almacen' => $request->almacen,
                 'total_bill' => $request->total_bill,
                 'status' => 'espera'
             ]);
@@ -155,17 +168,31 @@ class OrderController extends Controller
                 'provider' => $editorial,
                 'total_bill' => (double) $request->total_bill,
                 'creado_por' => auth()->user()->name
-            ]);
+            ]); 
 
-            $libros->map(function($libro) use (&$order){
+            $tipo_order = 'fisicos';
+            $almacen = 'SI';
+            $libros->map(function($libro) use (&$order, &$tipo_order, &$almacen){
+                $tipo = $libro['tipo'];
                 $element = Element::create([
                     'order_id' => $order->id,
                     'libro_id' => $libro['libro']['id'],
+                    'tipo' => $tipo, 
                     'quantity' => (int) $libro['quantity'],
                     'unit_price' => (float) $libro['price'],
                     'total' => (double) $libro['total']
                 ]);
+
+                if($tipo != null) {
+                    $tipo_order = 'digitales';
+                    $almacen = 'NO';
+                }
             });
+
+            $order->update([
+                'tipo'  => $tipo_order,
+                'almacen' => $almacen,
+            ]);
 
             $reporte = 'creo un pedido al proveedor '.$editorial.' PEDIDO: '.$order->identifier;
             $this->create_report($order->id, $reporte);

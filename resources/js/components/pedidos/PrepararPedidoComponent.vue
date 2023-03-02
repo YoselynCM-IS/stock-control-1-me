@@ -43,11 +43,11 @@
             </template>
             <template #thead-top="row">
                 <b-tr>
-                    <b-th colspan="3"></b-th>
-                    <b-th colspan="4" class="text-center" variant="info">Unidades</b-th>
+                    <b-th colspan="4"></b-th>
+                    <b-th colspan="3" class="text-center" variant="info">Unidades</b-th><b-th></b-th>
                 </b-tr>
                 <b-tr>
-                    <b-th colspan="3"></b-th>
+                    <b-th colspan="4"></b-th>
                     <b-th>{{ pedido.total_quantity | formatNumber }}</b-th>
                     <b-th colspan="2"></b-th>
                     <b-th>{{ total_solicitar | formatNumber }}</b-th>
@@ -71,6 +71,7 @@ export default {
                 {key: 'index', label: 'N.'},
                 {key: 'ISBN', label: 'ISBN'},
                 {key: 'titulo', label: 'Titulo'},
+                {key: 'tipo', label: ''},
                 {key: 'quantity', label: 'Solicitadas'},
                 {key: 'existencia', label: 'En existencia'},
                 {key: 'faltante', label: 'Faltantes'},

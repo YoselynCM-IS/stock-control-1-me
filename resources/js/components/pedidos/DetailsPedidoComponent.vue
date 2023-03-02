@@ -46,7 +46,7 @@
             </template>
             <template #thead-top="row">
                 <tr>
-                    <th colspan="3"></th>
+                    <th colspan="4"></th>
                     <th>{{ pedido.total_quantity | formatNumber }}</th>
                     <th></th>
                     <th>${{ pedido.total | formatNumber }}</th>
@@ -96,6 +96,7 @@ export default {
                 {key: 'index', label: 'N.'},
                 {key: 'libro.ISBN', label: 'ISBN'},
                 {key: 'libro.titulo', label: 'Titulo'},
+                {key: 'tipo', label: ''},
                 {key: 'quantity', label: 'Unidades'},
                 {key: 'price', label: 'Precio'},
                 {key: 'total', label: 'Total'}

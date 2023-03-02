@@ -410,7 +410,6 @@ Route::name('pedido.')->prefix('pedido')->group(function () {
     Route::put('/preparado', 'PedidoController@preparado')->name('preparado');
     Route::put('/despachar', 'PedidoController@despachar')->name('despachar');
     Route::put('/cancelar', 'PedidoController@cancelar')->name('cancelar');
-    Route::get('/by_provider', 'PedidoController@by_provider')->name('by_provider');
     Route::get('/by_cliente', 'PedidoController@by_cliente')->name('by_cliente');
 });
 
@@ -422,6 +421,7 @@ Route::name('order.')->prefix('order')->group(function () {
     Route::put('cancelar', 'OrderController@cancelar')->name('cancelar');
     Route::put('add_costo', 'OrderController@add_costo')->name('add_costo');
     Route::post('relacionar', 'OrderController@relacionar')->name('relacionar');
+    Route::get('/by_provider', 'OrderController@by_provider')->name('by_provider');
     Route::get('by_cliente', 'OrderController@by_cliente')->name('by_cliente');
 });
 

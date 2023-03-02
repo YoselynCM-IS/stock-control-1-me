@@ -11,7 +11,7 @@
                 <b-col sm="2">
                     <b-button v-if="(pedido.status == 'iniciado' && pedido.total_bill > 0) && (role_id === 1 || role_id == 2 || role_id == 6)" 
                         @click="sendPedido()" pill block variant="dark">
-                        <i class="fa fa-send"></i> Enviar
+                        <i class="fa fa-send"></i> {{ pedido.almacen == 'SI' ? 'Enviar':'Preparar' }}
                     </b-button>
                     <estado-order v-else :id="pedido.id" :status="pedido.status" :observations="pedido.observations"></estado-order>
                 </b-col>
@@ -28,8 +28,8 @@
                     </b-button>
                 </b-col>
                 <b-col sm="2">
-                    <div v-if="(pedido.total_bill > 0)">
-                        <b-button v-if="pedido.status == 'espera' && (role_id == 3 || role_id == 6)" variant="primary" 
+                    <div v-if="(pedido.total_bill > 0) && (pedido.status == 'espera')">
+                        <b-button v-if="(role_id == 2 && pedido.almacen == 'NO') || (role_id == 3 || role_id == 6)" variant="primary" 
                             pill @click="act_status()" :disabled="load">
                             <i class="fa fa-refresh"></i> Actualizar
                         </b-button>
@@ -68,7 +68,7 @@
                 </template>
                 <template #thead-top="row">
                     <tr class="mt-5">
-                        <th colspan="4"></th>
+                        <th colspan="5"></th>
                         <th class="text-right"><b>Total Factura</b></th>
                         <th>
                             <b>${{ pedido.total_bill | formatNumber }}</b>
@@ -96,7 +96,7 @@
                         </template>
                         <template #thead-top="row">
                             <tr class="mt-5">
-                                <th colspan="3"></th>
+                                <th colspan="4"></th>
                                 <th>
                                     <b>{{ pedidoStatus.total_quantity | formatNumber }}</b>
                                 </th>
@@ -175,6 +175,7 @@ export default {
                 {label: 'N.', key: 'index'},
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
+                {label: '', key: 'tipo'},
                 {label: 'Cantidad', key: 'quantity'},
                 {label: 'Precio unitario', key: 'unit_price'},
                 {label: 'Total', key: 'total'}
@@ -183,6 +184,7 @@ export default {
                 {label: 'N.', key: 'index'},
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
+                {label: '', key: 'tipo'},
                 {label: 'Cantidad', key: 'quantity'},
                 {label: 'Precio unitario', key: 'unit_price'},
                 {label: 'Total', key: 'total'},
@@ -203,8 +205,8 @@ export default {
                 {label: 'N.', key: 'index'},
                 {label: 'ISBN', key: 'libro.ISBN'},
                 {label: 'Titulo', key: 'libro.titulo'},
-                {label: 'Cantidad', key: 'actual_quantity'},
-                // {label: '', key: 'edit'}
+                {label: '', key: 'tipo'},
+                {label: 'Cantidad', key: 'actual_quantity'}
             ]
         }
     },
@@ -231,6 +233,7 @@ export default {
                     id: element.id,
                     order_id: element.order_id,
                     libro_id: element.libro_id,
+                    tipo: element.tipo,
                     libro: {
                         ISBN: element.libro.ISBN,
                         titulo: element.libro.titulo
@@ -256,7 +259,7 @@ export default {
             this.load = true;
             let form = { pedido_id: this.pedido.id, status: 'espera' };
             axios.put('/order/change_status', form).then(response => {
-                swal("OK", "El pedido se envió correctamente a almacén.", "success")
+                swal("OK", "El pedido se envió/preparó correctamente.", "success")
                         .then((value) => { location.reload(); });
                 this.load = false;
             }).catch(error => {

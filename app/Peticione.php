@@ -10,6 +10,7 @@ class Peticione extends Model
     protected $fillable = [
         'pedido_id',
         'libro_id', 
+        'tipo',
         'quantity',
         'price',
         'total',
