@@ -848,7 +848,8 @@ class RemisionController extends Controller
                     'paqueteria' => strtoupper($request->paqueteria['paqueteria']), 
                     'fecha_envio' => $request->paqueteria['fecha_envio'], 
                     'tipo_envio' => $request->paqueteria['tipo_envio'], 
-                    'precio' => $precio
+                    'precio' => $precio,
+                    'guia' => $request->paqueteria['guia']
                 ]);
                 $paqueteria_id = $paqueteria->id;
 

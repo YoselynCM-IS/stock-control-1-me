@@ -81,6 +81,9 @@
                         <b-form-group label="Costo de envió">
                             <b-form-input v-model="form.paqueteria.precio" type="number" :disabled="load" required></b-form-input>
                         </b-form-group>
+                        <b-form-group label="Número de guía">
+                            <b-form-textarea v-model="form.paqueteria.guia" :disabled="load" required rows="3" max-rows="6"></b-form-textarea>
+                        </b-form-group>
                     </div>
                 </b-col>
             </b-row>
@@ -118,7 +121,8 @@ export default {
                     paqueteria: null,
                     tipo_envio: null,
                     precio: 0,
-                    fecha_envio: null
+                    fecha_envio: null,
+                    guia: null
                 },
                 destinatario: {
                     id: null,

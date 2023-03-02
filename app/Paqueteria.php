@@ -8,7 +8,7 @@ use App\Destinatario;
 class Paqueteria extends Model
 {
     protected $fillable = [
-        'destinatario_id', 'paqueteria', 'fecha_envio', 'tipo_envio', 'precio'
+        'destinatario_id', 'paqueteria', 'guia', 'fecha_envio', 'tipo_envio', 'precio'
     ];
 
     public function destinatario(){

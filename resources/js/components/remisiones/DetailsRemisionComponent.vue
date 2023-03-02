@@ -234,6 +234,10 @@
                     <b-col sm="3" class="text-right"><b>Costo de envió:</b></b-col>
                     <b-col>{{ remision.paqueteria.precio }}</b-col>
                 </b-row>
+                <b-row>
+                    <b-col sm="3" class="text-right"><b>Número de guía:</b></b-col>
+                    <b-col>{{ remision.paqueteria.guia }}</b-col>
+                </b-row>
             </div>
         </b-modal>
     </div>
