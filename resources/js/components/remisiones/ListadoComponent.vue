@@ -160,6 +160,11 @@
                             </div>
                         </template>
                         <template v-slot:cell(editar)="row">
+                            <!-- <b-button v-if="(role_id == 6) && row.item.updated_at === row.item.created_at && row.item.total_pagar === row.item.total && row.item.estado !== 'Cancelado' && row.item.envio == false"
+                                variant="warning" style="color: white;" target="blank"
+                                :href="`/remisiones/ce_remision/${row.item.id}/${true}`">
+                                <i class="fa fa-edit"></i>
+                            </b-button> -->
                             <b-button v-if="(role_id == 6) && row.item.updated_at === row.item.created_at && row.item.total_pagar === row.item.total && row.item.estado !== 'Cancelado'"
                                 variant="warning" style="color: white;" target="blank"
                                 :href="`/remisiones/ce_remision/${row.item.id}/${true}`">

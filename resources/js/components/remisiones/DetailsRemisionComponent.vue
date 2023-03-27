@@ -3,7 +3,18 @@
         <!-- ENCABEZADO -->
         <b-row>
             <b-col><h5><b>Remisión {{ remision.id }}</b></h5></b-col>
+            <!-- OMEGA BOOK / MODIFICAR CLIENTE_ID (ESTO ES DESDE MAJESTIC EDUCATION)-->
+            <!-- <b-col v-if="remision.cliente_id == 288 && remision.cliente.name == 'OMEGA BOOK'" sm="2">
+                <b-button v-if="(role_id === 1 || role_id === 2 || role_id == 6) && remision.envio == false && remision.estado != 'Cancelado'" 
+                    variant="dark" pill block @click="enviarRemision()">
+                    <i class="fa fa-send"></i> Enviar
+                </b-button>
+            </b-col> -->
             <b-col sm="2" class="text-right">
+                <!-- <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 3 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado' && remision.envio == false"
+                    variant="dark" v-b-modal.modal-cancelar pill block>
+                    <i class="fa fa-close"></i> Cancelar
+                </b-button> -->
                 <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 3 || role_id == 6) && remision.total_pagar === remision.total && remision.estado != 'Cancelado'"
                     variant="dark" v-b-modal.modal-cancelar pill block>
                     <i class="fa fa-close"></i> Cancelar
@@ -328,7 +339,20 @@ export default {
                 this.load = false;
                 this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
             });
-        }
+        },
+        // enviarRemision(){
+        //     this.load = true;
+        //     let form = { remision_id: this.remision.id };
+        //     axios.put('/remisiones/enviar', form).then(response => {
+        //         swal("OK", "La remisión se envió correctamente.", "success")
+        //             .then((value) => { location.reload(); });
+        //         this.load = false;
+        //     })
+        //     .catch(error => {
+        //         this.load = false;
+        //         this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+        //     });
+        // }
     }
 }
 </script>

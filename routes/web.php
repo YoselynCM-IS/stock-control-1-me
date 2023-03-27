@@ -148,6 +148,9 @@ Route::name('remisiones.')->prefix('remisiones')->group(function () {
     Route::get('check_folio', 'RemisionController@check_folio')->name('check_folio');
     // Crear remision
     Route::post('/historial_store', 'RemisionController@historial_store')->name('historial_store');
+
+    // // ENVIAR LA REMISION A PROVEEDOR
+    // Route::put('/enviar', 'RemisionController@enviar')->name('enviar');
 });
 
 
@@ -345,6 +348,7 @@ Route::name('promotions.')->prefix('promotions')->group(function () {
     Route::put('cancel', 'PromotionController@cancel')->name('cancel');
     Route::post('devolucion', 'PromotionController@devolucion')->name('devolucion');
     Route::get('index', 'PromotionController@index')->name('index');
+    // Route::put('enviar', 'PromotionController@enviar')->name('enviar');
 });
 
 // DONACIONE
@@ -474,6 +478,12 @@ Route::name('libro.')->prefix('libro')->group(function () {
     Route::get('/by_type', 'LibroController@by_type')->name('by_type');
     // Buscar por titulo, no utilizados en la lista de los clientes
     Route::get('/by_titulo_nu', 'LibroController@by_titulo_nu')->name('by_titulo_nu');
+    // OBTENER TODOS LOS LIBROS DE LOS 2 SISTEMAS
+    Route::get('/all_list', 'LibroController@all_list')->name('all_list');
+    // BUSCAR POR TITULO EN AMBOS SISTEMAS
+    Route::get('/all_libro', 'LibroController@all_libro')->name('all_libro');
+    // OBTENER VISTA DEL LISTADO DE LIBROS DE AMBOS SISTEMAS
+    Route::get('/all_sistemas', 'LibroController@all_sistemas')->name('all_sistemas');
 });
 
 // PAGOS

@@ -45,7 +45,6 @@ class LibroController extends Controller
     public function by_titulo(){
         $titulo = Input::get('titulo');
         $libros = \DB::table('libros')
-                    ->select('id', 'type', 'ISBN', 'titulo', 'editorial', 'piezas', 'defectuosos')
                     ->where('titulo','like','%'.$titulo.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->paginate(20);
@@ -56,7 +55,6 @@ class LibroController extends Controller
     public function by_isbn(){
         $isbn = Input::get('isbn');
         $libros = \DB::table('libros')
-                    ->select('id', 'type', 'ISBN', 'titulo', 'editorial', 'piezas', 'defectuosos')
                     ->where('ISBN','like','%'.$isbn.'%')
                     ->where('estado', 'activo')
                     ->orderBy('titulo', 'asc')->paginate(20);
@@ -206,20 +204,14 @@ class LibroController extends Controller
         $this->func_validar($request);
         \DB::beginTransaction();
         try {
-            $editorial = $request->editorial;
-            $datos = [
-                'type' => $request->type,
-                'ISBN' => $request->ISBN,
-                'titulo' => strtoupper($request->titulo),
-                'autor' => strtoupper($request->autor),
-                'editorial' => $editorial
-            ];
+            $libro = Libro::create($this->params_libro($request, false));
 
-            $libro = Libro::create($datos);
-
-            if($editorial == 'MAJESTIC EDUCATION' && $request->type != 'digital'){
-                \DB::connection('majesticeducation')->table('libros')
-                    ->insert($datos);
+            if($request->editorial == 'MAJESTIC EDUCATION'){
+                Libro::on('opuesto')->create($this->params_libro($request, true));
+                if($request->type != 'digital'){
+                    \DB::connection('majesticeducation')->table('libros')
+                        ->insert($datos);
+                }
             }
 
             $reporte = 'creo el libro '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo.' de '.$libro->editorial;
@@ -231,6 +223,17 @@ class LibroController extends Controller
             return response()->json($exception->getMessage());
         }
         return response()->json($libro);
+    }
+
+    public function params_libro($request, $externo){
+        return [
+            'type' => $request->type,
+            'ISBN' => $request->ISBN,
+            'titulo' => strtoupper($request->titulo),
+            'autor' => strtoupper($request->autor),
+            'editorial' => $request->editorial,
+            'externo' => $externo
+        ];
     }
 
     //Función para validar los libros
@@ -252,25 +255,27 @@ class LibroController extends Controller
         $libro_anterior = $libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
             
         if($editorial == 'MAJESTIC EDUCATION'){
-            $me_libro = \DB::connection('majesticeducation')->table('libros')
+            $libro_opuesto = Libro::on('opuesto')
+                                    ->where('titulo', $libro->titulo)
+                                    ->first();
+            if($request->type != 'digital'){
+                $me_libro = \DB::connection('majesticeducation')->table('libros')
                             ->where('titulo', $libro->titulo)
                             ->first();
+            }
         }
 
-        if($request->ISBN !== $libro->ISBN || strtoupper($request->titulo) !== $libro->titulo){
-            $libro->ISBN = 'ISBN-'.$libro->ISBN;
-            $libro->titulo = 'TITLE-'.$libro->titulo;
-            $libro->save();     
-            $this->func_validar($request);
-        } else {
-            $this->func_validar($request);
-        }      
+        $libro->ISBN = 'ISBN-'.$libro->ISBN;
+        $libro->titulo = 'TITLE-'.$libro->titulo;
+        $libro->save();     
+        $this->func_validar($request);  
+
         \DB::beginTransaction();
         try {
             $fecha = Carbon::now();
             $datos = [
                 'type' => $request->type,
-                'ISBN' => $request->ISBN,
+                'ISBN' => strtoupper($request->ISBN),
                 'titulo' => strtoupper($request->titulo),
                 'autor' => strtoupper($request->autor),
                 'editorial' => $editorial,
@@ -280,18 +285,27 @@ class LibroController extends Controller
 
             $libro->update($datos);
 
-            $defectuosos = (int) $request->defectuosos;
-            if($defectuosos > 0){
-                $libro->update([
-                    'defectuosos' => $libro->defectuosos + $defectuosos,
-                    'piezas' => $libro->piezas - $defectuosos
-                ]);
-            }
+            // $defectuosos = (int) $request->defectuosos;
+            // if($defectuosos > 0){
+            //     $libro->update([
+            //         'defectuosos' => $libro->defectuosos + $defectuosos,
+            //         'piezas' => $libro->piezas - $defectuosos
+            //     ]);
+            // }
 
             if($editorial == 'MAJESTIC EDUCATION'){
-                $me_libro = \DB::connection('majesticeducation')->table('libros')
+                if($libro_opuesto == null){
+                    Libro::on('opuesto')->create($datos);
+                } else {
+                    $libro_opuesto->update($datos);
+                }
+
+                if($request->type != 'digital'){
+                    $me_libro = \DB::connection('majesticeducation')->table('libros')
                                 ->where('id', $me_libro->id)
                                 ->update($datos);
+                }
+                
             }
 
             $libro_nuevo = $libro->editorial.': '.$libro->type.' '.$libro->ISBN.' / '.$libro->titulo;
@@ -356,28 +370,37 @@ class LibroController extends Controller
     }
 
     public function get_libros(){
-        $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'piezas')->orderBy('titulo', 'asc')->get();
+        $libros = \DB::table('libros')->orderBy('titulo', 'asc')->get();
         return $libros;
     }
 
     public function get_libros_editorial($editorial){
         $libros = \DB::table('libros')
                 ->where('editorial', $editorial)
-                ->select('id', 'ISBN', 'titulo', 'piezas')
                 ->orderBy('titulo', 'asc')->get();
         return $libros;
     }
 
     public function busqueda_unidades($libros){
         // ENTRADAS
+        // EXCLUIR REGISTROS QUE NO SON TIPO ALUMNO
+        $code_registro = \DB::table('code_registro')
+                            ->select('registro_id')
+                            ->join('codes', 'code_registro.code_id', '=', 'codes.id')
+                            ->where('codes.tipo', '!=', 'alumno')
+                            ->groupBy('registro_id')
+                            ->get();
         $entradas = \DB::table('registros')
-                    ->select('libro_id as libro_id', \DB::raw('SUM(unidades) as entradas'))
-                    ->groupBy('libro_id')
-                    ->get();
+                            ->whereNotIn('id', $code_registro->pluck('registro_id'))
+                            ->select('libro_id as libro_id', \DB::raw('SUM(unidades) as entradas'))
+                            ->groupBy('libro_id')
+                            ->get(); 
         $devoluciones = \DB::table('devoluciones')
-                    ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
-                    ->groupBy('libro_id')
-                    ->get();
+                            ->join('remisiones', 'devoluciones.remisione_id', '=', 'remisiones.id')
+                            ->whereNotIn('remisiones.corte_id', [4])
+                            ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
+                            ->groupBy('libro_id')
+                            ->get();
         $saldevoluciones = \DB::table('saldevoluciones')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
                     ->groupBy('libro_id')
@@ -401,6 +424,7 @@ class LibroController extends Controller
         $remisiones = \DB::table('datos')
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->whereNotIn('remisiones.estado', ['Cancelado'])
+                    ->whereNotIn('remisiones.corte_id', [4])
                     ->whereNull('datos.deleted_at')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as remisiones'))
                     ->groupBy('libro_id')
@@ -409,9 +433,15 @@ class LibroController extends Controller
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as notas'))
                     ->groupBy('libro_id')
                     ->get();
+        // EXCLUIR TODAS LAS PROMOCIONES DE LIBROS DIGITALES QUE NO SON TIPO ALUMNO
+        $code_departure = \DB::table('code_departure')
+                    ->select('departure_id')
+                    ->groupBy('departure_id')
+                    ->get();
         $promociones = \DB::table('departures')
                     ->join('promotions', 'departures.promotion_id', '=', 'promotions.id')
                     ->whereNotIn('promotions.estado', ['Cancelado'])
+                    ->whereNotIn('departures.id', $code_departure->pluck('departure_id'))
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(departures.unidades) as promociones'))
                     ->groupBy('libro_id')
                     ->get();
@@ -430,6 +460,8 @@ class LibroController extends Controller
 
     public function assign_array($libro, $entradas, $saldevoluciones, $prodevoluciones, $devoluciones, $salidas, $entdevoluciones, $remisiones, $notas, $promociones, $donaciones){
         $relacion = [
+            'id' => 0,
+            'editorial' => '',
             'ISBN' =>'',
             'libro' => '',
             'entradas' => 0,
@@ -442,11 +474,15 @@ class LibroController extends Controller
             'notas' => 0,
             'promociones' => 0,
             'donaciones' => 0,
+            'defectuosos' => 0,
             'existencia' => 0,
         ];
         $relacion['existencia'] = $libro->piezas;
+        $relacion['id'] = $libro->id;
+        $relacion['editorial'] = $libro->editorial;
         $relacion['ISBN'] = $libro->ISBN;
         $relacion['libro'] = $libro->titulo;
+        $relacion['defectuosos'] = $libro->defectuosos;
         // ENTRADAS
         foreach($entradas as $entrada){
             if($libro->id === $entrada->libro_id)
@@ -675,6 +711,7 @@ class LibroController extends Controller
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->where('libro_id', $libro->id)
                     ->whereNotIn('remisiones.estado', ['Cancelado'])
+                    ->whereNotIn('remisiones.corte_id', [4])
                     ->whereNull('datos.deleted_at')
                     ->select('remisiones.id as remisione_id', 'unidades')
                     ->get();
@@ -1263,5 +1300,64 @@ class LibroController extends Controller
             'name_table' => 'libros', 
             'id_table' => $libro_id
         ]);
+    }
+
+    public function all_list(){
+        $s1 = Libro::orderBy('editorial', 'asc')
+                        ->orderBy('titulo', 'asc')
+                        ->where('estado', 'activo')
+                        ->where('editorial', 'MAJESTIC EDUCATION')->get();
+        $s2 = Libro::on('opuesto')->orderBy('editorial', 'asc')
+                        ->orderBy('titulo', 'asc')
+                        ->where('estado', 'activo')
+                        ->where('editorial', 'MAJESTIC EDUCATION')->get();
+        
+        $ls = $this->organizar_todo($s1, $s2);
+        return response()->json(['libros' => $ls, 'sistema_1' => env('APP_NAME'), 'sistema_2' => env('APP_OPUESTO')]);
+    }
+
+    public function organizar_todo($s1, $s2){
+        $ls = collect();
+        $s1->map(function($libro) use(&$ls, $s2){
+            $dato = [
+                'ISBN' => $libro->ISBN,
+                'titulo' => $libro->titulo,
+                'type' => $libro->type,
+                'editorial' => $libro->editorial,
+                'piezas_1' => $libro->piezas,
+                'defectuosos_1' => $libro->defectuosos,
+                'piezas_2' => 0,
+                'defectuosos_2' => 0,
+                'total_piezas' => $libro->piezas, 
+                'total_defectuosos' => $libro->defectuosos
+            ];
+
+            $s2->map(function($opuesto) use ($libro, &$dato){
+                if($opuesto->titulo == $libro->titulo){
+                    $dato['piezas_2'] = $opuesto->piezas;
+                    $dato['defectuosos_2'] = $opuesto->defectuosos;
+                    $dato['total_piezas'] = $dato['total_piezas'] + $opuesto->piezas;
+                    $dato['total_defectuosos'] = $dato['total_defectuosos'] + $opuesto->defectuosos;
+                }
+            });
+
+            $ls->push($dato);
+        });
+        return $ls;
+    }
+
+    public function all_libro(Request $request){
+        $s1 = Libro::where('titulo', 'like', '%'.$request->titulo.'%')
+                        ->where('estado', 'activo')
+                        ->where('editorial', 'MAJESTIC EDUCATION')->get();
+        $s2 = Libro::on('opuesto')->where('titulo', 'like', '%'.$request->titulo.'%')
+                        ->where('estado', 'activo')
+                        ->where('editorial', 'MAJESTIC EDUCATION')->get();
+        $ls = $this->organizar_todo($s1, $s2);
+        return response()->json($ls);
+    }
+
+    public function all_sistemas(){
+        return view('information.libros.lista-sistemas');
     }
 }

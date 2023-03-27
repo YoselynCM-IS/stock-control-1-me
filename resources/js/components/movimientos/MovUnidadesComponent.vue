@@ -84,7 +84,7 @@
                             <tr>
                                 <th colspan="3"></th>
                                 <th colspan="4" class="table-success text-center">ENTRADAS</th>
-                                <th colspan="6" class="table-primary text-center">SALIDAS</th>
+                                <th colspan="8" class="table-primary text-center">SALIDAS</th>
                                 <th></th>
                             </tr>
                         </template>
@@ -334,13 +334,13 @@ import getLibros from './../../mixins/getLibros';
             return {
                 options: [],
                 fields: [
-                    'ISBN', 'libro', 'existencia', 'entradas',
+                    'editorial', 'ISBN', 'libro', 'existencia', 'entradas',
                     {key: 'devoluciones', label: 'Devolución (Remisiones)'},
                     {key: 'saldevoluciones', label: 'Devolución (Salidas)'},
                     {key: 'prodevoluciones', label: 'Devolución (Promociones)'},
                     {key: 'salidas', label: 'Salidas (Querétaro)'},
                     {key: 'entdevoluciones', label: 'Devolución (Entradas)'},
-                    'remisiones', 'notas', 'donaciones', 'promociones', 'detalles'
+                    'remisiones', 'notas', 'donaciones', 'promociones', 'defectuosos', 'detalles'
                 ],
                 fregistros: [ { key: 'dato', label: 'Folio / Plantel' }, 'unidades' ],
                 devoluciones: [],
@@ -384,7 +384,7 @@ import getLibros from './../../mixins/getLibros';
         methods: {
             rowClass(item, type) {
                 var entradas = parseInt(item.entradas) + parseInt(item.devoluciones) + parseInt(item.saldevoluciones) + parseInt(item.prodevoluciones);
-                var salidas = parseInt(item.remisiones) + parseInt(item.notas) + parseInt(item.promociones) + parseInt(item.donaciones) + parseInt(item.entdevoluciones) + parseInt(item.salidas);
+                var salidas = parseInt(item.remisiones) + parseInt(item.notas) + parseInt(item.promociones) + parseInt(item.donaciones) + parseInt(item.entdevoluciones) + parseInt(item.salidas) + parseInt(item.defectuosos);
                 
                 var resultado = parseInt(entradas) - parseInt(salidas);
                 var piezas = parseInt(item.existencia);

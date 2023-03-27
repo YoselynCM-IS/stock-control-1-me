@@ -58,10 +58,16 @@
                 </b-button>
             </b-col>
             <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6"
+                    variant="dark" pill block href="/libro/all_sistemas" target="_blank">
+                    <i class="fa fa-list"></i> Todo
+                </b-button>
+            </b-col>
+            <b-col sm="2" class="text-right">
                 <!-- DESCARGAR LIBROS downloadExcel -->
                 <b-button :href="`/downloadExcel/${queryEditorial}`" 
                     variant="dark" pill block> 
-                    <i class="fa fa-download"></i> Lista
+                    <i class="fa fa-download"></i> Descargar
                 </b-button>
             </b-col>
             <b-col sm="2" class="text-right">
@@ -86,7 +92,7 @@
                     {{ data.item.defectuosos | formatNumber }}
                 </template>
                 <template v-slot:cell(accion)="data">
-                    <b-button v-if="role_id == 6 || role_id == 1"
+                    <b-button v-if="(role_id == 6 || role_id == 1) && data.item.externo == false"
                         style="color:white;" variant="warning" pill size="sm"
                         v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
                         <i class="fa fa-pencil"></i>
@@ -294,13 +300,18 @@
                         value: editorial.editorial,
                         text: editorial.editorial
                     });
-                });
+                }); 
 
+                var check = this.editoriales.length >= 2;
                 this.listEditoriales.push({ value: null, text: 'Seleccionar opción', disabled: true });
                 this.editoriales.forEach(editorial => {
+                    if(editorial.editorial == 'MAJESTIC EDUCATION' && check) var d = true;
+                    else var d = false;
+                    
                     this.listEditoriales.push({
                         value: editorial.editorial,
-                        text: editorial.editorial
+                        text: editorial.editorial,
+                        disabled: d
                     });
                 });
             },
@@ -317,10 +328,10 @@
             },
             libroModificado(libro){
                 this.$bvModal.hide('modal-editar');
+                this.libros[this.posicion].type = libro.type;
                 this.libros[this.posicion].ISBN = libro.ISBN;
                 this.libros[this.posicion].titulo = libro.titulo;
                 this.libros[this.posicion].editorial = libro.editorial;
-                this.libros[this.posicion].defectuosos = libro.defectuosos;
                 this.makeToast('success', 'El libro se modifico correctamente.');
             },
             // ELIMINAR LIBRO (FUNCIÓN NO UTILIZADA)

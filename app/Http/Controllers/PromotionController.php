@@ -15,6 +15,12 @@ use App\Libro;
 use App\Code;
 use Excel;
 use PDF;
+// use App\Enteditoriale;
+// use App\Editoriale;
+// use App\Registro;
+// use App\Ectotale;
+// use App\Entrada;
+// use App\Corte;
 
 class PromotionController extends Controller
 {
@@ -58,23 +64,13 @@ class PromotionController extends Controller
     public function store(Request $request){
         try{
             \DB::beginTransaction();
-            $num = Promotion::get()->count() + 1;
-            if($num < 10){
-                $folio = 'A-P000'.$num;
-            }
-            if($num >= 10 && $num < 100){
-                $folio = 'A-P00'.$num;
-            }
-            if($num >= 100 && $num < 1000){
-                $folio = 'A-P0'.$num;
-            }
-            if($num >= 1000 && $num < 10000){
-                $folio = 'A-P'.$num;
-            }
+            $ultimo = Promotion::all()->last();
+            $actual = (int)(substr($ultimo->folio, -4)) + 1;
+            $w_zeros = str_pad($actual, 4, '0',STR_PAD_LEFT);
             
             $promotion = Promotion::create([
                 'cliente_id' => $request->cliente_id,
-                'folio' => $folio,
+                'folio' => 'A-P'.$w_zeros,
                 'plantel' => strtoupper($request->plantel),
                 'descripcion' => strtoupper($request->descripcion),
                 'entregado_por' => $request->entregado_por,
@@ -290,4 +286,74 @@ class PromotionController extends Controller
             'id_table' => $promotion_id
         ]);
     }
+
+    // public function enviar(Request $request){
+    //     \DB::beginTransaction();
+    //     try {
+    //         $promotion = Promotion::find($request->promotion_id);
+    //         $hoy = Carbon::now();
+    //         $corte = Corte::where('inicio', '<', $hoy)
+    //                     ->where('final', '>', $hoy)
+    //                     ->first();
+    //         $entrada = Entrada::on('opuesto')->create([
+    //             'folio' => $promotion->folio,
+    //             'corte_id' => $corte->id,
+    //             'editorial' => 'MAJESTIC EDUCATION',
+    //             'unidades' => 0,
+    //             'lugar' => 'CMX',
+    //             'tipo' => 'promocion',
+    //             'creado_por' => auth()->user()->name,
+    //             'unidades' => $promotion->unidades,
+    //             'total' => 0
+    //         ]);
+            
+    //         $departures = $promotion->departures;
+    //         $departures->map(function($departure) use($entrada){
+    //             $unidades = (int) $departure->unidades;
+    //             $libro = Libro::on('opuesto')->where('titulo', $departure->libro->titulo)->first();
+    //             $libro_id = $libro->id;
+                
+    //             $registro = Registro::on('opuesto')->create([
+    //                 'entrada_id' => $entrada->id,
+    //                 'libro_id'  => $libro_id,
+    //                 'unidades'  => $unidades,
+    //                 'unidades_que'  => 0,
+    //                 'unidades_pendientes'  => $unidades,
+    //                 'costo_unitario' => 0,
+    //                 'total' => 0
+    //             ]);
+                
+    //             if($libro->type == 'digital') {
+    //                 $departure->codes->map(function($c) use($libro_id, $registro){
+    //                     $code = Code::on('opuesto')->create([
+    //                         'libro_id' => $libro_id, 
+    //                         'codigo' => $c->codigo,
+    //                         'tipo'  => $c->tipo,
+    //                         'estado' => 'inventario'
+    //                     ]);
+                        
+    //                     \DB::connection('opuesto')->table('code_registro')
+    //                         ->insert([
+    //                             'code_id' => $code->id,
+    //                             'registro_id' => $registro->id
+    //                         ]);
+    //                 });
+
+    //             }
+            
+    //             if($libro->type != 'digital'){
+    //                 // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
+    //                 $libro->update(['piezas' => $libro->piezas + $unidades]);
+    //             }
+    //         });
+
+    //         $promotion->update(['envio' => true]);
+
+    //         \DB::commit();
+    //     } catch (Exception $e) {
+    //         \DB::rollBack();
+    //         return response()->json($exception->getMessage());
+    //     }
+    //     return response()->json();
+    // }
 }

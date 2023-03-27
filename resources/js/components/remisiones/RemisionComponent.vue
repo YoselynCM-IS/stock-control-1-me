@@ -511,60 +511,66 @@
             // GUARDAR REGISTRO TEMPORAL
             guardarRegistro(){
                 var pzs = this.temporal.piezas;
-                if(this.remision.datos.length > 0 || this.remision.nuevos.length > 0){
-                    var acum = 0;
-                    if(!this.editar){
-                        this.remision.datos.forEach(dato => {
-                            if(this.temporal.id == dato.libro.id) {
-                                acum += parseInt(dato.unidades);
-                                pzs = this.temporal.piezas - acum;
-                            }
-                        });
-                    } else {
-                        this.remision.nuevos.forEach(nuevo => {
-                            if(this.temporal.id == nuevo.libro.id) {
-                                acum += parseInt(nuevo.unidades);
-                                pzs = this.temporal.piezas - acum;
-                            }
-                        });
+                var check1 = this.remision.datos.find(d => d.libro.id == this.temporal.id);
+                var check2 = this.remision.nuevos.find(d => d.libro.id == this.temporal.id);
+                if(check1 == undefined && check2 == undefined){
+                    if(this.remision.datos.length > 0 || this.remision.nuevos.length > 0){
+                        var acum = 0;
+                        if(!this.editar){
+                            this.remision.datos.forEach(dato => {
+                                if(this.temporal.id == dato.libro.id) {
+                                    acum += parseInt(dato.unidades);
+                                    pzs = this.temporal.piezas - acum;
+                                }
+                            });
+                        } else {
+                            this.remision.nuevos.forEach(nuevo => {
+                                if(this.temporal.id == nuevo.libro.id) {
+                                    acum += parseInt(nuevo.unidades);
+                                    pzs = this.temporal.piezas - acum;
+                                }
+                            });
+                        }
+                        
                     }
-                    
-                }
 
-                if(this.unidades > 0){
-                    if(this.unidades <= pzs){
-                        if(this.costo_unitario > 0){
-                            this.temporal.unidades = this.unidades;
-                            this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                            var insert = {
-                                libro: {
-                                    id: this.temporal.id,
-                                    ISBN: this.temporal.ISBN,
-                                    titulo: this.temporal.titulo
-                                },
-                                costo_unitario: this.temporal.costo_unitario,
-                                unidades: this.temporal.unidades,
-                                total: this.temporal.total
-                            };
-                            this.mostrarDatos = false;
-                            if(!this.editar){
-                                this.remision.datos.push(insert);
-                            } else {
-                                this.remision.nuevos.push(insert);
+                    if(this.unidades > 0){
+                        if(this.unidades <= pzs){
+                            if(this.costo_unitario > 0){
+                                this.temporal.unidades = this.unidades;
+                                this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                                var insert = {
+                                    libro: {
+                                        id: this.temporal.id,
+                                        ISBN: this.temporal.ISBN,
+                                        titulo: this.temporal.titulo
+                                    },
+                                    costo_unitario: this.temporal.costo_unitario,
+                                    unidades: this.temporal.unidades,
+                                    total: this.temporal.total
+                                };
+                                this.mostrarDatos = false;
+                                if(!this.editar){
+                                    this.remision.datos.push(insert);
+                                } else {
+                                    this.remision.nuevos.push(insert);
+                                }
+                                this.remision.total += this.temporal.total;
+                                this.inicializar_registro();
                             }
-                            this.remision.total += this.temporal.total;
-                            this.inicializar_registro();
+                            else{
+                                this.makeToast('warning', 'El costo unitario debe ser mayor a 0');
+                            } 
                         }
                         else{
-                            this.makeToast('warning', 'El costo unitario debe ser mayor a 0');
-                        } 
+                            this.makeToast('warning', `${pzs} piezas en existencia.`);
+                        }
                     }
                     else{
-                        this.makeToast('warning', `${pzs} piezas en existencia.`);
+                        this.makeToast('warning', 'Las unidades deben ser mayor a 0.');
                     }
-                }
-                else{
-                    this.makeToast('warning', 'Las unidades deben ser mayor a 0.');
+                } else{
+                    this.makeToast('warning', 'El libro ya ha sido agregado.');
                 }
             },
             // ELIMINAR REGISTRO TEMPORAL

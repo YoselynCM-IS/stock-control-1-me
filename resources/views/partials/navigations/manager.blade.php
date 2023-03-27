@@ -99,6 +99,6 @@
 </li>
 <user-notifications :user_id="{{auth()->user()->id}}" :noleidos="{{Auth::user()->unreadNotifications}}"></user-notifications>
 <li>
-	<a class="nav-link" href="{{ route('information.majestic') }}" target="_blank">{{ __("MAJESTIC") }}</a>
+	<a class="nav-link" href="{{ route('information.majestic') }}" target="_blank">{{ __("Querétaro") }}</a>
 </li>	
 @include('partials.navigations.logged')

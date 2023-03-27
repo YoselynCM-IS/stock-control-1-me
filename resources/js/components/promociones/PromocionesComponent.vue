@@ -105,6 +105,13 @@
                         </b-button>
                     </template>
                     <template v-slot:cell(devolucion)="row">
+                        <!-- OMEGA BOOK / MODIFICAR CLIENTE_ID (ESTO ES DESDE MAJESTIC EDUCATION)-->
+                        <!-- <b-button v-if="(row.item.cliente_id !== 288 && row.item.plantel !== 'OMEGA BOOK') 
+                            && row.item.estado == 'Enviado' && row.item.unidades_pendientes > 0 &&
+                            (role_id === 1 || role_id == 2 || role_id == 6)"
+                            variant="primary" pill  @click="registrarDevolucion(row.item)">
+                            Devolución
+                        </b-button> -->
                         <b-button v-if="row.item.estado == 'Enviado' && row.item.unidades_pendientes > 0 &&
                             (role_id === 1 || role_id == 2 || role_id == 6)"
                             variant="primary" pill  @click="registrarDevolucion(row.item)">
@@ -139,7 +146,18 @@
                     <h6><b>Plantel</b>: {{ promotion.plantel }}</h6>
                     <h6 v-if="promotion.descripcion.length > 0"><b>Descripción</b>: {{ promotion.descripcion }}</h6>
                 </b-col>
+                <!-- OMEGA BOOK / MODIFICAR CLIENTE_ID (ESTO ES DESDE MAJESTIC EDUCATION)-->
+                <!-- <b-col v-if="promotion.cliente_id == 288 && promotion.plantel == 'OMEGA BOOK'" sm="2">
+                    <b-button v-if="(role_id === 1 || role_id === 2 || role_id == 6) && promotion.envio == false && promotion.estado != 'Cancelado'" 
+                        variant="dark" pill block @click="enviarPromotion()">
+                        <i class="fa fa-send"></i> Enviar
+                    </b-button>
+                </b-col> -->
                 <b-col sm="2">
+                    <!-- <b-button v-if="promotion.estado == 'Enviado' && promotion.unidades_devolucion == 0 && promotion.envio == false"
+                        variant="danger" pill block v-b-modal.modal-cancel>
+                        <i class="fa fa-close"></i> Cancelar
+                    </b-button> -->
                     <b-button v-if="promotion.estado == 'Enviado' && promotion.unidades_devolucion == 0"
                         variant="danger" pill block v-b-modal.modal-cancel>
                         <i class="fa fa-close"></i> Cancelar
@@ -856,15 +874,20 @@ import searchCliente from '../../mixins/searchCliente';
             },
             // VERIFICAR UNIDADES
             guardarRegistro(){
-                if(this.temporal.unidades > 0){
-                    if(this.temporal.unidades < 11){
-                        this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
-                        this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
+                var check = this.registros.find(d => d.id == this.temporal.id);
+                if(check == undefined){
+                    if(this.temporal.unidades > 0){
+                        if(this.temporal.unidades < 31 || (this.temporal.titulo.includes('CATALOGO') == true && this.temporal.unidades < 251)){
+                            this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
+                            this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
+                        } else{
+                            this.makeToast('warning', 'Las unidades no pueden ser mayor a 30 o mayor a 250 en catálogo.');
+                        }
                     } else{
-                        this.makeToast('warning', 'Las unidades no pueden ser mayor a 10');
+                        this.makeToast('warning', 'Unidades invalidas');
                     }
                 } else{
-                    this.makeToast('warning', 'Unidades invalidas');
+                    this.makeToast('warning', 'El libro ya ha sido agregado.');
                 }
             },
             // ELIMINAR REGISTRO TEMPORAL
@@ -1004,7 +1027,20 @@ import searchCliente from '../../mixins/searchCliente';
                 }).catch(error => {
                     this.load = false;
                 });
-            }
+            },
+            // enviarPromotion(){
+            //     this.load = true;
+            //     let form = { promotion_id: this.promotion.id };
+            //     axios.put('/promotions/enviar', form).then(response => {
+            //         swal("OK", "La promoción se envió correctamente.", "success")
+            //             .then((value) => { location.reload(); });
+            //         this.load = false;
+            //     })
+            //     .catch(error => {
+            //         this.load = false;
+            //         this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+            //     });
+            // }
         }
     }
 </script>

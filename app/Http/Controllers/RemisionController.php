@@ -33,6 +33,11 @@ use App\Code;
 use Excel;
 use PDF;
 use DB;
+// use App\Entrada;
+// use App\Registro;
+// use App\Ectotale;
+// use App\Editoriale;
+// use App\Enteditoriale;
 
 class RemisionController extends Controller
 {
@@ -602,10 +607,20 @@ class RemisionController extends Controller
             
             // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
             $cctotale = $this->get_cctotale($remision);
-            $cctotale->update([
-                'total' => $cctotale->total + $remision->total,
-                'total_pagar' => $cctotale->total_pagar + $remision->total
-            ]);
+            if($cctotale == null){
+                Cctotale::create([
+                    'cliente_id' => $remision->cliente_id,
+                    'corte_id'  => $remision->corte_id,
+                    'total' => $remision->total,
+                    'total_pagar' => $remision->total
+                ]);
+            } else {
+                $cctotale->update([
+                    'total' => $cctotale->total + $remision->total,
+                    'total_pagar' => $cctotale->total_pagar + $remision->total
+                ]);
+            }
+            
 
             // BUSCAR EL CLIENTE Y AFECTAR SU CUENTA GENERAL
             $remcliente = Remcliente::where('cliente_id', $remision->cliente_id)->first();
@@ -1350,5 +1365,91 @@ class RemisionController extends Controller
             'id_table' => $id_table
         ]);
     }
+
+    // public function enviar(Request $request){
+    //     \DB::beginTransaction();
+    //     try {
+    //         $remision = Remisione::find($request->remision_id);
+
+    //         $entrada = Entrada::on('opuesto')->create([
+    //                 'folio' => $remision->id,
+    //                 'corte_id' => $remision->corte_id,
+    //                 'editorial' => 'MAJESTIC EDUCATION',
+    //                 'unidades' => 0,
+    //                 'lugar' => 'CMX',
+    //                 'tipo' => 'remision',
+    //                 'creado_por' => auth()->user()->name,
+    //                 'total' => $remision->total
+    //             ]);
+
+            
+    //         $datos = $remision->datos;
+    //         $total_unidades = 0;
+            
+    //         $datos->map(function($dato) use(&$total_unidades, $entrada){
+    //             $unidades = (int) $dato->unidades;
+    //             $libro = Libro::on('opuesto')->where('titulo', $dato->libro->titulo)->first();
+    //             $libro_id = $libro->id;
+
+    //             $registro = Registro::on('opuesto')->create([
+    //                 'entrada_id' => $entrada->id,
+    //                 'libro_id'  => $libro_id,
+    //                 'unidades'  => $unidades,
+    //                 'unidades_que'  => 0,
+    //                 'unidades_pendientes'  => $unidades,
+    //                 'costo_unitario' => $dato->costo_unitario,
+    //                 'total' => $dato->total
+    //             ]);
+
+    //             if($libro->type == 'digital') {
+    //                 $dato->codes->map(function($c) use($libro_id, $registro){
+    //                     $code = Code::on('opuesto')->create([
+    //                         'libro_id' => $libro_id, 
+    //                         'codigo' => $c->codigo,
+    //                         'tipo'  => 'alumno',
+    //                         'estado' => 'inventario'
+    //                     ]);
+
+    //                     \DB::connection('opuesto')->table('code_registro')
+    //                         ->insert([
+    //                             'code_id' => $code->id,
+    //                             'registro_id' => $registro->id
+    //                         ]);
+    //                 });
+
+    //             }
+
+    //             // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
+    //             $libro->update(['piezas' => $libro->piezas + $unidades]);
+
+    //             $total_unidades += $unidades;
+    //         });
+
+    //         $entrada->update(['unidades' => $total_unidades]);
+            
+    //         $editoriale = Editoriale::on('opuesto')->where('editorial', 'MAJESTIC EDUCATION')->first();
+    //         $ectotale = Ectotale::on('opuesto')->where([
+    //                     'corte_id' => $entrada->corte_id, // CAMBIAR POR ENTRADA
+    //                     'editoriale_id' => $editoriale->id
+    //                 ])->first();
+    //         $ectotale->update([
+    //             'total' => $ectotale->total + $entrada->total,
+    //             'total_pagar' => $ectotale->total_pagar + $entrada->total
+    //         ]);
+    //         $enteditoriale = Enteditoriale::on('opuesto')->where('editorial', $editoriale->editorial)->first();
+    //         $enteditoriale->update([
+    //             'total' => $enteditoriale->total + $entrada->total,
+    //             'total_pendiente' => $enteditoriale->total_pendiente + $entrada->total
+    //         ]);
+
+    //         $remision->update(['envio' => true]);
+
+    //         \DB::commit();
+    //     } catch (Exception $e) {
+    //         \DB::rollBack();
+    //         return response()->json($exception->getMessage());
+    //     }
+    //     return response()->json();
+    // }
     
 }

@@ -83,6 +83,26 @@ return [
             ]) : [],
         ],
 
+        'opuesto' => [
+            'driver' => 'mysql',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_OPUESTO', '127.0.0.1'),
+            'port' => env('DB_PORT_OPUESTO', '3306'),
+            'database' => env('DB_DATABASE_OPUESTO', 'forge'),
+            'username' => env('DB_USERNAME_OPUESTO', 'forge'),
+            'password' => env('DB_PASSWORD_OPUESTO', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => 'InnoDB',
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

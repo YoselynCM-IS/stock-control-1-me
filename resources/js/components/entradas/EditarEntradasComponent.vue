@@ -107,6 +107,19 @@
                         {{ row.item.created_at | moment }}
                     </template>
                     <template v-slot:cell(editar)="row">
+                        <!-- <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 6) 
+                            && (row.item.total == 0 && row.item.editorial !== 'MAJESTIC EDUCATION')"
+                            @click="editarEntrada(row.item, row.index)"
+                            style="color:white;" variant="warning"> 
+                            <i class="fa fa-pencil"></i>
+                        </b-button>
+                        <b-button
+                            v-if="(role_id === 1 || role_id == 3 || role_id == 6) 
+                            && (row.item.total > 0 && ((row.item.total - (row.item.total_pagos + row.item.total_devolucion)) > 0) 
+                            || (row.item.editorial == 'MAJESTIC EDUCATION' && row.item.tipo == 'promocion'))"
+                            @click="registrarDevolucion(row.item, row.index)"
+                            variant="primary">Devolución
+                        </b-button> -->
                         <b-button v-if="(role_id === 1 || role_id == 2 || role_id == 6) && row.item.total == 0"
                             @click="editarEntrada(row.item, row.index)"
                             style="color:white;" variant="warning"> 

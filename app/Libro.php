@@ -31,7 +31,8 @@ class Libro extends Model
         'piezas',
         'defectuosos',
         'estado',
-        'type'
+        'type',
+        'externo'
     ];
 
     //Uno a muchos

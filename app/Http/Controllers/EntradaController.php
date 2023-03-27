@@ -27,6 +27,14 @@ use App\Corte;
 use App\Code;
 use Excel;
 use PDF;
+// use App\Fecha;
+// use App\Cctotale;
+// use App\Departure;
+// use App\Remisione;
+// use App\Promotion;
+// use App\Remcliente;
+// use App\Devolucione;
+// use App\Prodevolucione;
 
 class EntradaController extends Controller
 {
@@ -540,7 +548,7 @@ class EntradaController extends Controller
             $total = 0;
             $items = collect($request->registros);
             $hoy = Carbon::now();
-
+            // $codes_ids = collect(); &$codes_ids, 
             $items->map(function($item) use($entrada, &$total, $hoy){
                 $unidades_base = (int) $item['unidades_base'];
                 $total_base = (double) $item['total_base'];
@@ -580,6 +588,7 @@ class EntradaController extends Controller
                             ->updateExistingPivot($code->pivot->registro_id, [
                                 'devolucion' => true
                             ]);
+                        //  use (&$codes_ids) $codes_ids->push($code->id);
                     });
                 }
                 $total += $total_base;
@@ -600,6 +609,164 @@ class EntradaController extends Controller
                 'total_devolucion' => $editorial->total_devolucion + $total,
                 'total_pendiente' => $editorial->total_pendiente - $total
             ]);
+
+            // // SOLO SI EL PROVEEDOR ES MAJESTIC EDUCATION
+            // if($entrada->editorial == 'MAJESTIC EDUCATION'){
+            //     if($entrada->tipo == 'remision'){
+            //         $remision = Remisione::on('opuesto')->whereId($entrada->folio)->first();
+                
+            //         $entregado_por = auth()->user()->name;
+            //         $total_devolucion = 0;
+
+            //         // DEVOLUCIONES
+            //         $entdevoluciones = $entrada->entdevoluciones;
+            //         $hoy = Carbon::now();
+                    
+            //         $entdevoluciones->map(function($entdevolucion) use($remision, $entregado_por, &$total_devolucion, $hoy){
+            //             $unidades_base = $entdevolucion->unidades;
+            //             $total_base = $entdevolucion->total;
+                        
+            //             if($unidades_base != 0){
+            //                 // BUSCAR EL LIBRO EN MAJESTIC EDUCATION
+            //                 $libro = Libro::on('opuesto')->where('titulo', $entdevolucion->registro->libro->titulo)->first();
+            //                 // Buscar devolución
+            //                 $devolucion = Devolucione::on('opuesto')->where([
+            //                     'remisione_id' => $remision->id,
+            //                     'libro_id' => $libro->id
+            //                 ])->first();
+                            
+            //                 // Crear registros de fecha de la devolución
+            //                 $fecha = Fecha::on('opuesto')->create([
+            //                     'remisione_id' => $remision->id,
+            //                     'fecha_devolucion' => $hoy->format('Y-m-d'),
+            //                     'libro_id' => $libro->id,
+            //                     'unidades' => $unidades_base,
+            //                     'total' => $total_base,
+            //                     'entregado_por' => $entregado_por,
+            //                     'creado_por' => auth()->user()->name,
+            //                     'created_at' => $hoy,
+            //                     'updated_at' => $hoy
+            //                 ]);
+                            
+            //                 $unidades = $devolucion->unidades + $unidades_base;
+            //                 $total = $devolucion->total + $total_base;
+            //                 $unidades_resta = $devolucion->unidades_resta - $unidades_base;
+            //                 $total_resta = $devolucion->total_resta - $total_base;
+                            
+            //                 // Actualizar la tabla de devolución
+            //                 $devolucion->update([
+            //                     'unidades' => $unidades, 
+            //                     'unidades_resta' => $unidades_resta,
+            //                     'total' => $total,
+            //                     'total_resta' => $total_resta
+            //                 ]);
+
+            //                 // AUMENTAR PIEZAS DE LOS LIBROS DEVUELTOS
+            //                 $libro->update(['piezas' => $libro->piezas + $unidades_base]);  
+            //             } 
+
+            //             $total_devolucion += $total_base;
+            //         });
+
+            //         // DEVOLUCION DE CODIGOS
+            //         $codes = Code::whereIn('id', $codes_ids)->get();
+            //         $codes->map(function($code) use($remision){
+            //             $c = Code::on('opuesto')->where('codigo', $code->codigo)->first();
+            //             $c->update(['estado' => 'inventario']);;
+            //             \DB::connection('opuesto')->table('code_dato')
+            //                 ->whereIn('dato_id', $remision->datos->pluck('id'))
+            //                 ->where('code_id', $c->id)->update([
+            //                     'devolucion' => true
+            //                 ]);
+            //         });
+
+            //         $total_pagar = $remision->total_pagar - $total_devolucion;
+            //         $t_devolucion = $remision->total_devolucion + $total_devolucion;
+                
+            //         if ((int) $total_pagar === 0) {
+            //             $remision->update(['estado' => 'Terminado']); 
+            //         }
+
+            //         // ACTUALIZAR REMISION
+            //         $remision->update([
+            //             'total_devolucion' => $t_devolucion,
+            //             'total_pagar'   => $total_pagar
+            //         ]);
+
+            //         // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
+            //         $cctotale = Cctotale::on('opuesto')->where([
+            //             'cliente_id' => $remision->cliente_id,
+            //             'corte_id'  => $remision->corte_id
+            //         ])->first();
+            //         $cctotale->update([
+            //             'total_devolucion' => $cctotale->total_devolucion + $total_devolucion,
+            //             'total_pagar' => $cctotale->total_pagar - $total_devolucion
+            //         ]);
+
+            //         // ACTUALIZAR CUENTA GENERAL DEL CLIENTE
+            //         $remcliente = Remcliente::on('opuesto')->where('cliente_id', $remision->cliente_id)->first();
+            //         $remcliente->update([
+            //             'total_devolucion' => $remcliente->total_devolucion + $total_devolucion,
+            //             'total_pagar' => $remcliente->total_pagar - $total_devolucion
+            //         ]);
+            //     }
+            //     if($entrada->tipo == 'promocion'){
+            //         $promotion = Promotion::on('opuesto')->where('folio', $request->folio)->first();
+                    
+            //         // DEVOLUCIONES
+            //         $entdevoluciones = $entrada->entdevoluciones;
+            //         $total_unidades = 0;
+            //         $entdevoluciones->map(function($entdevolucion) use($promotion, &$total_unidades){
+            //             $unidades_devolucion = $entdevolucion->unidades;
+            //             if($unidades_devolucion != 0){
+            //                 // BUSCAR EL LIBRO EN MAJESTIC EDUCATION
+            //                 $libro = Libro::on('opuesto')->where('titulo', $entdevolucion->registro->libro->titulo)->first();
+            //                 $libro_id = $libro->id;
+            //                 $departure = Departure::on('opuesto')->where([
+            //                     'promotion_id' => $promotion->id,
+            //                     'libro_id' => $libro_id
+            //                 ])->first();
+                            
+            //                 $pd = Prodevolucione::create([
+            //                     'promotion_id' => $promotion->id, 
+            //                     'libro_id' => $libro_id, 
+            //                     'unidades' => $unidades_devolucion,
+            //                     'creado_por' => auth()->user()->name
+            //                 ]);
+            
+            //                 // ACTUALIZAR UNIDADES PENDIENTES DE ESE LIBRO EN ESA PROMOCION
+            //                 $departure->update([
+            //                     'unidades_pendientes' => $departure->unidades_pendientes - $unidades_devolucion
+            //                 ]);
+            
+            //                 if($libro->type != 'digital'){
+            //                     // AUMENTAR PIEZAS DE LOS LIBROS AGREGADOS
+            //                     $libro->update(['piezas' => $libro->piezas + $unidades_devolucion]);
+            //                 }
+            //                 $total_unidades += $unidades_devolucion;
+            //             }
+            //         });
+            
+            //         // DEVOLUCION DE CODIGOS
+            //         $codes = Code::whereIn('id', $codes_ids)->get();
+            //         $codes->map(function($code) use($promotion){
+            //             $c = Code::on('opuesto')->where('codigo', $code->codigo)->first();
+            //             $c->update(['estado' => 'inventario']);;
+            //             \DB::connection('opuesto')->table('code_departure')
+            //                 ->whereIn('departure_id', $promotion->departures->pluck('id'))
+            //                 ->where('code_id', $c->id)->update([
+            //                     'devolucion' => true
+            //                 ]);
+            //         });
+            
+            //         $unidades_devolucion = $promotion->unidades_devolucion + $total_unidades;
+            //         $unidades_pendientes = $promotion->unidades - $unidades_devolucion;
+            //         $promotion->update([
+            //             'unidades_devolucion' => $unidades_devolucion,
+            //             'unidades_pendientes' => $unidades_pendientes
+            //         ]);
+            //     }
+            // }
 
             $reporte = 'registro la devolución de la entrada '.$entrada->folio.' de '.$entrada->editorial;
             $this->create_report($entrada->id, $reporte, 'proveedor', 'entdevoluciones');
@@ -683,9 +850,7 @@ class EntradaController extends Controller
 
     public function validate_favor($corte_id, $editoriale_id, $corte_id_favor, $monto){
         $ectotale = $this->get_ectotale($corte_id, $editoriale_id);
-        return response()->json('hola');
         if($corte_id_favor == 'null') {
-            return response()->json('hola');
             $this->update_ectotale($ectotale, $monto);
         } else {
             $total_favor = $monto - $ectotale->total_pagar;

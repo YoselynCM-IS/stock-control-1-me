@@ -10,7 +10,8 @@
                     <th colspan="5" class="text-center">Pagos</th>
                 </tr>
             </template>
-            <template v-if="role_id == 1 || role_id == 2 || role_id == 6" v-slot:cell(foto)="row">
+            <template v-if="role_id == 1 || role_id == 2 || role_id == 6" 
+                v-slot:cell(fotos)="row">
                 <b-button v-if="!row.item.foto" pill size="sm" variant="info" 
                     @click="selectImage(row.item)">
                     <i class="fa fa-camera-retro"></i>
@@ -85,7 +86,7 @@ export default {
                 {key: 'ingresado_por', label: 'Ingresado por'},
                 'nota',
                 {key: 'fecha', label: 'Fecha del pago'},
-                { key: 'foto', label: '' },
+                { key: 'fotos', label: '' },
                 { key: 'actions', label: '' }
             ],
             form: {

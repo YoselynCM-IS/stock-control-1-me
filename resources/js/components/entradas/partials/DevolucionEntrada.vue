@@ -126,6 +126,7 @@ export default {
     methods: {
         // GUARDAR DEVOLUCION
         confirmarDevolucion(){
+            // if(this.form.todo_total > 0 || (this.form.editorial == 'MAJESTIC EDUCATION' && this.form.todo_total == 0)){
             if(this.form.todo_total > 0){
                 this.$refs['modal-confirmarDevolucion'].show();
             } else {

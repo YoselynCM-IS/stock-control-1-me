@@ -70,6 +70,12 @@
                         </b-button>
                     </template> -->
                     <template v-slot:cell(registrar_devolucion)="row">
+                        <!-- OMEGA BOOK / MODIFICAR CLIENTE_ID (ESTO ES DESDE MAJESTIC EDUCATION)-->
+                        <!-- <b-button v-if="(row.item.cliente_id !== 288 && row.item.cliente.name !== 'OMEGA BOOK')
+                             && (row.item.total_pagar > 0 && (role_id == 1 || role_id == 3 || role_id == 6))" 
+                            variant="dark" 
+                            @click="registrarDevolucion(row.item, row.index)">Devolución
+                        </b-button> -->
                         <b-button 
                             v-if="row.item.total_pagar > 0 && (role_id == 1 || role_id == 3 || role_id == 6)" 
                             variant="dark" 
@@ -77,6 +83,12 @@
                         </b-button>
                     </template>
                     <template v-slot:cell(cerrar_remision)="row">
+                        <!-- OMEGA BOOK / MODIFICAR CLIENTE_ID (ESTO ES DESDE MAJESTIC EDUCATION)-->
+                        <!-- <b-button v-if="(row.item.cliente_id !== 288 && row.item.cliente.name !== 'OMEGA BOOK')
+                            && row.item.total_pagar > 0 && (role_id == 1 || role_id == 2 || role_id == 6)" 
+                            @click="cerrarRemision(row.item, row.index)"
+                            variant="secondary">Cerrar
+                        </b-button>  -->
                         <b-button 
                             v-if="row.item.total_pagar > 0 && (role_id == 1 || role_id == 2 || role_id == 6)" 
                             @click="cerrarRemision(row.item, row.index)"

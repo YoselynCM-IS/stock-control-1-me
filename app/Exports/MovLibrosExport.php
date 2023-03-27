@@ -50,7 +50,7 @@ class MovLibrosExport implements FromView
     }
 
     public function get_libros(){
-        $libros = \DB::table('libros')->select('id', 'ISBN', 'titulo', 'piezas')->orderBy('titulo', 'asc')->get();
+        $libros = \DB::table('libros')->orderBy('titulo', 'asc')->get();
         return $libros;
     }
 
@@ -65,14 +65,24 @@ class MovLibrosExport implements FromView
 
     public function busqueda_unidades($libros){
         // ENTRADAS
+        // EXCLUIR REGISTROS QUE NO SON TIPO ALUMNO
+        $code_registro = \DB::table('code_registro')
+                            ->select('registro_id')
+                            ->join('codes', 'code_registro.code_id', '=', 'codes.id')
+                            ->where('codes.tipo', '!=', 'alumno')
+                            ->groupBy('registro_id')
+                            ->get();
         $entradas = \DB::table('registros')
-                    ->select('libro_id as libro_id', \DB::raw('SUM(unidades) as entradas'))
-                    ->groupBy('libro_id')
-                    ->get();
+                            ->whereNotIn('id', $code_registro->pluck('registro_id'))
+                            ->select('libro_id as libro_id', \DB::raw('SUM(unidades) as entradas'))
+                            ->groupBy('libro_id')
+                            ->get(); 
         $devoluciones = \DB::table('devoluciones')
-                    ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
-                    ->groupBy('libro_id')
-                    ->get(); 
+                            ->join('remisiones', 'devoluciones.remisione_id', '=', 'remisiones.id')
+                            ->whereNotIn('remisiones.corte_id', [4])
+                            ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
+                            ->groupBy('libro_id')
+                            ->get();
         $saldevoluciones = \DB::table('saldevoluciones')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
                     ->groupBy('libro_id')
@@ -82,6 +92,12 @@ class MovLibrosExport implements FromView
                     ->groupBy('libro_id')
                     ->get();
         // SALIDAS
+        $salidas = \DB::table('sregistros')
+                    ->join('salidas', 'sregistros.salida_id', '=', 'salidas.id')
+                    ->where('salidas.estado', 'enviado')
+                    ->select('libro_id as libro_id' ,\DB::raw('SUM(sregistros.unidades) as salidas'))
+                    ->groupBy('libro_id')
+                    ->get();
         $entdevoluciones = \DB::table('entdevoluciones')
                     ->join('registros', 'entdevoluciones.registro_id', 'registros.id')
                     ->select('registros.libro_id as libro_id' ,\DB::raw('SUM(entdevoluciones.unidades) as entdevoluciones'))
@@ -90,6 +106,7 @@ class MovLibrosExport implements FromView
         $remisiones = \DB::table('datos')
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->whereNotIn('remisiones.estado', ['Cancelado'])
+                    ->whereNotIn('remisiones.corte_id', [4])
                     ->whereNull('datos.deleted_at')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as remisiones'))
                     ->groupBy('libro_id')
@@ -98,18 +115,20 @@ class MovLibrosExport implements FromView
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as notas'))
                     ->groupBy('libro_id')
                     ->get();
+        // EXCLUIR TODAS LAS PROMOCIONES DE LIBROS DIGITALES QUE NO SON TIPO ALUMNO
+        $code_departure = \DB::table('code_departure')
+                    ->select('departure_id')
+                    ->groupBy('departure_id')
+                    ->get();
         $promociones = \DB::table('departures')
-                    ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as promociones'))
+                    ->join('promotions', 'departures.promotion_id', '=', 'promotions.id')
+                    ->whereNotIn('promotions.estado', ['Cancelado'])
+                    ->whereNotIn('departures.id', $code_departure->pluck('departure_id'))
+                    ->select('libro_id as libro_id' ,\DB::raw('SUM(departures.unidades) as promociones'))
                     ->groupBy('libro_id')
                     ->get();
         $donaciones = \DB::table('donaciones')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as donaciones'))
-                    ->groupBy('libro_id')
-                    ->get();
-        $salidas = \DB::table('sregistros')
-                    ->join('salidas', 'sregistros.salida_id', '=', 'salidas.id')
-                    ->where('salidas.estado', 'enviado')
-                    ->select('libro_id as libro_id' ,\DB::raw('SUM(sregistros.unidades) as salidas'))
                     ->groupBy('libro_id')
                     ->get();
 
@@ -123,7 +142,9 @@ class MovLibrosExport implements FromView
 
     public function assign_array($libro, $entradas, $saldevoluciones, $prodevoluciones, $devoluciones, $salidas, $entdevoluciones, $remisiones, $notas, $promociones, $donaciones){
         $relacion = [
-            'ISBN' => '',
+            'id' => 0,
+            'editorial' => '',
+            'ISBN' =>'',
             'libro' => '',
             'entradas' => 0,
             'devoluciones' => 0,
@@ -135,11 +156,15 @@ class MovLibrosExport implements FromView
             'notas' => 0,
             'promociones' => 0,
             'donaciones' => 0,
+            'defectuosos' => 0,
             'existencia' => 0,
         ];
         $relacion['existencia'] = $libro->piezas;
+        $relacion['id'] = $libro->id;
+        $relacion['editorial'] = $libro->editorial;
         $relacion['ISBN'] = $libro->ISBN;
         $relacion['libro'] = $libro->titulo;
+        $relacion['defectuosos'] = $libro->defectuosos;
         // ENTRADAS
         foreach($entradas as $entrada){
             if($libro->id === $entrada->libro_id)

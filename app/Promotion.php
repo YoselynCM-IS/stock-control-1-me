@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Prodevolucione;
 use App\Departure;
+use App\Cliente;
 
 class Promotion extends Model
 {
@@ -32,5 +33,9 @@ class Promotion extends Model
     //Una promoción puede tener muchas devoluciones
     public function prodevoluciones(){
         return $this->hasMany(Prodevolucione::class);
+    }
+
+    public function cliente(){
+        return $this->belongsTo(Cliente::class);
     }
 }

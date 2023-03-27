@@ -14,7 +14,7 @@ class ManagerController extends Controller
 {
     // INICIO CORTES
     public function lista_cortes(){
-        return view('manager.cortes.lista');
+        return view('information.cortes.clientes.lista');
     }
 
     // PAGOS DE CLIENTES
