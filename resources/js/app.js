@@ -25,6 +25,8 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 // import Datepicker from 'vuejs-datepicker';
 
+import swal from 'sweetalert';
+
 import VueResource from 'vue-resource';
 Vue.use(VueResource);
 
