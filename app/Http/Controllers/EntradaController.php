@@ -803,11 +803,12 @@ class EntradaController extends Controller
     // GUARDAR PAGO
     public function save_pago(Request $request){
         $editorial = Enteditoriale::whereId($request->enteditoriale_id)->first();
+        $e = Editoriale::where('editorial', $editorial->editorial)->first();
         \DB::beginTransaction();
         try {
             $monto = (double) $request->pago;
             $corte_id = $request->corte_id;
-            $editoriale_id = $request->editoriale_id;
+            $editoriale_id = $e->id;
             $corte_id_favor = $request->corte_id_favor;
 
             // *** SUBIR IMAGEN
