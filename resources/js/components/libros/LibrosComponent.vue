@@ -97,13 +97,13 @@
                         v-b-modal.modal-editar @click="editarLibro(data.item, data.index)">
                         <i class="fa fa-pencil"></i>
                     </b-button>
-                    <div v-if="role_id == 6">
-                        <b-button variant="danger" pill @click="inactivarLibro(data.item)"
-                             size="sm">
+                    <div>
+                        <b-button v-if="role_id == 6" variant="danger" pill 
+                            @click="inactivarLibro(data.item)" size="sm">
                             <i class="fa fa-close"></i>
                         </b-button>
-                        <b-button v-if="data.item.piezas > 0" variant="secondary" 
-                            pill @click="addDefectuosos(data.item)" size="sm">
+                        <b-button v-if="(role_id == 6 || role_id == 1 || role_id == 10) && (data.item.piezas > 0)" 
+                            variant="secondary" pill @click="addDefectuosos(data.item)" size="sm">
                             <i class="fa fa-minus"></i>
                         </b-button>
                     </div>
@@ -123,6 +123,11 @@
                     <b-form-group label="Número de piezas con algún defecto">
                         <b-form-input v-model="form.defectuosos" :disabled="loaded">
                         </b-form-input>
+                    </b-form-group>
+                    <b-form-group label="Motivo">
+                        <b-form-textarea v-model="form.motivo" :disabled="loaded"
+                            rows="3" max-rows="6" required>
+                        </b-form-textarea>
                     </b-form-group>
                     <div class="text-right mt-2">
                         <b-button :disabled="form.defectuosos <= 0"
@@ -213,7 +218,8 @@
                 form: {
                     id: null,
                     libro: null,
-                    defectuosos: 0
+                    defectuosos: 0,
+                    motivo: null
                 }
             }
         },
@@ -367,18 +373,23 @@
                 this.form.libro = libro.titulo;
                 this.form.piezas = libro.piezas;
                 this.form.defectuosos = 0;
+                this.form.motivo = null;
                 this.$bvModal.show('modal-defectuosos');
             },
             saveDefectuosos(){
                 if(this.form.defectuosos <= this.form.piezas){
-                    this.load = true;
-                    axios.put('/libro/save_defectuosos', this.form).then(response => {
-                        swal("OK", "El libro se actualizo correctamente.", "success")
-                            .then((value) => { location.reload(); });
-                        this.load = false;
-                    }).catch(error => {
-                        this.load = false;
-                    });
+                    if(this.form.motivo.length > 5){
+                        this.load = true;
+                        axios.put('/libro/save_defectuosos', this.form).then(response => {
+                            swal("OK", "El libro se actualizo correctamente.", "success")
+                                .then((value) => { location.reload(); });
+                            this.load = false;
+                        }).catch(error => {
+                            this.load = false;
+                        });
+                    } else {
+                        this.makeToast('warning', 'El motivo debe contener mínimo 5 caracteres.');
+                    }
                 } else {
                     this.makeToast('warning', 'El número de piezas defectuosas es mayor a las piezas en existencia');
                 }

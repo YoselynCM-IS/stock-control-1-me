@@ -73,37 +73,44 @@ class MovLibrosExport implements FromView
                             ->groupBy('registro_id')
                             ->get();
         $entradas = \DB::table('registros')
+                            // ->where('registros.created_at','like', '%2022-12%')
                             ->whereNotIn('id', $code_registro->pluck('registro_id'))
                             ->select('libro_id as libro_id', \DB::raw('SUM(unidades) as entradas'))
                             ->groupBy('libro_id')
                             ->get(); 
-        $devoluciones = \DB::table('devoluciones')
-                            ->join('remisiones', 'devoluciones.remisione_id', '=', 'remisiones.id')
+        $devoluciones = \DB::table('fechas')
+                            // ->where('fechas.created_at','like', '%2022-12%')
+                            ->join('remisiones', 'fechas.remisione_id', '=', 'remisiones.id')
                             ->whereNotIn('remisiones.corte_id', [4])
                             ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
                             ->groupBy('libro_id')
                             ->get();
         $saldevoluciones = \DB::table('saldevoluciones')
+                    // ->where('saldevoluciones.created_at','like', '%2022-12%')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
                     ->groupBy('libro_id')
                     ->get();
         $prodevoluciones = \DB::table('prodevoluciones')
+                    // ->where('prodevoluciones.created_at','like', '%2022-12%')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as devoluciones'))
                     ->groupBy('libro_id')
                     ->get();
         // SALIDAS
         $salidas = \DB::table('sregistros')
+                    // ->where('sregistros.created_at','like', '%2022-12%')
                     ->join('salidas', 'sregistros.salida_id', '=', 'salidas.id')
                     ->where('salidas.estado', 'enviado')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(sregistros.unidades) as salidas'))
                     ->groupBy('libro_id')
                     ->get();
         $entdevoluciones = \DB::table('entdevoluciones')
+                    // ->where('entdevoluciones.created_at','like', '%2022-12%')
                     ->join('registros', 'entdevoluciones.registro_id', 'registros.id')
                     ->select('registros.libro_id as libro_id' ,\DB::raw('SUM(entdevoluciones.unidades) as entdevoluciones'))
                     ->groupBy('registros.libro_id')
                     ->get();
         $remisiones = \DB::table('datos')
+                    // ->where('datos.created_at','like', '%2022-12%')
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->whereNotIn('remisiones.estado', ['Cancelado'])
                     ->whereNotIn('remisiones.corte_id', [4])
@@ -112,6 +119,7 @@ class MovLibrosExport implements FromView
                     ->groupBy('libro_id')
                     ->get();
         $notas = \DB::table('registers')
+                    // ->where('registers.created_at','like', '%2022-12%')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as notas'))
                     ->groupBy('libro_id')
                     ->get();
@@ -121,6 +129,7 @@ class MovLibrosExport implements FromView
                     ->groupBy('departure_id')
                     ->get();
         $promociones = \DB::table('departures')
+                    // ->where('departures.created_at','like', '%2022-12%')
                     ->join('promotions', 'departures.promotion_id', '=', 'promotions.id')
                     ->whereNotIn('promotions.estado', ['Cancelado'])
                     ->whereNotIn('departures.id', $code_departure->pluck('departure_id'))
@@ -128,6 +137,7 @@ class MovLibrosExport implements FromView
                     ->groupBy('libro_id')
                     ->get();
         $donaciones = \DB::table('donaciones')
+                    // ->where('donaciones.created_at','like', '%2022-12%')
                     ->select('libro_id as libro_id' ,\DB::raw('SUM(unidades) as donaciones'))
                     ->groupBy('libro_id')
                     ->get();

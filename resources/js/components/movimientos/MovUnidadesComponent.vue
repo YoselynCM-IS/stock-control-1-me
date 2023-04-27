@@ -24,6 +24,9 @@
                         </a>
                     </div>
                 </b-col>
+                <b-col sm="2">
+                    <!-- BUSQUEDA POR MES -->
+                </b-col>
                 <b-col sm="2" class="text-right">
                     <b-button v-if="movimientos.length > 0" variant="dark" pill
                         :href="`/libro/down_movgral/${queryEMov}/1`">
