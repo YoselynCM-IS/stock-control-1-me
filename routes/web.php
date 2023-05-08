@@ -744,6 +744,8 @@ Route::name('codes.')->prefix('codes')->group(function () {
     Route::get('/by_libro_count', 'CodeController@by_libro_count')->name('by_libro_count');
     // Obtener inventario de licencias y demos
     Route::get('/licencias_demos', 'CodeController@licencias_demos')->name('licencias_demos');
+    // Obtener los libros en scratch
+    Route::get('/scratch', 'CodeController@scratch')->name('scratch');
 });
 
 // ********** NO UTILIZADO **********

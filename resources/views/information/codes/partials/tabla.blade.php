@@ -12,9 +12,15 @@
             @foreach($libros as $libro)
                 <tr>
                     <th scope="row">{{$loop->index + 1}}</th>
-                    <td>{{ $libro->libro->ISBN }}</td>
-                    <td>{{ $libro->libro->titulo }}</td>
-                    <td>{{ $libro->inventario }}</td>
+                    @if(!$diferencia)  
+                        <td>{{ $libro->libro->ISBN }}</td>
+                        <td>{{ $libro->libro->titulo }}</td>  
+                        <td>{{ $libro->inventario }}</td>
+                    @else
+                        <td>{{ $libro['ISBN'] }}</td>
+                        <td>{{ $libro['titulo'] }}</td>  
+                        <td>{{ $libro['scratch'] }}</td>
+                    @endif
                 </tr>
             @endforeach
         </tbody>

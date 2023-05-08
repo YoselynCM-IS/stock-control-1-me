@@ -43,7 +43,7 @@
         </div>
         <hr>
         <b-row>
-            <b-col>
+            <b-col sm="6">
                 <!-- PAGINACIÓN -->
                 <pagination size="default" :limit="1" :data="librosData" 
                     @pagination-change-page="getResults">
@@ -52,17 +52,26 @@
                 </pagination>
             </b-col>
             <b-col sm="2" class="text-right">
-                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6"
-                    variant="dark" pill block href="/codes/licencias_demos" target="_blank">
-                    Licencias / Demos
-                </b-button>
-            </b-col>
-            <b-col sm="2" class="text-right">
                 <b-button v-if="role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6"
                     variant="dark" pill block href="/libro/all_sistemas" target="_blank">
                     <i class="fa fa-list"></i> Todo
                 </b-button>
             </b-col>
+            <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id === 3 || role_id == 6"
+                    variant="dark" pill block href="/codes/scratch" target="_blank">
+                    Scratch
+                </b-button>
+            </b-col>
+            <b-col sm="2" class="text-right">
+                <b-button v-if="role_id === 1 || role_id === 2 || role_id == 6"
+                    variant="dark" pill block href="/codes/licencias_demos" target="_blank">
+                    Licencias / Demos
+                </b-button>
+            </b-col>
+        </b-row>
+        <b-row class="mb-2">
+            <b-col sm="8"></b-col>
             <b-col sm="2" class="text-right">
                 <!-- DESCARGAR LIBROS downloadExcel -->
                 <b-button :href="`/downloadExcel/${queryEditorial}`" 

@@ -136,6 +136,36 @@ class CodeController extends Controller
         return view('information.codes.lista', compact('profesor', 'demo'));
     }
 
+    public function scratch(){
+        $libros = Libro::where('type', 'digital')
+                    ->where('estado', 'activo')->get();
+        $codes = Code::select('libro_id', \DB::raw('COUNT(id) as inventario'))
+                    ->whereIn('libro_id', $libros->pluck('id'))
+                    ->where('estado', 'inventario')
+                    ->where('tipo', 'alumno')
+                    ->groupBy('libro_id')
+                    ->get();
+        
+        $scratch = collect();
+        $libros->map(function($libro) use(&$scratch, $codes){
+            $dato = [
+                'id' => $libro->id,
+                'ISBN' => $libro->ISBN,
+                'titulo' => $libro->titulo,
+                'scratch' => $libro->piezas
+            ];
+
+            $codes->map(function($code) use(&$dato){
+                if($dato['id'] == $code->libro_id){
+                    $dato['scratch'] = (int) $dato['scratch'] - $code->inventario;
+                }
+            });
+
+            $scratch->push($dato);
+        });
+        return view('information.codes.scratch', compact('scratch'));
+    }
+
     public function group_count_codes($tipo) {
         return Code::select('libro_id', \DB::raw('COUNT(id) as inventario'))
                     ->with('libro')

@@ -313,16 +313,25 @@
                                 :id="`inpDev-${i}`" type="number" 
                                 v-model="devolucion.unidades_base" :disabled="load"
                                 @change="guardarUnidades(devolucion, i)"/>
-                            <label v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
-                                {{ devolucion.unidades_base }}
-                            </label>
+                            <div v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
+                                <b-input v-if="showSelectUnit && position == i" 
+                                    v-model="devolucion.unidades_base" :disabled="load"
+                                    @change="guardarUnidades(devolucion, i)"/>
+                                <label v-else>
+                                    {{ devolucion.unidades_base }}
+                                </label>
+                            </div>
                         </td>
                         <td>$ {{ devolucion.total_base | formatNumber }}</td>
                         <td>
-                            <b-button v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0"
-                                pill small variant="info" @click="selectCodigos(devolucion, i)">
-                                Códigos
-                            </b-button>
+                            <div v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
+                                <b-button pill small block variant="info" @click="selectUnidades(i)">
+                                    Unidades
+                                </b-button>
+                                <b-button pill small block variant="info" @click="selectCodigos(devolucion, i)">
+                                    Códigos
+                                </b-button>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -415,7 +424,8 @@
                     {key: 'codigo', label: 'Código'}, 
                 ],
                 position: null,
-                codes: []
+                codes: [],
+                showSelectUnit: false
             }
         },
         filters: {
@@ -766,12 +776,19 @@
                 });
             },
             selectCodigos(devolucion, i){
+                this.assignfor_devolucion(i, false);
+                this.codes = devolucion.codes;
+                this.$bvModal.show('modal-select-codes');
+            },
+            selectUnidades(i){
+                this.assignfor_devolucion(i, true);
+            },
+            assignfor_devolucion(i, ssu){
                 this.position = i;
                 this.devoluciones[this.position].unidades_base = 0;
                 this.devoluciones[this.position].total_base = 0;
-                this.codes = devolucion.codes;
                 this.acumularFinal();
-                this.$bvModal.show('modal-select-codes');
+                this.showSelectUnit = ssu;
             },
             onRowSelected(items) {
                 this.selected = items
