@@ -15,6 +15,7 @@ use App\Cliente;
 use App\Libro;
 use App\Fecha;
 use App\Dato;
+use App\Pack;
 
 class DevolucioneController extends Controller
 {
@@ -31,9 +32,10 @@ class DevolucioneController extends Controller
             $total_devolucion = 0;
             
             // DEVOLUCIONES
+            $scratchs = collect();
             $devoluciones = collect($request->devoluciones);
             $hoy = Carbon::now();
-            $devoluciones->map(function($devolucion) use($remision, $entregado_por, &$total_devolucion, $hoy){
+            $devoluciones->map(function($devolucion) use(&$scratchs, $remision, $entregado_por, &$total_devolucion, $hoy){
                 $unidades_base = $devolucion['unidades_base'];
                 $total_base = $devolucion['total_base'];
 
@@ -81,11 +83,24 @@ class DevolucioneController extends Controller
                                 'devolucion' => true
                             ]);
                     });
+                    
+                    if($devolucion['scratch']){
+                        $scratchs->push([
+                            'libro_digital' => $devolucion['libro_id'],
+                            'unidades' => (int) $unidades_base,
+                        ]);
+                    }
                 } 
 
                 $total_devolucion += $total_base;
             });
             
+            $scratchs->map(function($scratch) use($devoluciones){
+                $p = Pack::where('libro_digital', $scratch['libro_digital'])
+                            ->whereIn('libro_fisico', $devoluciones->pluck('libro_id'))->first();
+                $p->update(['piezas' => $p->piezas + $scratch['unidades']]);
+            });
+
             $total_pagar = $remision->total_pagar - $total_devolucion;
             $t_devolucion = $remision->total_devolucion + $total_devolucion;
             

@@ -13,16 +13,16 @@ class CreateComprobantesTable extends Migration
      */
     public function up()
     {
-        Schema::create('comprobantes', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('entrada_id');
-            $table->foreign('entrada_id')->references('id')->on('entradas');
-            $table->string('name');
-            $table->integer('size');
-            $table->string('extension');
-            $table->string('public_url');
-            $table->timestamps();
-        });
+        // Schema::create('comprobantes', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->unsignedBigInteger('entrada_id');
+        //     $table->foreign('entrada_id')->references('id')->on('entradas');
+        //     $table->string('name');
+        //     $table->integer('size');
+        //     $table->string('extension');
+        //     $table->string('public_url');
+        //     $table->timestamps();
+        // });
     }
 
     /**

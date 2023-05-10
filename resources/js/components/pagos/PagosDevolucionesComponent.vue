@@ -326,7 +326,7 @@
                         <td>
                             <div v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
                                 <b-button pill small block variant="info" @click="selectUnidades(i)">
-                                    Unidades
+                                    Scratch
                                 </b-button>
                                 <b-button pill small block variant="info" @click="selectCodigos(devolucion, i)">
                                     Códigos
@@ -643,7 +643,8 @@
                             unidades_resta: rd.unidades_resta,
                             updated_at: rd.updated_at,
                             codes: cs,
-                            code_dato: []
+                            code_dato: [],
+                            scratch: false
                         });
                     });
                     this.remision = remision;
@@ -746,6 +747,7 @@
                     this.devoluciones[i].total_base = 0;
                 }
                 this.acumularFinal();
+                this.showSelectUnit = false;
             },
             acumularFinal(){
                 this.total_devolucion = 0;
@@ -776,17 +778,18 @@
                 });
             },
             selectCodigos(devolucion, i){
-                this.assignfor_devolucion(i, false);
+                this.assignfor_devolucion(i, false, false);
                 this.codes = devolucion.codes;
                 this.$bvModal.show('modal-select-codes');
             },
             selectUnidades(i){
-                this.assignfor_devolucion(i, true);
+                this.assignfor_devolucion(i, true, true);
             },
-            assignfor_devolucion(i, ssu){
+            assignfor_devolucion(i, ssu, scratch){
                 this.position = i;
                 this.devoluciones[this.position].unidades_base = 0;
                 this.devoluciones[this.position].total_base = 0;
+                this.devoluciones[this.position].scratch = scratch;
                 this.acumularFinal();
                 this.showSelectUnit = ssu;
             },
