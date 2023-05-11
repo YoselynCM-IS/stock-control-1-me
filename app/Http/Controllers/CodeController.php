@@ -10,6 +10,7 @@ use App\Remisione;
 use App\Libro;
 use App\Code;
 use App\Dato;
+use App\Pack;
 
 class CodeController extends Controller
 {
@@ -137,32 +138,12 @@ class CodeController extends Controller
     }
 
     public function scratch(){
-        $libros = Libro::where('type', 'digital')
-                    ->where('estado', 'activo')->get();
-        $codes = Code::select('libro_id', \DB::raw('COUNT(id) as inventario'))
-                    ->whereIn('libro_id', $libros->pluck('id'))
-                    ->where('estado', 'inventario')
-                    ->where('tipo', 'alumno')
-                    ->groupBy('libro_id')
+        $scratch = Libro::join('packs', 'libros.id', '=', 'packs.libro_fisico')
+                    ->select('libros.ISBN', 'libros.titulo', 'packs.*')
+                    ->where('estado', 'activo')
+                    ->where('type', 'venta')
+                    ->orderBy('titulo', 'asc')
                     ->get();
-        
-        $scratch = collect();
-        $libros->map(function($libro) use(&$scratch, $codes){
-            $dato = [
-                'id' => $libro->id,
-                'ISBN' => $libro->ISBN,
-                'titulo' => $libro->titulo,
-                'scratch' => $libro->piezas
-            ];
-
-            $codes->map(function($code) use(&$dato){
-                if($dato['id'] == $code->libro_id){
-                    $dato['scratch'] = (int) $dato['scratch'] - $code->inventario;
-                }
-            });
-
-            $scratch->push($dato);
-        });
         return view('information.codes.scratch', compact('scratch'));
     }
 

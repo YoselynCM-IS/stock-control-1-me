@@ -17,9 +17,9 @@
                         <td>{{ $libro->libro->titulo }}</td>  
                         <td>{{ $libro->inventario }}</td>
                     @else
-                        <td>{{ $libro['ISBN'] }}</td>
-                        <td>{{ $libro['titulo'] }}</td>  
-                        <td>{{ $libro['scratch'] }}</td>
+                        <td>{{ $libro->ISBN }}</td>
+                        <td>PACK: {{ $libro->titulo }}</td>  
+                        <td>{{ $libro->piezas }}</td>
                     @endif
                 </tr>
             @endforeach
