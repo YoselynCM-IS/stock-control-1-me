@@ -28,6 +28,7 @@ use App\Reporte;
 Use App\Defectuoso;
 use App\Mail\movimientos\LibrosDay;
 use Illuminate\Support\Facades\Mail;
+use App\Pack;
 
 class LibroController extends Controller
 {
@@ -1376,5 +1377,21 @@ class LibroController extends Controller
 
     public function all_sistemas(){
         return view('information.libros.lista-sistemas');
+    }
+
+    public function all_scratch(Request $request){
+        $libros = Libro::join('packs', 'libros.id', '=', 'packs.libro_fisico')
+                    ->select('libros.titulo', 'packs.*')
+                    ->where('titulo','like','%'.$request->titulo.'%')
+                    ->where('estado', 'activo')
+                    ->where('type', 'venta')
+                    ->orderBy('titulo', 'asc')
+                    ->get();
+        return response()->json($libros);
+    }
+
+    public function scratch_libros(Request $request){
+        $libros = Libro::whereIn('id', [$request->f, $request->d])->get();
+        return response()->json($libros);
     }
 }

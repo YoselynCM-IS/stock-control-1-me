@@ -114,7 +114,12 @@
                         :disabled="load">
                     </b-form-input>
                 </div>
-                <div class="col-md-6" align="right">
+                <div class="col-md-3" align="right">
+                    <b-button variant="dark" pill @click="showScratch()">
+                        Scratch
+                    </b-button>
+                </div>
+                <div class="col-md-3" align="right">
                     <label><b>Total:</b> ${{ remision.total | formatNumber }}</label>
                 </div>
             </div>
@@ -200,7 +205,8 @@
                         <td>{{ dato.unidades | formatNumber }}</td>
                         <td>${{ dato.total | formatNumber }}</td>
                         <td>
-                            <b-button variant="danger" @click="eliminarRegistro(dato, i)">
+                            <b-button v-if="!dato.scratch"
+                                variant="danger" @click="eliminarRegistro(dato, i)">
                                 <i class="fa fa-minus-circle"></i>
                             </b-button>
                         </td>
@@ -291,6 +297,74 @@
                     </b-row>
                 </div>
             </b-modal>
+            <b-modal ref="modal-scratch" size="xl" title="Scratch" hide-footer>
+                <table class="table mb-2">
+                    <thead>
+                        <tr>
+                            <th style="width: 40%;">Libro</th>
+                            <th>Unidades</th>
+                            <th>Físico (Costo)</th>
+                            <th>Digital (Costo)</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td scope="col">
+                                <b-input style="text-transform:uppercase;"
+                                    v-model="temporalScratch.titulo" autofocus
+                                    @keyup="librosScratch()" placeholder="BUSCAR LIBRO"
+                                ></b-input>
+                                <div class="list-group" v-if="resultsScratch.length" id="listaL">
+                                    <a class="list-group-item list-group-item-action" 
+                                        href="#" v-bind:key="i" 
+                                        v-for="(libro, i) in resultsScratch" 
+                                        @click="selectScratch(libro)">
+                                        PACK: {{ libro.titulo }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td scope="col">
+                                <b-input v-model="temporalScratch.unidades" type="number" min="1" max="9999"></b-input>
+                            </td>
+                            <td scope="col">
+                                <b-input v-model="temporalScratch.costo_f" type="number" min="1" max="9999"></b-input>
+                            </td>
+                            <td scope="col">
+                                <b-input v-model="temporalScratch.costo_d" type="number" min="1" max="9999"></b-input>
+                            </td>
+                            <td scope="col">
+                                <b-button variant="success" pill block @click="saveScratch()">
+                                    <i class="fa fa-level-down"></i>
+                                </b-button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <b-table :items="packs" :fields="fieldsScratch">
+                    <template v-slot:cell(index)="row">
+                        {{ row.index + 1 }}
+                    </template>
+                    <template v-slot:cell(unidades)="row">
+                        {{ row.item.unidades | formatNumber }}
+                    </template>
+                    <template v-slot:cell(costo_total)="row">
+                        ${{ row.item.costo_total | formatNumber }}
+                    </template>
+                    <template v-slot:cell(total)="row">
+                        ${{ row.item.total | formatNumber }}
+                    </template>
+                    <template v-slot:cell(actions)="row">
+                        <b-button variant="danger" pill size="sm" @click="deleteScratch(row.item, row.index)">
+                            <i class="fa fa-close"></i>
+                        </b-button>
+                        <!-- <b-button variant="warning" pill size="sm">
+                            <i class="fa fa-edit"></i>
+                        </b-button> -->
+                    </template>
+                </b-table>
+            </b-modal>
         </div>
     </div>
 </template>
@@ -357,6 +431,27 @@
                     nuevos: [],
                     eliminados: []
                 },
+                resultsScratch: [],
+                packs: [],
+                temporalScratch: {
+                    id: null,
+                    titulo: null, 
+                    libro_fisico: null,
+                    libro_digital: null,
+                    piezas: 0,
+                    unidades: 0,
+                    costo_f: 0,
+                    costo_d: 0,
+                    costo_total: 0,
+                    total: 0
+                },
+                fieldsScratch: [
+                    {key: 'index', label: 'N.'},
+                    'titulo', 'unidades',
+                    {key: 'costo_total', label: 'Costo'},
+                    'total',
+                    {key: 'actions', label: ''}
+                ]
             }
         },
         created: function() {
@@ -474,8 +569,7 @@
             // BUSCAR LIBRO POR ISBN
             buscarLibroISBN(){
                 axios.get('/buscarISBN', {params: {isbn: this.isbn}}).then(response => {
-                    this.inicializar();
-                    this.temporal = response.data;
+                    this.datosLibro(response.data[0]);
                 }).catch(error => {
                    this.makeToast('warning', 'El ISBN no existe.');
                 });
@@ -535,42 +629,36 @@
                     }
 
                     if(this.unidades > 0){
-                        if(this.unidades <= pzs){
-                            if(this.costo_unitario > 0){
-                                this.temporal.unidades = this.unidades;
-                                this.temporal.total = this.unidades * this.temporal.costo_unitario;
-                                var insert = {
-                                    libro: {
-                                        id: this.temporal.id,
-                                        ISBN: this.temporal.ISBN,
-                                        titulo: this.temporal.titulo
-                                    },
-                                    costo_unitario: this.temporal.costo_unitario,
-                                    unidades: this.temporal.unidades,
-                                    total: this.temporal.total
-                                };
-                                this.mostrarDatos = false;
-                                if(!this.editar){
-                                    this.remision.datos.push(insert);
-                                } else {
-                                    this.remision.nuevos.push(insert);
-                                }
-                                this.remision.total += this.temporal.total;
-                                this.inicializar_registro();
-                            }
-                            else{
-                                this.makeToast('warning', 'El costo unitario debe ser mayor a 0');
-                            } 
-                        }
-                        else{
-                            this.makeToast('warning', `${pzs} piezas en existencia.`);
-                        }
+                        this.params_registro(pzs);
                     }
                     else{
                         this.makeToast('warning', 'Las unidades deben ser mayor a 0.');
                     }
                 } else{
                     this.makeToast('warning', 'El libro ya ha sido agregado.');
+                }
+            },
+            params_registro(pzs){
+                if(this.unidades <= pzs){
+                    if(this.costo_unitario > 0){
+                        this.temporal.unidades = this.unidades;
+                        this.temporal.total = this.unidades * this.temporal.costo_unitario;
+                        var insert = this.insert_datos(this.temporal, this.temporal.costo_unitario, this.temporal.unidades, this.temporal.total, false);
+                        this.mostrarDatos = false;
+                        if(!this.editar){
+                            this.remision.datos.push(insert);
+                        } else {
+                            this.remision.nuevos.push(insert);
+                        }
+                        this.remision.total += this.temporal.total;
+                        this.inicializar_registro();
+                    }
+                    else{
+                        this.makeToast('warning', 'El costo unitario debe ser mayor a 0');
+                    } 
+                }
+                else{
+                    this.makeToast('warning', `${pzs} piezas en existencia.`);
                 }
             },
             // ELIMINAR REGISTRO TEMPORAL
@@ -650,6 +738,108 @@
                 if(this.role_id == 5) ruta = '/captura/remisiones'; // CAPTURA
                 if(this.role_id == 6) ruta = '/manager/remisiones/lista'; // MANAGER
                 window.opener.document.location=`${ruta}`;
+            },
+            showScratch(){
+                this.ini_temporalScratch();
+                this.$refs['modal-scratch'].show();
+            },
+            librosScratch(){
+                axios.get('/libro/all_scratch', {params: {titulo: this.temporalScratch.titulo}}).then(response => {
+                    this.resultsScratch = response.data;
+                }).catch(error => { });
+            },
+            selectScratch(libro){
+                this.temporalScratch.id = libro.id;
+                this.temporalScratch.libro_fisico = libro.libro_fisico;
+                this.temporalScratch.libro_digital = libro.libro_digital;
+                this.temporalScratch.piezas = libro.piezas;
+                this.temporalScratch.titulo = `PACK: ${libro.titulo}`;
+                this.resultsScratch = [];
+            },
+            saveScratch(){
+                var check_f = this.remision.datos.find(d => d.libro.id == this.temporalScratch.libro_fisico);
+                var check_d = this.remision.datos.find(d => d.libro.id == this.temporalScratch.libro_digital);
+                var check = this.packs.find(p => p.id == this.temporalScratch.id);
+                if(check == undefined && check_f == undefined && check_d == undefined){
+                    if(this.temporalScratch.unidades > 0){
+                        if(this.temporalScratch.unidades <= this.temporalScratch.piezas){
+                            if(this.temporalScratch.costo_f > 0 && this.temporalScratch.costo_d > 0){
+                                axios.get('/libro/scratch_libros', {params: {
+                                    f: this.temporalScratch.libro_fisico, d: this.temporalScratch.libro_digital}})
+                                .then(response => {
+                                    this.temporalScratch.costo_total = parseFloat(this.temporalScratch.costo_f) + parseFloat(this.temporalScratch.costo_d);
+                                    this.temporalScratch.total = this.temporalScratch.unidades * this.temporalScratch.costo_total;
+
+                                    this.packs.push(this.temporalScratch);
+
+                                    response.data.forEach(r => {
+                                        var costo_unitario = 0;
+                                        if(r.type == 'venta') costo_unitario = this.temporalScratch.costo_f;
+                                        if(r.type == 'digital') costo_unitario = this.temporalScratch.costo_d;
+
+                                        var total = this.temporalScratch.unidades * costo_unitario;
+                                        this.remision.datos.push(this.insert_datos(r, costo_unitario, this.temporalScratch.unidades, total, true));
+                                    });
+
+                                    this.remision.total += this.temporalScratch.total;
+                                    this.ini_temporalScratch();
+                                }).catch(error => { });
+                            } else{
+                                this.makeToast('warning', 'El costo debe ser mayor a 0');
+                            } 
+                        } else {
+                            this.makeToast('warning', `${this.temporalScratch.piezas} piezas en existencia.`);
+                        }
+                    } else {
+                        this.makeToast('warning', 'Las unidades deben ser mayor a 0.');
+                    }
+                } else{
+                    this.makeToast('warning', 'El libro ya ha sido agregado.');
+                }
+            },
+            insert_datos(libro, cu, u, t, scratch){
+                return {
+                    libro: {
+                        id: libro.id,
+                        ISBN: libro.ISBN,
+                        titulo: libro.titulo
+                    },
+                    costo_unitario: cu,
+                    unidades: u,
+                    total: t,
+                    scratch: scratch
+                };
+            },
+            ini_temporalScratch(){
+                this.temporalScratch = {
+                    id: null,
+                    titulo: null,
+                    libro_fisico: null,
+                    libro_digital: null,
+                    piezas: 0,
+                    unidades: 0,
+                    costo_f: 0,
+                    costo_d: 0,
+                    costo_total: 0,
+                    total: 0
+                };
+                this.resultsScratch = [];
+            },
+            deleteScratch(libro, position){
+                let positions = [];
+                this.remision.datos.find(function(value, index) {
+                    if(value.libro.id == libro.libro_fisico) positions.push(index);
+                    if(value.libro.id == libro.libro_digital) positions.push(index);
+                });
+
+                positions.reverse()
+                positions.forEach(p => {
+                    this.remision.datos.splice(p, 1);
+                });
+
+                this.packs.splice(position, 1);
+
+                this.remision.total = this.remision.total - libro.total;
             }
         }
     }

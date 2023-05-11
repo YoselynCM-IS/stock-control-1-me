@@ -484,6 +484,10 @@ Route::name('libro.')->prefix('libro')->group(function () {
     Route::get('/all_libro', 'LibroController@all_libro')->name('all_libro');
     // OBTENER VISTA DEL LISTADO DE LIBROS DE AMBOS SISTEMAS
     Route::get('/all_sistemas', 'LibroController@all_sistemas')->name('all_sistemas');
+    // OBTENER LOS LIBROS QUE ESTAN EN SCRTACH
+    Route::get('/all_scratch', 'LibroController@all_scratch')->name('all_scratch');
+    // OBTENER LOS LIBROS QUE ESTAN EN PACK
+    Route::get('/scratch_libros', 'LibroController@scratch_libros')->name('scratch_libros');
 });
 
 // PAGOS

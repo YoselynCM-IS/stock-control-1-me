@@ -30,6 +30,7 @@ use App\Corte;
 use App\Dato;
 use App\Pago;
 use App\Code;
+use App\Pack;
 use Excel;
 use PDF;
 use DB;
@@ -649,18 +650,28 @@ class RemisionController extends Controller
 
     public function save_datos($req_datos, $remision){
         $lista_datos = [];
+        $scratch = collect();
         $request_datos = collect($req_datos);
         $hoy = Carbon::now();
-        $request_datos->map(function($dato) use (&$lista_datos, $remision, $hoy){
+        $request_datos->map(function($dato) use (&$scratch, &$lista_datos, $remision, $hoy){
+            $libro_id = $dato['libro']['id'];
+            $unidades = (int) $dato['unidades'];
             $lista_datos[] = [
                 'remisione_id' => $remision->id,
-                'libro_id'  => $dato['libro']['id'],
+                'libro_id'  => $libro_id,
                 'costo_unitario' => (float) $dato['costo_unitario'],
-                'unidades'  => (int) $dato['unidades'],
+                'unidades'  => $unidades,
                 'total'     => (double) $dato['total'],
                 'created_at' => $hoy,
                 'updated_at' => $hoy
             ];
+
+            if($dato['scratch']){
+                $scratch->push([
+                    'libro_id' => $libro_id,
+                    'unidades' => $unidades
+                ]);
+            }
         });
         
         // CREAR REGISTROS DE DATOS
@@ -669,7 +680,7 @@ class RemisionController extends Controller
         $lista_devoluciones = [];
         $lista_codes = collect();
         $datos = Dato::where('remisione_id', $remision->id)->get();
-        $datos->map(function($dato) use(&$lista_devoluciones, &$lista_codes, $hoy){
+        $datos->map(function($dato) use(&$scratch, &$lista_devoluciones, &$lista_codes, $hoy){
             $libro_id = $dato->libro_id;
             $lista_devoluciones[] = [
                 'remisione_id' => $dato->remisione_id,
@@ -682,11 +693,18 @@ class RemisionController extends Controller
             ];
 
             if($dato->libro->type == 'digital'){
-                $lista_codes->push([
-                    'dato_id'   => $dato->id,
-                    'libro_id'  => $dato->libro_id,
-                    'unidades'  => $dato->unidades
-                ]);
+                $s = $scratch->where('libro_id', $dato->libro_id)->first();
+                if($s == null){
+                    $lista_codes->push([
+                        'dato_id'   => $dato->id,
+                        'libro_id'  => $dato->libro_id,
+                        'unidades'  => $dato->unidades
+                    ]);
+                } else {
+                    $p = Pack::where('libro_digital', $dato->libro_id)
+                            ->whereIn('libro_fisico', $scratch->pluck('libro_id'))->first();
+                    $p->update(['piezas' => $p->piezas - $s['unidades']]);
+                }
             }
             
             // DISMINUIR PIEZAS DE LOS LIBROS
