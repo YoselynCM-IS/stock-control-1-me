@@ -528,20 +528,37 @@ class RemisionController extends Controller
         $remision = Remisione::whereId($request->id)->first();
         \DB::beginTransaction();
         try{ 
-            $prueba = [];
-            $remision->datos->map(function($dato) use(&$prueba){
+            $scratch = collect();
+            $remision->datos->map(function($dato) use(&$scratch){
                 // REGRESAR EL NUMERO DE PIEZAS TOMADAS
                 \DB::table('libros')->whereId($dato->libro_id)
                                     ->increment('piezas',  $dato->unidades);
 
-                // BORRAR CODIGOS
-                $dato->codes->map(function($code){
-                    $code->update(['estado' => 'inventario']);
-                });
-                $dato->codes()->detach();
+                if($dato->libro->type == 'digital' && $dato->codes()->count() > 0){
+                    // BORRAR CODIGOS
+                    $dato->codes->map(function($code){
+                        $code->update(['estado' => 'inventario']);
+                    });
+                    $dato->codes()->detach();
+                }
+                if($dato->libro->type == 'digital' && $dato->codes()->count() == 0){
+                    $scratch->push([
+                        'libro_id' => $dato->libro_id,
+                        'unidades' => $dato->unidades
+                    ]);
+                }
 
                 $reporte = 'registro la cancelación (remisión) de '.$dato->unidades.' unidades - '.$dato->libro->editorial.': '.$dato->libro->type.' '.$dato->libro->ISBN.' / '.$dato->libro->titulo.' para '.$dato->remisione_id.' / '.$dato->remisione->cliente->name;
                 $this->create_report($dato->id, $reporte, 'libro', 'datos');
+            });
+
+            // DEVOLVER LIBROS A SCRATCH
+            $all_libroid = $remision->datos->pluck('libro_id');
+            $scratch->map(function($s) use($all_libroid){
+                $p = Pack::where('libro_digital', $s['libro_id'])
+                            ->whereIn('libro_fisico', $all_libroid)
+                            ->first();
+                $p->update(['piezas' => $p->piezas + $s['unidades']]);
             });
 
             // BORRAR LOS REGISTROS DE DEVOLUCION
