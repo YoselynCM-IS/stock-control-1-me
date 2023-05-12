@@ -629,7 +629,9 @@
                     }
 
                     if(this.unidades > 0){
-                        this.params_registro(pzs);
+                        axios.get('/libro/get_scratch', {params: {id: this.temporal.id}}).then(response => {
+                            this.params_registro(pzs - response.data);
+                        }).catch(error => { });
                     }
                     else{
                         this.makeToast('warning', 'Las unidades deben ser mayor a 0.');

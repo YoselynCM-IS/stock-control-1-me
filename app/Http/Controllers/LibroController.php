@@ -1394,4 +1394,11 @@ class LibroController extends Controller
         $libros = Libro::whereIn('id', [$request->f, $request->d])->get();
         return response()->json($libros);
     }
+
+    public function get_scratch(Request $request){
+        $packs = Pack::where('libro_fisico', $request->id)
+                        ->OrWhere('libro_digital', $request->id)
+                        ->sum('piezas');
+        return response()->json($packs);
+    }
 }

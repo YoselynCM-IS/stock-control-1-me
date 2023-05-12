@@ -488,6 +488,8 @@ Route::name('libro.')->prefix('libro')->group(function () {
     Route::get('/all_scratch', 'LibroController@all_scratch')->name('all_scratch');
     // OBTENER LOS LIBROS QUE ESTAN EN PACK
     Route::get('/scratch_libros', 'LibroController@scratch_libros')->name('scratch_libros');
+    // OBTENER LIBRO, PARA VERIFICAR SCRATCH
+    Route::get('/get_scratch', 'LibroController@get_scratch')->name('get_scratch');
 });
 
 // PAGOS
