@@ -534,18 +534,18 @@ class RemisionController extends Controller
                 \DB::table('libros')->whereId($dato->libro_id)
                                     ->increment('piezas',  $dato->unidades);
 
+                if($dato->libro->type == 'digital' && $dato->codes()->count() == 0){
+                    $scratch->push([
+                        'libro_id' => $dato->libro_id,
+                        'unidades' => $dato->unidades
+                    ]);
+                }
                 if($dato->libro->type == 'digital' && $dato->codes()->count() > 0){
                     // BORRAR CODIGOS
                     $dato->codes->map(function($code){
                         $code->update(['estado' => 'inventario']);
                     });
                     $dato->codes()->detach();
-                }
-                if($dato->libro->type == 'digital' && $dato->codes()->count() == 0){
-                    $scratch->push([
-                        'libro_id' => $dato->libro_id,
-                        'unidades' => $dato->unidades
-                    ]);
                 }
 
                 $reporte = 'registro la cancelación (remisión) de '.$dato->unidades.' unidades - '.$dato->libro->editorial.': '.$dato->libro->type.' '.$dato->libro->ISBN.' / '.$dato->libro->titulo.' para '.$dato->remisione_id.' / '.$dato->remisione->cliente->name;
