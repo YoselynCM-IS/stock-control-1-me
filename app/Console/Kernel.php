@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         'App\Console\Commands\ActsVencidos',
         'App\Console\Commands\ActsPendProx',
+        'App\Console\Commands\BajaCodeCommand',
     ];
 
     /**

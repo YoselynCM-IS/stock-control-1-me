@@ -17,7 +17,6 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         '0d59ee240a4cd96ddbb4ff164fccea4d' => __DIR__ . '/..' . '/symfony/polyfill-php73/bootstrap.php',
         '667aeda72477189d0494fecd327c3641' => __DIR__ . '/..' . '/symfony/var-dumper/Resources/functions/dump.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
-        'c964ee0ededf28c96ebd9db5099ef910' => __DIR__ . '/..' . '/guzzlehttp/promises/src/functions_include.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'def43f6c87e4f8dfd0c9e1b1bab14fe8' => __DIR__ . '/..' . '/symfony/polyfill-iconv/bootstrap.php',
         '2c102faa651ef8ea5874edb585946bce' => __DIR__ . '/..' . '/swiftmailer/swiftmailer/lib/swift_required.php',
@@ -403,8 +402,8 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-factory/src',
-            1 => __DIR__ . '/..' . '/psr/http-message/src',
+            0 => __DIR__ . '/..' . '/psr/http-message/src',
+            1 => __DIR__ . '/..' . '/psr/http-factory/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -721,6 +720,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'App\\Notifications\\NewPedClienteNotification' => __DIR__ . '/../..' . '/app/Notifications/NewPedClienteNotification.php',
         'App\\Notifications\\RecordarActNotification' => __DIR__ . '/../..' . '/app/Notifications/RecordarActNotification.php',
         'App\\Order' => __DIR__ . '/../..' . '/app/Order.php',
+        'App\\Pack' => __DIR__ . '/../..' . '/app/Pack.php',
         'App\\Paqueteria' => __DIR__ . '/../..' . '/app/Paqueteria.php',
         'App\\Payment' => __DIR__ . '/../..' . '/app/Payment.php',
         'App\\Pedido' => __DIR__ . '/../..' . '/app/Pedido.php',
@@ -1642,6 +1642,7 @@ class ComposerStaticInitc06b9df7b5cab6a81a13d2a9388a0639
         'GuzzleHttp\\Psr7\\StreamWrapper' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/StreamWrapper.php',
         'GuzzleHttp\\Psr7\\UploadedFile' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UploadedFile.php',
         'GuzzleHttp\\Psr7\\Uri' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Uri.php',
+        'GuzzleHttp\\Psr7\\UriComparator' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriComparator.php',
         'GuzzleHttp\\Psr7\\UriNormalizer' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriNormalizer.php',
         'GuzzleHttp\\Psr7\\UriResolver' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/UriResolver.php',
         'GuzzleHttp\\Psr7\\Utils' => __DIR__ . '/..' . '/guzzlehttp/psr7/src/Utils.php',

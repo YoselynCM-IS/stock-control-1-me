@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'e8003a225e8929b29ed4af8287e1cdca15865107',
+    'reference' => '315695611cfcaf300b8bc3a37ca8c871b2ca7c61',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -186,30 +186,30 @@ private static $installed = array (
     ),
     'guzzlehttp/guzzle' => 
     array (
-      'pretty_version' => '7.4.1',
-      'version' => '7.4.1.0',
+      'pretty_version' => '7.7.0',
+      'version' => '7.7.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'ee0a041b1760e6a53d2a39c8c34115adc2af2c79',
+      'reference' => 'fb7566caccf22d74d1ab270de3551f72a58399f5',
     ),
     'guzzlehttp/promises' => 
     array (
-      'pretty_version' => '1.5.1',
-      'version' => '1.5.1.0',
+      'pretty_version' => '2.0.0',
+      'version' => '2.0.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'fe752aedc9fd8fcca3fe7ad05d419d32998a06da',
+      'reference' => '3a494dc7dc1d7d12e511890177ae2d0e6c107da6',
     ),
     'guzzlehttp/psr7' => 
     array (
-      'pretty_version' => '2.1.0',
-      'version' => '2.1.0.0',
+      'pretty_version' => '2.5.0',
+      'version' => '2.5.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '089edd38f5b8abba6cb01567c2a8aaa47cec4c72',
+      'reference' => 'b635f279edd83fc275f822a1188157ffea568ff6',
     ),
     'hamcrest/hamcrest-php' => 
     array (
@@ -462,7 +462,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'e8003a225e8929b29ed4af8287e1cdca15865107',
+      'reference' => '315695611cfcaf300b8bc3a37ca8c871b2ca7c61',
     ),
     'laravel/tinker' => 
     array (
@@ -810,12 +810,12 @@ private static $installed = array (
     ),
     'psr/http-client' => 
     array (
-      'pretty_version' => '1.0.1',
-      'version' => '1.0.1.0',
+      'pretty_version' => '1.0.2',
+      'version' => '1.0.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '2dfb5f6c5eff0e91e20e913f8c5452ed95b86621',
+      'reference' => '0955afe48220520692d2d09f7ab7e0f93ffd6a31',
     ),
     'psr/http-client-implementation' => 
     array (
@@ -826,12 +826,12 @@ private static $installed = array (
     ),
     'psr/http-factory' => 
     array (
-      'pretty_version' => '1.0.1',
-      'version' => '1.0.1.0',
+      'pretty_version' => '1.0.2',
+      'version' => '1.0.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '12ac7fcd07e5b077433f5f2bee95b3a771bf61be',
+      'reference' => 'e616d01114759c4c489f93b099585439f795fe35',
     ),
     'psr/http-factory-implementation' => 
     array (
@@ -842,12 +842,12 @@ private static $installed = array (
     ),
     'psr/http-message' => 
     array (
-      'pretty_version' => '1.0.1',
-      'version' => '1.0.1.0',
+      'pretty_version' => '1.1',
+      'version' => '1.1.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'f6561bf28d520154e4b0ec72be95418abe6d9363',
+      'reference' => 'cb6ce4845ce34a8ad9e68117c10ee90a29919eba',
     ),
     'psr/http-message-implementation' => 
     array (
@@ -1089,12 +1089,12 @@ private static $installed = array (
     ),
     'symfony/deprecation-contracts' => 
     array (
-      'pretty_version' => 'v2.2.0',
-      'version' => '2.2.0.0',
+      'pretty_version' => 'v2.5.2',
+      'version' => '2.5.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '5fa56b4074d1ae755beb55617ddafe6f5d78f665',
+      'reference' => 'e8b495ea28c1d97b5e0c121748d6f9b53d075c66',
     ),
     'symfony/error-handler' => 
     array (
