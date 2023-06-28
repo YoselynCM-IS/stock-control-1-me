@@ -11,6 +11,7 @@ class Fecha extends Model
     protected $fillable = [
         'id', 
         'remisione_id',
+        'pack_id',
         'fecha_devolucion',
         'libro_id', 
         'unidades',

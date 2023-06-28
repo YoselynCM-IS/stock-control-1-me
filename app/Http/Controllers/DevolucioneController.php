@@ -84,8 +84,9 @@ class DevolucioneController extends Controller
                             ]);
                     });
                     
-                    if($devolucion['scratch']){
+                    if($devolucion['scratch'] || ($d->libro->type == 'digital' && $d->dato->pack_id != null)){
                         $scratchs->push([
+                            'fecha_id' => $fecha->id,
                             'libro_digital' => $devolucion['libro_id'],
                             'unidades' => (int) $unidades_base,
                         ]);
@@ -98,6 +99,7 @@ class DevolucioneController extends Controller
             $scratchs->map(function($scratch) use($devoluciones){
                 $p = Pack::where('libro_digital', $scratch['libro_digital'])
                             ->whereIn('libro_fisico', $devoluciones->pluck('libro_id'))->first();
+                Fecha::whereId($scratch['fecha_id'])->update(['pack_id' => $p->id]);
                 $p->update(['piezas' => $p->piezas + $scratch['unidades']]);
             });
 

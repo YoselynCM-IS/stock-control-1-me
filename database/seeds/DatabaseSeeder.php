@@ -2838,16 +2838,53 @@ class DatabaseSeeder extends Seeder
         //     ]
         // ]);
 
+        // \DB::table('users')->insert([
+        //     0 => [
+        //         'role_id'   => 7,
+        //         'name'      => 'Andrea', 
+        //         'user_name' => 'andrea-om',
+        //         'email'     => 'andrea@gmail.com',
+        //         'password'  => bcrypt('cJ3015&'),
+        //         'created_at' => '2023-02-13 00:00:00',
+        //         'updated_at' => '2023-02-13 00:00:00'
+        //     ]
+        // ]);
+
+        // \DB::table('users')->insert([
+        //     0 => [
+        //         'role_id'   => ,
+        //         'name'      => '', 
+        //         'user_name' => '',
+        //         'email'     => '',
+        //         'password'  => bcrypt(''),
+        //         'created_at' => '2023-06-13 00:00:00',
+        //         'updated_at' => '2023-06-13 00:00:00'
+        //     ]
+        // ]);
+
+        // \DB::table('users')->insert([
+        //     0 => [ 'role_id' => 1, 'name' => 'Genaro', 'user_name' => 'genaro-me', 'email' => 'genaro@majesticeducation.com', 'password' => bcrypt('bJ2307#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     1 => [ 'role_id' => 1, 'name' => 'Jenny', 'user_name' => 'jenny-me', 'email' => 'jenny@majesticeducation.com', 'password' => bcrypt('sL6383&'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     2 => [ 'role_id' => 2, 'name' => 'Gabriela', 'user_name' => 'gabriela-me', 'email' => 'gabriela@majesticeducation.com', 'password' => bcrypt('hR4069#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     3 => [ 'role_id' => 3, 'name' => 'Arturo', 'user_name' => 'arturo-me', 'email' => 'arturo@majesticeducation.com', 'password' => bcrypt('ev5756h'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     4 => [ 'role_id' => 6, 'name' => 'Yoselyn', 'user_name' => 'yoselyn-me', 'email' => 'yoselyn@majesticeducation.com', 'password' => bcrypt('jQ9351&'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     5 => [ 'role_id' => 2, 'name' => 'Ximena', 'user_name' => 'ximena-me', 'email' => 'ximena@majesticeducation.com', 'password' => bcrypt('cJ1903&'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     6 => [ 'role_id' => 5, 'name' => 'Karen', 'user_name' => 'karen-me', 'email' => 'karen@majesticeducation.com', 'password' => bcrypt('iR4094$'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     7 => [ 'role_id' => 5, 'name' => 'Adriana', 'user_name' => 'adriana-me', 'email' => 'adriana@majesticeducation.com', 'password' => bcrypt('jF5536$'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+        //     8 => [ 'role_id' => 5, 'name' => 'Mayra', 'user_name' => 'mayra-me', 'email' => 'mayra@majesticeducation.com', 'password' => bcrypt('yX7897$'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ]
+        // ]);
+
         \DB::table('users')->insert([
-            0 => [
-                'role_id'   => 7,
-                'name'      => 'Andrea', 
-                'user_name' => 'andrea-om',
-                'email'     => 'andrea@gmail.com',
-                'password'  => bcrypt('cJ3015&'),
-                'created_at' => '2023-02-13 00:00:00',
-                'updated_at' => '2023-02-13 00:00:00'
-            ]
+            0 => [ 'role_id' => 1, 'name' => 'Genaro', 'user_name' => 'genaro-ob', 'email' => 'genaro@omegabook.com', 'password' => bcrypt('dP5711$'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            1 => [ 'role_id' => 1, 'name' => 'Jenny', 'user_name' => 'jenny-ob', 'email' => 'jenny@omegabook.com', 'password' => bcrypt('sW3241%'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            2 => [ 'role_id' => 2, 'name' => 'Gabriela', 'user_name' => 'gabriela-ob', 'email' => 'gabriela@omegabook.com', 'password' => bcrypt('dU4784#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            3 => [ 'role_id' => 3, 'name' => 'Arturo', 'user_name' => 'arturo-ob', 'email' => 'arturo@omegabook.com', 'password' => bcrypt('py8843d'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            4 => [ 'role_id' => 6, 'name' => 'Yoselyn', 'user_name' => 'yoselyn-ob', 'email' => 'yoselyn@omegabook.com', 'password' => bcrypt('iV4239&'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            5 => [ 'role_id' => 2, 'name' => 'Ximena', 'user_name' => 'ximena-ob', 'email' => 'ximena@omegabook.com', 'password' => bcrypt('aY8856%'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            6 => [ 'role_id' => 5, 'name' => 'Karen', 'user_name' => 'karen-ob', 'email' => 'karen@omegabook.com', 'password' => bcrypt('qG9725#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            7 => [ 'role_id' => 5, 'name' => 'Adriana', 'user_name' => 'adriana-ob', 'email' => 'adriana@omegabook.com', 'password' => bcrypt('kZ7931#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            8 => [ 'role_id' => 5, 'name' => 'Mayra', 'user_name' => 'mayra-ob', 'email' => 'mayra@omegabook.com', 'password' => bcrypt('pF8493$'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ],
+            9 => [ 'role_id' => 7, 'name' => 'Andrea', 'user_name' => 'andrea-ob', 'email' => 'andrea@omegabook.com', 'password' => bcrypt('jW7420#'), 'created_at' => '2023-06-13 00:00:00', 'updated_at' => '2023-06-13 00:00:00' ]
         ]);
     }
 }

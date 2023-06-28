@@ -19,6 +19,7 @@ class Dato extends Model
     protected $fillable = [
         'id', 
         'remisione_id', 
+        'pack_id',
         'libro_id', 
         'costo_unitario',
         'unidades', 

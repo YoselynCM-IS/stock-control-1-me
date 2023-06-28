@@ -709,8 +709,9 @@ class RemisionController extends Controller
                 'updated_at' => $hoy
             ];
 
+            $s = $scratch->where('libro_id', $dato->libro_id)->first();
             if($dato->libro->type == 'digital'){
-                $s = $scratch->where('libro_id', $dato->libro_id)->first();
+                // $s = $scratch->where('libro_id', $dato->libro_id)->first();
                 if($s == null){
                     $lista_codes->push([
                         'dato_id'   => $dato->id,
@@ -720,7 +721,15 @@ class RemisionController extends Controller
                 } else {
                     $p = Pack::where('libro_digital', $dato->libro_id)
                             ->whereIn('libro_fisico', $scratch->pluck('libro_id'))->first();
+                    $dato->update(['pack_id' => $p->id]);
                     $p->update(['piezas' => $p->piezas - $s['unidades']]);
+                }
+            }
+            if($dato->libro->type == 'venta'){
+                if($s !== null){
+                    $p = Pack::where('libro_fisico', $dato->libro_id)
+                            ->whereIn('libro_digital', $scratch->pluck('libro_id'))->first();
+                    $dato->update(['pack_id' => $p->id]);
                 }
             }
             
