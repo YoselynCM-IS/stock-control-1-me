@@ -42,7 +42,7 @@ class BajaCodeCommand extends Command
         $hoy = Carbon::now();
         $codes = Code::where('tipo', 'demo')->whereNotIn('estado', ['eliminado'])->get();
         $codes->map(function($code) use(&$hoy){
-            if($hoy->diffInWeeks($code->created_at) >= 10){
+            if($hoy->diffInMonths($code->created_at) >= 3){
                 $code->update(['estado' => 'eliminado']);
             }
         });
