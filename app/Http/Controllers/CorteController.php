@@ -633,20 +633,29 @@ class CorteController extends Controller
             $extension = $file->getClientOriginalExtension();
             $name_file = "id-".$remdeposito->id."_".time().".".$extension;
     
-            $image = Image::make($request->file('file'));
-            $image->resize(1280, null, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-    
-            Storage::disk('dropbox')->put(
-                '/stock1/'.$name_file, (string) $image->encode('jpg', 30)
+            Storage::disk('dropbox')->putFileAs(
+                '/stock1/clientespagos/', $request->file('file'), $name_file
             );
             
             $response = $this->dropbox->createSharedLinkWithSettings(
-                '/stock1/'.$name_file, 
+                '/stock1/clientespagos/'.$name_file, 
                 ["requested_visibility" => "public"]
             );
+
+            // $image = Image::make($request->file('file'));
+            // $image->resize(1280, null, function ($constraint) {
+            //     $constraint->aspectRatio();
+            //     $constraint->upsize();
+            // });
+    
+            // Storage::disk('dropbox')->put(
+            //     '/stock1/'.$name_file, (string) $image->encode('jpg', 30)
+            // );
+            
+            // $response = $this->dropbox->createSharedLinkWithSettings(
+            //     '/stock1/'.$name_file, 
+            //     ["requested_visibility" => "public"]
+            // );
     
             $foto = Foto::create([
                 'remdeposito_id' => $remdeposito->id,
