@@ -212,7 +212,12 @@ class LibroController extends Controller
                 Libro::on('opuesto')->create($this->params_libro($request, true));
                 if($request->type != 'digital'){
                     \DB::connection('majesticeducation')->table('libros')
-                        ->insert($datos);
+                        ->insert([
+                            'ISBN' => $request->ISBN,  
+                            'titulo' => $request->titulo, 
+                            'editorial' => 'MAJESTIC EDUCATION',
+                            'type' => $request->type
+                        ]);
                 }
             }
 
