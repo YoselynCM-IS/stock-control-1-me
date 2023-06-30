@@ -877,11 +877,16 @@ import searchCliente from '../../mixins/searchCliente';
                 var check = this.registros.find(d => d.id == this.temporal.id);
                 if(check == undefined){
                     if(this.temporal.unidades > 0){
-                        if(this.temporal.unidades < 31 || (this.temporal.titulo.includes('CATALOGO') == true && this.temporal.unidades < 251)){
+                        if (this.role_id != 6) {
+                            if (this.temporal.unidades < 31 || (this.temporal.titulo.includes('CATALOGO') == true && this.temporal.unidades < 251)) {
+                                this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
+                                this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
+                            } else {
+                                this.makeToast('warning', 'Las unidades no pueden ser mayor a 30 o mayor a 250 en catálogo.');
+                            }
+                        } else {
                             this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
                             this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
-                        } else{
-                            this.makeToast('warning', 'Las unidades no pueden ser mayor a 30 o mayor a 250 en catálogo.');
                         }
                     } else{
                         this.makeToast('warning', 'Unidades invalidas');
