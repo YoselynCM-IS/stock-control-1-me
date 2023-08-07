@@ -649,15 +649,10 @@ import searchCliente from '../../mixins/searchCliente';
             guardarRegistro(){
                 var check = this.regalo.donaciones.find(d => d.id == this.temporal.id);
                 if(check == undefined){
-                    if(this.temporal.unidades > 0){
-                        if(this.temporal.unidades <= this.temporal.piezas){
-                            this.regalo.donaciones.push(this.temporal);
-                            this.acum_unidades_crear();
-                            this.eliminarTemporal();
-                        }
-                        else{
-                            this.makeToast('warning', `${this.temporal.piezas} unidades en existencia`);
-                        }
+                    if (this.temporal.unidades > 0) {
+                        axios.get('/libro/get_scratch', { params: { id: this.temporal.id } }).then(response => {
+                            this.params_donation(this.temporal.piezas - response.data);
+                        }).catch(error => { });
                     }
                     else{
                         this.makeToast('warning', 'Unidades invalidas');
@@ -665,6 +660,16 @@ import searchCliente from '../../mixins/searchCliente';
                 } else{
                     this.makeToast('warning', 'El libro ya ha sido agregado.');
                 }
+            },
+            params_donation(pzs) {
+                if (this.temporal.unidades <= pzs) {
+                    this.regalo.donaciones.push(this.temporal);
+                    this.acum_unidades_crear();
+                    this.eliminarTemporal();
+                }
+                else {
+                    this.makeToast('warning', `${pzs} unidades en existencia`);
+                }  
             },
             // ELIMINAR REGISTRO TEMPORAL
             eliminarTemporal(){

@@ -873,19 +873,27 @@ import searchCliente from '../../mixins/searchCliente';
                 }
             },
             // VERIFICAR UNIDADES
-            guardarRegistro(){
+            guardarRegistro() {
                 var check = this.registros.find(d => d.id == this.temporal.id);
                 if(check == undefined){
                     if(this.temporal.unidades > 0){
                         if (this.role_id != 6) {
                             if (this.temporal.unidades < 31 || (this.temporal.titulo.includes('CATALOGO') == true && this.temporal.unidades < 251)) {
-                                this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
+                                if (this.temporal.type != 'digital') {
+                                    axios.get('/libro/get_scratch', { params: { id: this.temporal.id } }).then(response => {
+                                        this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas - response.data);
+                                    }).catch(error => { });
+                                }
                                 this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
                             } else {
                                 this.makeToast('warning', 'Las unidades no pueden ser mayor a 30 o mayor a 250 en catálogo.');
                             }
                         } else {
-                            this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas);
+                            if (this.temporal.type != 'digital') {
+                                axios.get('/libro/get_scratch', { params: { id: this.temporal.id } }).then(response => {
+                                    this.validar_insert(this.temporal.type != 'digital', this.temporal.piezas - response.data);
+                                }).catch(error => { });
+                            }
                             this.validar_insert(this.temporal.type == 'digital', this.temporal.codigos);
                         }
                     } else{
