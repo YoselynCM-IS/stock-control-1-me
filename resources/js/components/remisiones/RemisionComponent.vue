@@ -593,7 +593,7 @@
             },
             // VERIFICAR EL COSTO INGRESADO
             guardarCosto(){
-                if(this.costo_unitario > 0){
+                if(this.costo_unitario >= 0){
                     this.temporal.costo_unitario = this.costo_unitario;
                     this.inputUnidades = true;
                 }
@@ -642,7 +642,7 @@
             },
             params_registro(pzs){
                 if(this.unidades <= pzs){
-                    if(this.costo_unitario > 0){
+                    if(this.costo_unitario >= 0){
                         this.temporal.unidades = this.unidades;
                         this.temporal.total = this.unidades * this.temporal.costo_unitario;
                         var insert = this.insert_datos(this.temporal, this.temporal.costo_unitario, this.temporal.unidades, this.temporal.total, false);
