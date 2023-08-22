@@ -26,7 +26,11 @@
                         Tel. 55-5803-6415
                     </td>
                     <td style="font-size:9; font-family: Book Antiqua;">
-                        correo: contacto.omegabook@gmail.com
+                        @if(env('APP_NAME') == 'MAJESTIC EDUCATION')
+                            correo: admon.majestic.education@gmail.com
+                        @else 
+                            correo: contacto.omegabook@gmail.com
+                        @endif
                     </td><td></td>
                     <td colspan="2" style="font-size:11; text-align: right;">
                         {{ $fecha->format('d') }} / {{ $fecha->format('m') }} / {{ $fecha->format('Y') }}
