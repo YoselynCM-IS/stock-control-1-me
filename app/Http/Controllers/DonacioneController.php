@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Reporte;
 use App\Regalo;
 use App\Libro;
+use App\Code;
 use Excel;
 use PDF;
 
@@ -22,7 +23,7 @@ class DonacioneController extends Controller
         return response()->json($regalos);
     }
 
-    // GUARDAR UNA DONACIÓN
+    // GUARDAR UNA DONACIÓN *CHECK
     // Función utilizada en DevoluciónController
     public function store(Request $request) {
         \DB::beginTransaction();
@@ -36,9 +37,11 @@ class DonacioneController extends Controller
                 'creado_por' => auth()->user()->name
             ]);
 
+            $lista_codes = collect();
             $donaciones = collect($request->donaciones);
             $hoy = Carbon::now();
-            $donaciones->map(function($donacion) use($regalo, $hoy){
+
+            $donaciones->map(function($donacion) use($regalo, $hoy, &$lista_codes){
                 $unidades = $donacion['unidades'];
                 $libro_id = $donacion['id'];
 
@@ -51,12 +54,38 @@ class DonacioneController extends Controller
                     'updated_at' => $hoy
                 ]);
 
+                if($d->libro->type == 'digital'){
+                    $lista_codes->push([
+                        'donacione_id'   => $d->id,
+                        'libro_id'  => $d->libro_id,
+                        'unidades'  => $d->unidades
+                    ]);
+                }
+
                 // DISMINUIR PIEZAS DE LOS LIBROS
                 \DB::table('libros')->whereId($libro_id)
                     ->decrement('piezas', $unidades);
 
                 $reporte = 'registro la salida (donación) de '.$d->unidades.' unidades - '.$d->libro->editorial.': '.$d->libro->type.' '.$d->libro->ISBN.' / '.$d->libro->titulo.' para '.$regalo->plantel;
                 $this->create_report($d->id, $reporte, 'libro', 'donaciones');
+            });
+
+            $lista_codes->map(function($lc){
+                $codes = Code::where('libro_id', $lc['libro_id'])
+                                ->where('estado', 'inventario')
+                                ->where('tipo', 'alumno')
+                                ->orderBy('created_at', 'asc')
+                                ->limit($lc['unidades'])
+                                ->get();
+                
+                $code_donacione = [];
+                $codes->map(function($code) use (&$code_donacione){
+                    $code_donacione[] = $code->id;
+                    $code->update(['estado' => 'ocupado']);
+                });
+
+                $donacione = Donacione::find($lc['donacione_id']);
+                $donacione->codes()->sync($code_donacione);
             });
             
             $reporte = 'creo la donación para '.$regalo->plantel;
@@ -71,7 +100,7 @@ class DonacioneController extends Controller
 
     public function detalles_donacion(){
         $regalo_id = Input::get('regalo_id');
-        $regalo = Regalo::whereId($regalo_id)->with('donaciones.libro')->first();
+        $regalo = Regalo::whereId($regalo_id)->with('donaciones.libro', 'donaciones.codes')->first();
         return response()->json($regalo);
     }
 

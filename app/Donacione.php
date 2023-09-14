@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use App\Regalo;
 use App\Libro;
+use App\Code;
 
 class Donacione extends Model
 {
@@ -25,5 +26,10 @@ class Donacione extends Model
     //Una donacion solo puede tener un libro
     public function libro(){
         return $this->belongsTo(Libro::class);
+    }
+
+    // Muchos a muchos
+    public function codes(){
+        return $this->belongsToMany(Code::class);
     }
 }

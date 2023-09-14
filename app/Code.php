@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Departure;
+use App\Donacione;
 use App\Registro;
 use App\Libro;
 use App\Dato;
@@ -37,5 +38,10 @@ class Code extends Model
     // Muchos a muchos
     public function departures(){
         return $this->belongsToMany(Departure::class);
+    }
+
+    // Muchos a muchos
+    public function donaciones(){
+        return $this->belongsToMany(Donacione::class);
     }
 }

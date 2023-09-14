@@ -13,14 +13,14 @@ class CreatePacksTable extends Migration
      */
     public function up()
     {
-        Schema::create('packs', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->integer('libro_fisico');
-            $table->integer('libro_digital');
-            $table->integer('piezas')->default(0);
-            $table->integer('defectuosos')->default(0);
-            $table->timestamps();
-        });
+        // Schema::create('packs', function (Blueprint $table) {
+        //     $table->bigIncrements('id');
+        //     $table->integer('libro_fisico');
+        //     $table->integer('libro_digital');
+        //     $table->integer('piezas')->default(0);
+        //     $table->integer('defectuosos')->default(0);
+        //     $table->timestamps();
+        // });
     }
 
     /**

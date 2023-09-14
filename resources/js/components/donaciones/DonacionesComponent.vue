@@ -150,6 +150,25 @@
                 <template v-slot:cell(index)="row">{{ row.index + 1 }}</template>
                 <template v-slot:cell(ISBN)="row">{{ row.item.libro.ISBN }}</template>
                 <template v-slot:cell(titulo)="row">{{ row.item.libro.titulo }}</template>
+                <template #cell(codes)="row">
+                    <b-button v-if="row.item.codes.length > 0" 
+                        size="sm" @click="row.toggleDetails" pill variant="info">
+                        {{ row.detailsShowing ? 'Ocultar' : 'Mostrar' }}
+                    </b-button>
+                </template>
+                <template #row-details="row">
+                    <b-row>
+                        <b-col sm="3"></b-col>
+                        <b-col sm="6">
+                            <b-table :items="row.item.codes" :fields="fieldsCodes">
+                                <template v-slot:cell(index)="data">
+                                    {{ data.index + 1 }}
+                                </template>
+                            </b-table>
+                        </b-col>
+                        <b-col sm="3"></b-col>
+                    </b-row>
+                </template>
                 <template #thead-top="row">
                     <tr>
                         <th colspan="3"></th>
@@ -346,7 +365,8 @@ import searchCliente from '../../mixins/searchCliente';
                     {key: 'index', label: 'N.'}, 
                     {key: 'ISBN', label: 'ISBN'}, 
                     {key: 'titulo', label: 'Libro'}, 
-                    'unidades'
+                    'unidades',
+                    { key: 'codes', label: '' },
                 ],
                 temporal: {
                     id: 0,
@@ -382,7 +402,11 @@ import searchCliente from '../../mixins/searchCliente';
                 position: null,
                 marcarDon: false,
                 searchPlantel: false,
-                searchFecha: false
+                searchFecha: false,
+                fieldsCodes: [
+                    { key: 'index', label: 'N.' },
+                    { key: 'codigo', label: 'Código' }
+                ],
             }
         },
         filters: {
