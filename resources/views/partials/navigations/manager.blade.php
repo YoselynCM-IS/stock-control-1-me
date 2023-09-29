@@ -103,4 +103,7 @@
 		<a class="nav-link" href="https://mestockexterno.com/login" target="_blank">{{ __("Querétaro") }}</a>
 	</li>
 @endif	
+<li>
+	<a class="nav-link" href="{{ route('manager.users.lista') }}">{{ __("Usuarios") }}</a>
+</li>
 @include('partials.navigations.logged')

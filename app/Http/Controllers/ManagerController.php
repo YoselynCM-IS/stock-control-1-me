@@ -107,4 +107,7 @@ class ManagerController extends Controller
         return view('manager.codes');
     }
 
+    public function lista_users(){
+        return view('manager.users.users');
+    }
 }

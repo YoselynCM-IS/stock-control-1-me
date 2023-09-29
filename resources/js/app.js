@@ -151,6 +151,10 @@ Vue.component('crm-inicio-component', require('./components/crm/InicioComponent'
 // NOTIFICACIONES
 Vue.component('user-notifications', require('./components/notifications/UserNotifications').default);
 
+// USERS
+Vue.component('list-users-component', require('./components/users/ListaUsersComponent').default);
+Vue.component('edit-add-user-component', require('./components/users/EditAddUserComponent').default);
+
 /** NO UTLIZADOS */
 Vue.component('pagos-remisiones', require('./components/nu/PagosRemisiones.vue').default);
 Vue.component('entradas-component', require('./components/entradas/EntradasComponent.vue').default);

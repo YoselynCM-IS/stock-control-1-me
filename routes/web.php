@@ -364,25 +364,25 @@ Route::get('/download_regalo/{id}', 'DonacioneController@download_regalo')->name
 // Guardar comentario de la remisión
 Route::post('guardar_comentario', 'RemisionController@guardar_comentario')->name('guardar_comentario');
 
-// VENDIDO
-// Obtener todas los libros vendidos
-Route::get('obtener_vendidos', 'VendidoController@obtener_vendidos')->name('obtener_vendidos');
-// Obtener por fecha
-Route::get('obtener_por_fecha', 'VendidoController@obtener_por_fecha')->name('obtener_por_fecha');
-// Obtener unidades vendidas por libro
-Route::get('obtener_libro', 'VendidoController@obtener_libro')->name('obtener_libro');
-//Obtener por libros y fecha
-Route::get('libro_por_fecha', 'VendidoController@libro_por_fecha')->name('libro_por_fecha');
-// Obtener libros vendidos por cliente
-Route::get('obtener_cliente', 'VendidoController@obtener_cliente')->name('obtener_cliente');
-// Obtener libros vendidos por cliente y fecha
-Route::get('cliente_por_fecha', 'VendidoController@cliente_por_fecha')->name('cliente_por_fecha');
-// Obtener libros vendidos por editorial
-Route::get('obtener_editorial', 'VendidoController@obtener_editorial')->name('obtener_editorial');
-// Obtener por editorial y fecha
-Route::get('editorial_por_fecha', 'VendidoController@editorial_por_fecha')->name('editorial_por_fecha');
-// Obtener detalles de vendidos
-Route::get('detalles_vendidos', 'VendidoController@detalles_vendidos')->name('detalles_vendidos');
+// // VENDIDO
+// // Obtener todas los libros vendidos
+// Route::get('obtener_vendidos', 'VendidoController@obtener_vendidos')->name('obtener_vendidos');
+// // Obtener por fecha
+// Route::get('obtener_por_fecha', 'VendidoController@obtener_por_fecha')->name('obtener_por_fecha');
+// // Obtener unidades vendidas por libro
+// Route::get('obtener_libro', 'VendidoController@obtener_libro')->name('obtener_libro');
+// //Obtener por libros y fecha
+// Route::get('libro_por_fecha', 'VendidoController@libro_por_fecha')->name('libro_por_fecha');
+// // Obtener libros vendidos por cliente
+// Route::get('obtener_cliente', 'VendidoController@obtener_cliente')->name('obtener_cliente');
+// // Obtener libros vendidos por cliente y fecha
+// Route::get('cliente_por_fecha', 'VendidoController@cliente_por_fecha')->name('cliente_por_fecha');
+// // Obtener libros vendidos por editorial
+// Route::get('obtener_editorial', 'VendidoController@obtener_editorial')->name('obtener_editorial');
+// // Obtener por editorial y fecha
+// Route::get('editorial_por_fecha', 'VendidoController@editorial_por_fecha')->name('editorial_por_fecha');
+// // Obtener detalles de vendidos
+// Route::get('detalles_vendidos', 'VendidoController@detalles_vendidos')->name('detalles_vendidos');
 
 // DESCARGAR REPORTES
 // Descargar reporte de libros vendidos por cliente
@@ -598,6 +598,21 @@ Route::name('manager.')->prefix('manager')
     Route::get('/codes', 'ManagerController@codes')->name('codes');
     Route::get('/clientes', 'ManagerController@clientes')->name('clientes');
     Route::get('/salidas', 'ManagerController@salidas')->name('salidas');
+
+    Route::name('users.')->prefix('users')->group(function () {
+        Route::get('/lista', 'ManagerController@lista_users')->name('lista');
+    });
+});
+
+Route::name('users.')->prefix('users')
+    ->middleware(['auth', 'role:Manager'])->group(function () {
+    Route::get('/index', 'UserController@index')->name('index');
+    Route::put('/update', 'UserController@update')->name('update');
+    Route::post('/store', 'UserController@store')->name('store');
+    Route::delete('/delete', 'UserController@delete')->name('delete');
+    Route::put('/restore', 'UserController@restore')->name('restore');
+    Route::get('/get_roles', 'UserController@get_roles')->name('get_roles');
+    Route::get('/set_user', 'UserController@set_user')->name('set_user');
 });
 
 Route::name('cortes.')->prefix('cortes')->group(function () {
