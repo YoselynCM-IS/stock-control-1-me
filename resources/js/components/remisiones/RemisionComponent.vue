@@ -54,7 +54,7 @@
                 </b-button>
                 <div class="col-md-1">
                     <b-button variant="outline-warning" pill size="sm"
-                        @click="editarInformacion()" :disabled="load">
+                        @click="editarInformacion()" :disabled="load || (datoremision.total_devolucion > 0)">
                         <i class="fa fa-pencil"></i>
                     </b-button>
                 </div>
@@ -123,7 +123,8 @@
                         <td>
                             <b-input style="text-transform:uppercase;"
                                 v-model="temporal.titulo" autofocus
-                                @keyup="mostrarLibros()"></b-input>
+                                @keyup="mostrarLibros()"
+                                :disabled="position != null"></b-input>
                             <div class="list-group" v-if="resultslibros.length" id="listaL">
                                 <a class="list-group-item list-group-item-action" href="#" 
                                     v-for="(libro, i) in resultslibros" v-bind:key="i" 
@@ -138,8 +139,8 @@
                             </b-input>
                         </td>
                         <td>
-                            <b-input type="number" v-model="temporal.unidades"
-                                min="1" max="9999"
+                            <b-input type="number" v-model="temporal.unidades" min="1" max="9999"
+                                    :disabled="position != null && datoremision.total_devolucion > 0" 
                             ></b-input>
                         </td>
                         <td></td>
@@ -152,19 +153,23 @@
                     </tr>
                     <tr v-for="(dato, i) in remision.datos" v-bind:key="i">
                         <td>{{ dato.libro.ISBN }}</td>
-                        <td>{{ dato.libro.titulo }}</td>
+                        <td>
+                            {{ dato.libro.titulo }}
+                            <b-badge v-if="dato.pack_id != null" variant="info">scratch</b-badge>
+                        </td>
                         <td>${{ dato.costo_unitario | formatNumber }}</td>
                         <td>{{ dato.unidades | formatNumber }}</td>
                         <td>${{ dato.total | formatNumber }}</td>
-                        <td v-if="!dato.scratch">
+                        <td v-if="!dato.scratch && dato.pack_id == null">
                             <b-button size="sm" pill variant="secondary" 
-                                @click="eliminarRegistro(dato, i)">
+                                @click="eliminarRegistro(dato, i)"
+                                :disabled="datoremision.total_devolucion > 0">
                                 <i class="fa fa-minus-circle"></i>
                             </b-button>
-                            <!-- <b-button v-if="editar" size="sm" pill variant="warning" 
+                            <b-button v-if="editar" size="sm" pill variant="warning" 
                                 @click="editarRegistro(dato, i)">
                                 <i :class="`fa fa-${position == i ? 'spinner':'pencil'}`"></i>
-                            </b-button> -->
+                            </b-button>
                         </td>
                     </tr>
                 </tbody>
@@ -178,7 +183,7 @@
                         <td style="width: 10%;">{{ nuevo.unidades | formatNumber }}</td>
                         <td style="width: 15%;">${{ nuevo.total | formatNumber }}</td>
                         <td style="width: 5%;">
-                            <b-button variant="danger" @click="eliminarRegistro(nuevo, j)">
+                            <b-button size="sm" pill variant="danger" @click="eliminarRegistro(nuevo, j)">
                                 <i class="fa fa-minus-circle"></i>
                             </b-button>
                         </td>
@@ -359,7 +364,8 @@
                     total: 0,
                     datos: [],
                     nuevos: [],
-                    eliminados: []
+                    eliminados: [],
+                    editados: []
                 },
                 resultsScratch: [],
                 packs: [],
@@ -395,7 +401,8 @@
                     total: this.datoremision.total,
                     datos: this.datoremision.datos,
                     nuevos: [],
-                    eliminados: []
+                    eliminados: [],
+                    editados: []
                 };
             }
             this.mostrarBusqueda = true;
@@ -441,7 +448,7 @@
             // ACTUALIZAR DATOS DE LA REMISION
             actualizarRemision(){
                 this.load = true;
-                this.$refs['modal-confirmar-remision'].hide();
+                // this.$refs['modal-confirmar-remision'].hide();
                 axios.put('/remisiones/update', this.remision).then(response => {
                     this.load = false;
                     swal("La remisión se actualizo correctamente.", "Actualiza la página principal, para visualizar los cambios.", "success")
@@ -503,7 +510,6 @@
                     piezas: dato.libro.piezas
                 };
                 this.position = i;
-                console.log(this.temporal);
             },
             // MOSTRAR LIBROS POR COINCIDENCIA
             mostrarLibros(){
@@ -527,11 +533,11 @@
             guardarRegistro(){
                 if (this.temporal.id ) {
                     var pzs = this.temporal.piezas;
+                    var acum = 0;
                     var check1 = this.remision.datos.find(d => d.libro.id == this.temporal.id);
                     var check2 = this.remision.nuevos.find(d => d.libro.id == this.temporal.id);
-                    if (check1 == undefined && check2 == undefined) {
+                    if ((this.temporal.dato_id == null && check1 == undefined && check2 == undefined) || this.temporal.dato_id != null) {
                         if (this.remision.datos.length > 0 || this.remision.nuevos.length > 0) {
-                            var acum = 0;
                             if (!this.editar) {
                                 this.remision.datos.forEach(dato => {
                                     if (this.temporal.id == dato.libro.id) {
@@ -540,22 +546,29 @@
                                     }
                                 });
                             } else {
-                                this.remision.nuevos.forEach(nuevo => {
-                                    if (this.temporal.id == nuevo.libro.id) {
-                                        acum += parseInt(nuevo.unidades);
-                                        pzs = this.temporal.piezas - acum;
-                                    }
-                                });
+                                if (this.temporal.dato_id == null) {
+                                    this.remision.nuevos.forEach(nuevo => {
+                                        if (this.temporal.id == nuevo.libro.id) {
+                                            acum += parseInt(nuevo.unidades);
+                                            pzs = this.temporal.piezas - acum;
+                                        }
+                                    });
+                                } else {
+                                    this.remision.datos.forEach(dato => {
+                                        if (this.temporal.id == dato.libro.id) {
+                                            acum += parseInt(dato.unidades);
+                                        }
+                                    });
+                                    pzs = pzs + acum;
+                                }
                             }
-
                         }
 
                         if (this.temporal.unidades > 0) {
                             axios.get('/libro/get_scratch', { params: { id: this.temporal.id } }).then(response => {
                                 this.params_registro(pzs - response.data);
                             }).catch(error => { });
-                        }
-                        else {
+                        } else {
                             this.temporal.unidades = 0
                             this.makeToast('warning', 'Las unidades deben ser mayor a 0.');
                         }
@@ -575,14 +588,29 @@
                         if (!this.editar) {
                             this.remision.datos.push(insert);
                         } else {
-                            this.remision.nuevos.push(insert);
+                            if (this.temporal.dato_id == null) {
+                                this.remision.nuevos.push(insert);
+                            } else {
+                                this.remision.datos[this.position].costo_unitario = this.temporal.costo_unitario;
+                                this.remision.datos[this.position].unidades = this.temporal.unidades;
+                                this.remision.datos[this.position].total = this.temporal.total;
+                                var f = this.remision.editados.find(e => e == this.temporal.dato_id);
+                                if (f == undefined) 
+                                     this.remision.editados.push(this.remision.datos[this.position].id);
+                            }
                         }
-                        this.remision.total += this.temporal.total;
                         this.inicializar_registro();
                     } else {
                         this.temporal.costo_unitario = 0
                         this.makeToast('warning', 'El costo unitario debe ser mayor o igual a 0');
                     } 
+                    this.remision.total = 0;
+                    this.remision.datos.forEach(d => {
+                        this.remision.total += d.total;
+                    });
+                    this.remision.nuevos.forEach(n => {
+                        this.remision.total += n.total;
+                    });
                 }
                 else{
                     this.makeToast('warning', `${pzs} piezas en existencia.`);
@@ -600,6 +628,7 @@
                     total: 0,
                     piezas: 0
                 };
+                this.position = null;
                 this.resultslibros = [];
                 this.mostrarBusqueda = false;
             },

@@ -58,6 +58,10 @@
             <template v-slot:cell(costo_unitario)="row">
                 ${{ row.item.costo_unitario | formatNumber }}
             </template>
+            <template v-slot:cell(titulo)="row">
+                {{ row.item.libro.titulo }}
+                <b-badge v-if="row.item.pack_id != null" variant="info">scratch</b-badge>
+            </template>
             <template v-slot:cell(total)="row">
                 ${{ row.item.total | formatNumber }}
             </template>
@@ -272,7 +276,7 @@ export default {
             newComment: false,
             fieldsDatos: [
                 { key: 'libro.ISBN', label: 'ISBN' },
-                { key: 'libro.titulo', label: 'Libro' },
+                { key: 'titulo', label: 'Libro' },
                 { key: 'costo_unitario', label: 'Costo unitario' },
                 { key: 'unidades', label: 'Unidades' },
                 { key: 'total', label: 'Subtotal' },

@@ -565,7 +565,7 @@ class RemisionController extends Controller
             Devolucione::where('remisione_id', $remision->id)->delete();
             
             // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
-            $cctotale = $this->get_cctotale($remision);
+            $cctotale = $this->get_cctotale($remision, $remision->cliente_id);
             $cctotale->update([
                 'total' => $cctotale->total - $remision->total,
                 'total_pagar' => $cctotale->total_pagar - $remision->total
@@ -591,14 +591,23 @@ class RemisionController extends Controller
         return response()->json($remision);
     }
 
-    public function get_cctotale($remision){
-        return Cctotale::where([
-            'cliente_id' => $remision->cliente_id,
+    public function get_cctotale($remision, $cliente_id){
+        $cctotale = Cctotale::where([
+            'cliente_id' => $cliente_id,
             'corte_id'  => $remision->corte_id
         ])->first();
+
+        if($cctotale == null){
+            return Cctotale::create([
+                'cliente_id' => $cliente_id,
+                'corte_id'  => $remision->corte_id
+            ]);
+        }
+
+        return $cctotale;
     }
 
-    // GUARDAR REMISION
+    // GUARDAR REMISION *CHECK
     // Función utilizada en RemisionComponent
     public function store(Request $request){
         \DB::beginTransaction();
@@ -624,20 +633,11 @@ class RemisionController extends Controller
             $this->save_datos($request->datos, $remision);
             
             // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
-            $cctotale = $this->get_cctotale($remision);
-            if($cctotale == null){
-                Cctotale::create([
-                    'cliente_id' => $remision->cliente_id,
-                    'corte_id'  => $remision->corte_id,
-                    'total' => $remision->total,
-                    'total_pagar' => $remision->total
-                ]);
-            } else {
-                $cctotale->update([
-                    'total' => $cctotale->total + $remision->total,
-                    'total_pagar' => $cctotale->total_pagar + $remision->total
-                ]);
-            }
+            $cctotale = $this->get_cctotale($remision, $remision->cliente_id);
+            $cctotale->update([
+                'total' => $cctotale->total + $remision->total,
+                'total_pagar' => $cctotale->total_pagar + $remision->total
+            ]);
             
 
             // BUSCAR EL CLIENTE Y AFECTAR SU CUENTA GENERAL
@@ -746,21 +746,22 @@ class RemisionController extends Controller
 
         $hoy = Carbon::now();
         $lista_codes->map(function($lc, $hoy){
-            $codes = Code::where('libro_id', $lc['libro_id'])
+            $this->get_codes($lc['libro_id'], $lc['unidades'], $lc['dato_id']);
+        });
+    }
+
+    public function get_codes($libro_id, $unidades, $dato_id){
+        $codes = Code::where('libro_id', $libro_id)
                             ->where('estado', 'inventario')
                             ->where('tipo', 'alumno')
                             ->orderBy('created_at', 'asc')
-                            ->limit($lc['unidades'])
+                            ->limit($unidades)
                             ->get();
-            
-            $code_dato = [];
-            $codes->map(function($code) use (&$code_dato){
-                $code_dato[] = $code->id;
-                $code->update(['estado' => 'ocupado']);
-            });
-
-            $dato = Dato::find($lc['dato_id']);
-            $dato->codes()->sync($code_dato);
+        
+        $dato = Dato::find($dato_id);
+        $codes->map(function($code) use (&$dato){
+            $code->update(['estado' => 'ocupado']);
+            $dato->codes()->attach($code->id);
         });
     }
 
@@ -939,6 +940,7 @@ class RemisionController extends Controller
         return response()->json(['remision' => $remision, 'clientes' => $clientes]);
     }
 
+    // GUARDAR DEVOLUCIÓN *CHECK
     public function update(Request $request){
         DB::beginTransaction();
         try {
@@ -948,18 +950,29 @@ class RemisionController extends Controller
             $cliente_id = $request->cliente['id'];
             
             // ELIMINADOS
+            $code_dato_ids = collect();
             $eliminados = collect($request->eliminados);
-            $eliminados->map(function($eliminado){
+            $eliminados->map(function($eliminado) use(&$code_dato_ids){
                 $dato_id = $eliminado['id'];
                 $unidades = (int) $eliminado['unidades'];
+                $dato = Dato::find($dato_id);
+                $code_dato_ids->push($dato->codes);
     
                 // AUMENTAR PIEZAS DE LOS LIBROS ELIMINADOS
                 \DB::table('libros')->whereId($eliminado['libro_id'])
                                     ->increment('piezas',  $unidades);
                 // ELIMINAR DATOS Y DEVOLUCIONES
                 Devolucione::where('dato_id', $dato_id)->delete();
-                Dato::whereId($dato_id)->delete();
+                \DB::table('code_dato')->where('dato_id', $dato_id)->delete();
+                $dato->delete();
             });
+
+            $code_dato_ids->map(function($cdi){
+                $cdi->map(function($code){
+                    $code->update(['estado' => 'inventario']);
+                });
+            });
+            // ** ELIMINADOS
             
             // NUEVOS
             $lista_devoluciones = [];
@@ -969,6 +982,7 @@ class RemisionController extends Controller
                 $libro_id = $nuevo['libro']['id'];
                 $unidades = (int) $nuevo['unidades'];
                 $total_nuevo = (double) $nuevo['total'];
+                $libro = Libro::find($libro_id);
 
                 // CREAR REGISTROS DE DATOS
                 $dato = Dato::create([
@@ -978,6 +992,10 @@ class RemisionController extends Controller
                     'unidades'  => $unidades,
                     'total'     => $total_nuevo
                 ]);
+
+                if($libro->type == 'digital'){
+                    $this->get_codes($libro_id, $unidades, $dato->id);
+                }
 
                 $lista_devoluciones[] = [
                     'remisione_id' => $remision->id,
@@ -990,35 +1008,111 @@ class RemisionController extends Controller
                 ];
 
                 // DISMINUIR PIEZAS DE LOS LIBROS
-                \DB::table('libros')->whereId($libro_id)->decrement('piezas',  $unidades);
+                $libro->update(['piezas' => $libro->piezas - $unidades]);
             });
 
             // CREAR REGISTROS DE DEVOLUCION
             Devolucione::insert($lista_devoluciones);
+            // ** NUEVOS
 
-            if($cliente_id === $remision->cliente_id && $total !== $remision->total){
+            // EDITADOS
+            $e_total_devolucion = 0;
+            if(sizeof($request->editados) > 0){
+                $editados = collect($request->editados);
+                $edatos = collect($request->datos);
+                $prueba = collect();
+                $remision->datos->map(function($d) use(&$prueba, &$editados, &$edatos, &$e_total_devolucion){
+                    if($editados->contains($d->id)){
+                        $ed = $edatos->firstWhere('id', $d->id);
+                        $e_unidades = (int) $ed['unidades'];
+                        $e_total = (double) $ed['total'];
+                        $e_costo_unitario = (float) $ed['costo_unitario'];
+                        if(($e_unidades != $d->unidades) || ($e_costo_unitario != $d->costo_unitario)){
+                            if($e_unidades < $d->unidades){
+                                // ELIMINAR DATOS Y AGREGAR LIBROS
+                                $diferencia = $d->unidades - $e_unidades;
+                                if($d->libro->type == 'digital'){
+                                    $codes_id = $d->codes()->limit($diferencia)->pluck('codes.id');
+                                    Code::whereIn('id', $codes_id)->update([
+                                        'estado' => 'inventario'
+                                    ]);
+                                    \DB::table('code_dato')->where('dato_id', $d->id)
+                                            ->whereIn('code_id', $codes_id)->delete();
+                                }
+                                // AGREGAR PIEZAS DE LOS LIBROS
+                                \DB::table('libros')->whereId($d->libro_id)
+                                    ->increment('piezas',  $diferencia);
+                            }
+                            if($e_unidades > $d->unidades){
+                                // AGREGAR DATOS Y QUITAR LIBROS
+                                $diferencia = $e_unidades - $d->unidades;
+                                if($d->libro->type == 'digital'){
+                                    $this->get_codes($d->libro_id, $diferencia, $d->id);
+                                }
+
+                                // DISMINUIR PIEZAS DE LOS LIBROS
+                                \DB::table('libros')->whereId($d->libro_id)
+                                    ->decrement('piezas',  $diferencia);
+                            }
+                            $d->update([
+                                'costo_unitario' => $e_costo_unitario,
+                                'total' => $e_total,
+                                'unidades' => $e_unidades
+                            ]);
+
+                            $resta = $e_unidades - $d->devolucione->unidades;
+                            $d->devolucione->update([
+                                'total' => $d->devolucione->unidades * $e_costo_unitario,
+                                'unidades_resta' => $resta,
+                                'total_resta' => $resta * $e_costo_unitario
+                            ]);
+
+                            $fechas = Fecha::where([
+                                'remisione_id' => $d->remisione_id,
+                                'libro_id' => $d->libro_id
+                            ])->get();
+                            $fechas->map(function($fecha) use($e_costo_unitario){
+                                $fecha->update([
+                                    'total' => $fecha->unidades * $e_costo_unitario
+                                ]);
+                            });
+                        }
+                    }
+                    $e_total_devolucion += $d->devolucione->total;
+                });
+            }
+            // **EDITADOS
+
+            // MISMO CLIENTE, DIFERENTE TOTAL
+            if($cliente_id === $remision->cliente_id){
                 // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
-                $cctotale = $this->get_cctotale($remision);
+                $cctotale = $this->get_cctotale($remision, $remision->cliente_id);
                 $cct_total = ($cctotale->total - $remision->total) + $total;
-                $cct_tpagar = ($cctotale->total_pagar - $remision->total) + $total;
+                $cct_tdev = ($cctotale->total_devolucion - $remision->total_devolucion) + $e_total_devolucion;
+                $cct_tpagar = $cct_total - ($cct_tdev + $cctotale->total_pagos);
                 $cctotale->update([
                     'total' => $cct_total,
+                    'total_devolucion' => $cct_tdev,
                     'total_pagar' => $cct_tpagar
                 ]);
 
                 // BUSCAR EL CLIENTE Y AFECTAR SU CUENTA GENERAL
                 $remcliente = Remcliente::where('cliente_id', $remision->cliente_id)->first(); 
                 $total_gral = ($remcliente->total - $remision->total) + $total;
-                $total_pagar = ($remcliente->total_pagar - $remision->total) + $total;
+                $total_devolucion = ($remcliente->total_devolucion - $remision->total_devolucion) + $e_total_devolucion;
+                $total_pagar = $total_gral - ($total_devolucion + $remcliente->total_pagos);
                 $remcliente->update([
                     'total' => $total_gral,
+                    'total_devolucion' => $total_devolucion,
                     'total_pagar' => $total_pagar
                 ]);
             }
+
+            // DIFERENTE CLIENTE
             if($cliente_id !== $remision->cliente_id){
                 //*** BUSCAR EL CLIENTE Y AFECTAR SU CUENTA (GENERAL Y CORTE) */
                 // 1ro - CUENTA DEL CORTE, AFECTAR SU CUENTA, QUITANDO EL TOTAL DE LA REMISIÓN
-                $p_cctotale = $this->get_cctotale($remision);
+                $p_cctotale = $this->get_cctotale($remision, $remision->cliente_id);
                 $p_cctotale->update([
                     'total' => $p_cctotale->total - $remision->total,
                     'total_pagar' => $p_cctotale->total_pagar - $remision->total
@@ -1048,35 +1142,32 @@ class RemisionController extends Controller
                     ]);
                 }
                 // 2do CUENTA DEL CORTE
-                $s_cctotale = Cctotale::where([
-                    'cliente_id' => $cliente_id,
-                    'corte_id'  => $remision->corte_id
-                ])->first();
+                $s_cctotale = $this->get_cctotale($remision, $cliente_id);
                 $s_cctotale->update([
                     'total' => $s_cctotale->total + $total,
                     'total_pagar' => $s_cctotale->total_pagar + $total
                 ]);
                 //*************** */
             }
+
+            // DIFERENTES DATOS EN LA REMISION
             if($cliente_id !== $remision->cliente_id || $request->fecha_entrega !== $remision->fecha_entrega || $total !== $remision->total){
                 // ACTUALIZAR REMISIÓN
                 $remision->update([
                     'cliente_id' => $cliente_id,
                     'total' => $total,
-                    'total_pagar' => $total,
+                    'total_devolucion' => $e_total_devolucion,
+                    'total_pagar' => $total - ($e_total_devolucion + $remision->pagos),
                     'fecha_entrega' => $request->fecha_entrega
                 ]);
             } 
 
-            $get_remision = Remisione::whereId($remision->id)
-                            ->with(['cliente:id,name'])
-                            ->first();
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json($exception->getMessage());
         }
-        return response()->json($get_remision);
+        return response()->json(true);
     }
 
     public function get_remcliente(){
@@ -1227,10 +1318,10 @@ class RemisionController extends Controller
     // CREAR REMISION
     public function ce_remision($remisione_id, $editar){
         $remision = 0;
-        if($editar == 'true') 
-            $remision = Remisione::whereId($remisione_id)->with('cliente', 'datos.libro')->first();
-        
         $clientes = Cliente::orderBy('name', 'asc')->get();
+        if($editar == 'true' && auth()->user()->role->rol == 'Manager') 
+            $remision = Remisione::whereId($remisione_id)->with('cliente', 'datos.libro')->first();
+
         return view('information.remisiones.ce-remision', compact('remision', 'clientes', 'editar'));
     }
 
@@ -1379,7 +1470,7 @@ class RemisionController extends Controller
 
 
             // ACTUALIZA LA CUENTA DEL CORTE CORRESPONDIENTE
-            $cctotale = $this->get_cctotale($remision);
+            $cctotale = $this->get_cctotale($remision, $remision->cliente_id);
             $cctotale->update([
                 'total' => $cctotale->total + $remision->total,
                 'total_pagar' => $cctotale->total_pagar + $remision->total
