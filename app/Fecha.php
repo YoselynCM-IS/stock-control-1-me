@@ -17,7 +17,9 @@ class Fecha extends Model
         'unidades',
         'total',
         'entregado_por',
-        'creado_por'
+        'creado_por',
+        'defectuosos',
+        'comentario'
     ];
 
     //Uno a muchos (inversa)

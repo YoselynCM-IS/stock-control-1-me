@@ -1332,14 +1332,28 @@ class RemisionController extends Controller
                         'cliente',
                         'datos.libro',
                         'datos.codes',
-                        'devoluciones.libro',
-                        'devoluciones.dato',
-                        'fechas.libro',
                         'depositos',
                         'comentarios.user',
                         'paqueteria.destinatario'
                     ])->withCount('depositos')->first();
-        return view('information.remisiones.details-remision', compact('remision'));
+        $ds = Devolucione::where('remisione_id', $remision->id)->get();
+        $devoluciones = collect();
+        $ds->map(function($d) use(&$devoluciones){
+            $fs = Fecha::where('remisione_id', $d->remisione_id)
+                ->where('libro_id', $d->libro_id)->get();
+            $devoluciones->push([
+                'id' => $d->id, 
+                'remisione_id' => $d->remisione_id, 
+                'dato_id' => $d->dato_id, 
+                'libro_id' => $d->libro_id,
+                'unidades' => $d->unidades, 
+                'total' => $d->total,
+                'dato' => $d->dato, 
+                'libro' => $d->libro,
+                'fechas' => $fs
+            ]);
+        });
+        return view('information.remisiones.details-remision', compact('remision', 'devoluciones'));
     }
 
     public function get_responsables(){

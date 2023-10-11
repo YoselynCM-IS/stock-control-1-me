@@ -242,13 +242,18 @@
                         <label><b>Cliente:</b> {{ remision.cliente.name }}</label><br>
                         <label><b>Devolución entregada por:</b> {{ entregado_por }}</label>
                         <b-table :items="devoluciones" :fields="fieldsRP">
-                            <template v-slot:cell(isbn)="row">{{ row.item.libro.ISBN }}</template>
-                            <template v-slot:cell(libro)="row">{{ row.item.libro.titulo }}</template>
                             <template v-slot:cell(costo_unitario)="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
                             <template v-slot:cell(subtotal)="row">${{ row.item.total_base | formatNumber }}</template>
+                            <template v-slot:cell(unidades_resta)="row">{{ row.item.unidades_resta | formatNumber }}</template>
+                            <template v-slot:cell(defectuosos)="row">
+                                {{ row.item.defectuosos | formatNumber }}
+                                <b-button v-if="row.item.defectuosos > 0" v-b-tooltip.hover :title="row.item.comentario" variant="link" size="sm" pill>
+                                    <i class="fa fa-info"></i>
+                                </b-button>
+                            </template>
                             <template #thead-top="row">
                                 <tr>
-                                    <th colspan="5"></th>
+                                    <th colspan="6"></th>
                                     <th>${{ total_devolucion | formatNumber }}</th>
                                 </tr>
                             </template>
@@ -284,58 +289,52 @@
                 <b-col sm="3">Devolución entregada por</b-col>
                 <b-col sm="4"><b-form-select :state="state" v-model="entregado_por" :options="options"></b-form-select></b-col>
             </b-row><br>
-            <table class="table">
-                <thead>
+            <b-table :items="devoluciones" :fields="fieldsRP">
+                <template v-slot:cell(costo_unitario)="row">${{ row.item.dato.costo_unitario | formatNumber }}</template>
+                <template v-slot:cell(subtotal)="row">${{ row.item.total_base | formatNumber }}</template>
+                <template v-slot:cell(unidades_resta)="row">{{ row.item.unidades_resta | formatNumber }}</template>
+                <template v-slot:cell(defectuosos)="row">
+                    {{ row.item.defectuosos | formatNumber }}
+                    <b-button v-if="row.item.defectuosos > 0" v-b-tooltip.hover :title="row.item.comentario" variant="link" size="sm" pill>
+                        <i class="fa fa-info"></i>
+                    </b-button>
+                </template>
+                <template #thead-top="row">
                     <tr>
-                        <td></td><td></td>
-                        <td></td><td></td><td></td>
-                        <td><h6><b>${{ total_devolucion | formatNumber }}</b></h6></td>
+                        <th colspan="6"></th>
+                        <th>${{ total_devolucion | formatNumber }}</th>
                     </tr>
-                    <tr>
-                        <th scope="col">ISBN</th>
-                        <th scope="col">Libro</th>
-                        <th scope="col">Costo unitario</th>
-                        <th scope="col">Unidades pendientes</th>
-                        <th scope="col">Unidades</th>
-                        <th scope="col">Subtotal</th>
-                        <th scope="col"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(devolucion, i) in devoluciones" v-bind:key="i">
-                        <td>{{ devolucion.libro.ISBN }}</td>
-                        <td>{{ devolucion.libro.titulo }}</td>
-                        <td>$ {{ devolucion.dato.costo_unitario | formatNumber }}</td>
-                        <td>{{ devolucion.unidades_resta | formatNumber }}</td>
-                        <td>
-                            <b-input v-if="devolucion.libro.type !== 'digital' || 
-                                    (devolucion.libro.type == 'digital' && devolucion.dato.codes.length == 0)"
-                                :id="`inpDev-${i}`" type="number" 
-                                v-model="devolucion.unidades_base" :disabled="load"
-                                @change="guardarUnidades(devolucion, i)"/>
-                            <div v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
-                                <b-input v-if="showSelectUnit && position == i" 
-                                    v-model="devolucion.unidades_base" :disabled="load"
-                                    @change="guardarUnidades(devolucion, i)"/>
-                                <label v-else>
-                                    {{ devolucion.unidades_base }}
-                                </label>
-                            </div>
-                        </td>
-                        <td>$ {{ devolucion.total_base | formatNumber }}</td>
-                        <td>
-                            <div v-if="devolucion.libro.type == 'digital' && devolucion.dato.codes.length > 0">
-                                <b-button pill small block variant="info" @click="selectUnidades(i)">
-                                    Scratch
-                                </b-button>
-                                <b-button pill small block variant="info" @click="selectCodigos(devolucion, i)">
-                                    Códigos
-                                </b-button>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                </template>
+                <template v-slot:cell(unidades_base)="row">
+                    <b-input v-if="row.item.libro.type !== 'digital' ||
+                        (row.item.libro.type == 'digital' && row.item.dato.codes.length == 0)"
+                        :id="`inpDev-${row.index}`" type="number" 
+                        v-model="row.item.unidades_base" :disabled="load"
+                        @change="guardarUnidades(row.item, row.index)"/>
+                    <div v-if="row.item.libro.type == 'digital' && row.item.dato.codes.length > 0">
+                        <b-input v-if="showSelectUnit && position == row.index" 
+                            v-model="row.item.unidades_base" :disabled="load"
+                            @change="guardarUnidades(row.item, row.index)"/>
+                        <label v-else>
+                            {{ row.item.unidades_base }}
+                        </label>
+                    </div>
+                </template>
+                <template v-slot:cell(actions)="row">
+                    <div v-if="row.item.libro.type == 'digital' && row.item.dato.codes.length > 0">
+                        <b-button pill small block variant="info" @click="selectUnidades(row.index)">
+                            Scratch
+                        </b-button>
+                        <b-button pill small block variant="info" @click="selectCodigos(row.item, row.index)">
+                            Códigos
+                        </b-button>
+                    </div>
+                    <b-button v-if="row.item.libro.type == 'venta'" :disabled="row.item.unidades_base <= 0"
+                        pill small block variant="secondary" @click="addDefectuosos(row.item, row.index)">
+                        Defectuosos
+                    </b-button>
+                </template>
+            </b-table>
         </div>
         <!-- MODAL PARA SELECCIONAR CODIGOS -->
         <b-modal id="modal-select-codes" title="Seleccionar códigos" hide-footer>
@@ -353,12 +352,17 @@
                 </b-button>
             </div>
         </b-modal>
+        <b-modal id="modal-add-defectuosos" title="Registrar defectuosos" hide-footer size="sm">
+            <add-defectuosos-component @saveDefectuosos="saveDefectuosos"></add-defectuosos-component>
+        </b-modal>
     </div>
 </template>
 
 <script>
+import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
     export default {
         props: ['listresponsables', 'role_id'],
+        components: { AddDefectuososComponent },
         data() {
             return {
                 fields: [
@@ -373,12 +377,14 @@
                     {key: 'cerrar_remision', label: ''}
                 ], // Columnas de la tabla principal donde se muestran las remisiones
                 fieldsRP: [
-                    {key: 'isbn', label: 'ISBN'}, 
-                    'libro', 
-                    {key: 'costo_unitario', label: 'Costo unitario'}, 
-                    {key: 'unidades_resta', label: 'Unidades pendientes'},
-                    {key: 'unidades_base', label: 'Unidades'}, 
-                    'subtotal'
+                    { key: 'libro.ISBN', label: 'ISBN' }, 
+                    { key: 'libro.titulo', label: 'Titulo' }, 
+                    { key: 'costo_unitario', label: 'Costo unitario' }, 
+                    { key: 'unidades_resta', label: 'Unidades pendientes' },
+                    { key: 'defectuosos', label: 'Unidades defectuosos' },
+                    { key: 'unidades_base', label: 'Unidades devolución' }, 
+                    { key: 'subtotal', label: 'Total' },
+                    { key: 'actions', label: '' },
                 ], // Columnas donde se muestran los datos de las remisiones
                 fieldsR: [
                     {key: 'isbn', label: 'ISBN'}, 
@@ -425,7 +431,9 @@
                 ],
                 position: null,
                 codes: [],
-                showSelectUnit: false
+                showSelectUnit: false,
+                posD: null,
+                devolucionD: {} 
             }
         },
         filters: {
@@ -644,7 +652,9 @@
                             updated_at: rd.updated_at,
                             codes: cs,
                             code_dato: [],
-                            scratch: false
+                            scratch: false,
+                            defectuosos: 0,
+                            comentario: null
                         });
                     });
                     this.remision = remision;
@@ -726,28 +736,35 @@
             },
             // VERIFICAR LAS UNIDADES INGRESADAS PARA OBTENER EL SUBTOTAL
             guardarUnidades(devolucion, i){
-                if(devolucion.unidades_base >= 0){
+                if (devolucion.unidades_base >= 0) {
                     if(devolucion.unidades_base <= devolucion.unidades_resta){
+                        if (devolucion.unidades_base == 0) {
+                            this.devoluciones[i].defectuosos = 0;
+                            this.devoluciones[i].comentario = null;
+                        }
                         this.devoluciones[i].total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
                         // if(i + 1 < this.devoluciones.length){
                         //     document.getElementById('inpDev-'+(i+1)).focus();
                         //     document.getElementById('inpDev-'+(i+1)).select();
                         // }
-                    }
-                    else{
+                    } else{
                         this.item = devolucion.id;
                         this.makeToast('warning', 'Unidades mayores a unidades pendientes.');
-                        this.devoluciones[i].unidades_base = 0;
-                        this.devoluciones[i].total_base = 0;
+                        this.set_posDev(i);
                     }
-                }
-                else{
+                } else{
                     this.makeToast('warning', 'Las unidades no pueden ser menores a cero');
-                    this.devoluciones[i].unidades_base = 0;
-                    this.devoluciones[i].total_base = 0;
+                    this.set_posDev(i);
                 }
                 this.acumularFinal();
                 this.showSelectUnit = false;
+            },
+            set_posDev(i) {
+                this.devoluciones[i].unidades_base = 0;
+                this.devoluciones[i].total_base = 0;
+                this.devoluciones[i].defectuosos = 0;
+                this.devoluciones[i].comentario = null;
+                console.log(this.devoluciones[i]);
             },
             acumularFinal(){
                 this.total_devolucion = 0;
@@ -808,6 +825,22 @@
                 devolucion.unidades_base = unidades_base;
                 this.acumularFinal();
                 this.$bvModal.hide('modal-select-codes');
+            },
+            addDefectuosos(devolucion, i) {
+                this.posD = i;
+                this.devolucionD = devolucion;
+                this.$bvModal.show('modal-add-defectuosos');
+            },
+            saveDefectuosos(defectuosos) {
+                if ((this.devolucionD.unidades_base > 0 && this.devolucionD.unidades_base <= this.devolucionD.unidades_resta) &&
+                    (defectuosos.defectuosos > 0 && defectuosos.defectuosos <= this.devolucionD.unidades_base)) {
+                    this.devoluciones[this.posD].defectuosos = defectuosos.defectuosos;
+                    this.devoluciones[this.posD].comentario = defectuosos.motivo;
+                    this.$bvModal.hide('modal-add-defectuosos');
+                    this.makeToast('success', 'La unidades de defectuosos se agregaron correctamente.');
+                } else {
+                    this.makeToast('warning', 'Las unidades para defectuosos deben ser menor o igual a las unidades de devolución.');
+                }
             }
         },
     }

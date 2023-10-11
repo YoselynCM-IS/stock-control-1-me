@@ -73,8 +73,8 @@
             </template>
             <template #cell(codes)="row">
                 <b-button v-if="row.item.codes.length > 0" 
-                    size="sm" @click="row.toggleDetails" pill variant="info">
-                    {{ row.detailsShowing ? 'Ocultar' : 'Mostrar'}}
+                    @click="row.toggleDetails" size="sm" pill variant="dark">
+                    {{ row.detailsShowing ? 'Ocultar' : 'Código(s)'}}
                 </b-button>
             </template>
             <template #row-details="row">
@@ -110,63 +110,46 @@
         </div>
         <br><br>
         <!-- DEVOLUCIONES DE LA REMISION -->
-        <div>
-            <b-button v-if="remision.total_devolucion > 0" variant="link" 
-                :class="mostrarDevolucion ? 'collapsed' : null"
-                :aria-expanded="mostrarDevolucion ? 'true' : 'false'"
-                aria-controls="collapse-2"
-                @click="mostrarDevolucion = !mostrarDevolucion">
-                <h4><b>Devolución</b></h4>
-            </b-button>
-            <b-collapse id="collapse-2" v-model="mostrarDevolucion" class="mt-2">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <td></td><td></td>
-                            <td></td><td></td>
-                            <td><h5>${{ remision.total_devolucion | formatNumber }}</h5></td>
-                        </tr>
-                        <tr>
-                            <th scope="col">ISBN</th>
-                            <th scope="col">Libro</th>
-                            <th scope="col">Costo unitario</th>
-                            <th scope="col">Unidades</th>
-                            <th scope="col">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="(devolucion, i) in remision.devoluciones" v-bind:key="i">
-                            <td>{{ devolucion.libro.ISBN }}</td>
-                            <td>{{ devolucion.libro.titulo }}</td>
-                            <td>${{ devolucion.dato.costo_unitario | formatNumber }}</td>
-                            <td>{{ devolucion.unidades }}</td>
-                            <td>${{ devolucion.total | formatNumber }}</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <hr>
-                <h5><b>Detalles de la devolución</b></h5>
-                <b-table hover :items="remision.fechas" :fields="fieldsFechas">
-                    <template  v-slot:cell(isbn)="data">
-                        {{ data.item.libro.ISBN}}
-                    </template>
-                    <template  v-slot:cell(titulo)="data">
-                        {{ data.item.libro.titulo}}
-                    </template>
-                    <template  v-slot:cell(unidades)="data">
-                        {{ data.item.unidades | formatNumber }}
-                    </template>
-                    <template  v-slot:cell(total)="data">
-                        ${{ data.item.total | formatNumber }}
-                    </template>
-                    <template #thead-top="row">
-                        <tr>
-                            <th colspan="6"></th>
-                            <th><h5>${{ remision.total_devolucion | formatNumber }}</h5></th>
-                        </tr>
-                    </template>
-                </b-table>
-            </b-collapse>
+        <div v-if="remision.total_devolucion > 0">
+            <h4 style="color: #12013d"><b>Devolución</b></h4>
+            <b-table :items="devoluciones" :fields="fieldsDevoluciones">
+                <template v-slot:cell(costo_unitario)="row">
+                    ${{ row.item.dato.costo_unitario | formatNumber }}
+                </template>
+                <template v-slot:cell(total)="row">
+                    ${{ row.item.total | formatNumber }}
+                </template>
+                <template #thead-top="row">
+                    <tr>
+                        <th colspan="4"></th>
+                        <th><h5>${{ remision.total_devolucion | formatNumber }}</h5></th>
+                    </tr>
+                </template>
+                <template #cell(show_details)="row">
+                    <b-button v-if="row.item.unidades > 0 && row.item.fechas.length > 0" size="sm" pill variant="info"
+                        v-model="row.detailsShowing" @click="row.toggleDetails">
+                        {{ row.detailsShowing ? 'Ocultar' : 'Detalles' }}
+                    </b-button>
+                </template>
+                <template #row-details="row">
+                    <b-card bg-variant="dark" text-variant="white">
+                        <template #header>
+                            <h6><b>Detalles</b></h6>
+                        </template>
+                        <b-table :items="row.item.fechas" :fields="fieldsFechas" dark>
+                            <template v-slot:cell(total)="row">
+                                ${{ row.item.total | formatNumber }}
+                            </template>
+                            <template v-slot:cell(creado_por)="row">
+                                {{ row.item.creado_por != null ? row.item.creado_por : 'NA' }}
+                            </template>
+                            <template v-slot:cell(comentario)="row">
+                                {{ row.item.comentario != null ? row.item.comentario:'NA' }}
+                            </template>
+                        </b-table>
+                    </b-card>
+                </template>
+            </b-table>
         </div>
         <!-- MODALS -->
         <!-- CANCELAR REMISIÓN -->
@@ -265,13 +248,12 @@ import moment from '../../mixins/moment';
 import DatosRemision from './partials/DatosRemision.vue';
 import DepositosRemision from './partials/DepositosRemision.vue';
 export default {
-    props: ['remision', 'role_id'],
+    props: ['remision', 'devoluciones', 'role_id'],
     components: {DatosRemision, DepositosRemision},
     mixins: [formatNumber,toast,moment],
     data(){
         return {
             mostrarPagos: false,
-            mostrarDevolucion: false,
             load: false,
             newComment: false,
             fieldsDatos: [
@@ -279,7 +261,7 @@ export default {
                 { key: 'titulo', label: 'Libro' },
                 { key: 'costo_unitario', label: 'Costo unitario' },
                 { key: 'unidades', label: 'Unidades' },
-                { key: 'total', label: 'Subtotal' },
+                { key: 'total', label: 'Total' },
                 { key: 'codes', label: '' }
             ],
             fieldsCodes: [
@@ -287,14 +269,26 @@ export default {
                 {key:'codigo', label:'Código'},
                 {key:'devolucion', label:'Devolución'},
             ],
+            fieldsDevoluciones: [
+                { key: 'libro.ISBN', label: 'ISBN' },
+                { key: 'libro.titulo', label: 'Libro' },
+                { key: 'costo_unitario', label: 'Costo unitario' },
+                { key: 'unidades', label: 'Unidades' },
+                { key: 'total', label: 'Total' },
+                { key: 'show_details', label: '' }
+                // { key: 'creado_por', label: 'Ingresado por' },
+                // { key: 'fecha_devolucion', label: 'Fecha' },
+                // { key: 'entregado_por', label: 'Entregada por' },
+            ],
             fieldsFechas: [
+                { key: 'created_at', label: 'Fecha' },
                 { key: 'creado_por', label: 'Ingresado por' },
-                { key: 'fecha_devolucion', label: 'Fecha' },
-                { key: 'entregado_por', label: 'Entregada por' },
-                { key: 'isbn', label: 'ISBN' },
-                { key: 'titulo', label: 'Libro' },
-                'unidades',
-                { key: 'total', label: 'Subtotal' },
+                { key: 'entregado_por', label: 'Entregado por' },
+                { key: 'defectuosos', label: 'Defectuosos' },
+                { key: 'comentario', label: 'Comentario' },
+                { key: 'unidades', label: 'Unidades' },
+                { key: 'total', label: 'Total' },
+                // { key: 'pack_id', label: 'Scratch' },
             ],
             fieldsComen: [
                 {key: 'index', label: 'N.'},
@@ -305,8 +299,8 @@ export default {
             form: {
                 remision_id: null,
                 comentario: ''
-            }
-            
+            },
+            mostrarDetalles: true
         }
     },
     methods: {

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Devolucione;
+use App\Defectuoso;
 use App\Remcliente;
 use Carbon\Carbon;
 use App\Remisione;
@@ -36,8 +37,10 @@ class DevolucioneController extends Controller
             $devoluciones = collect($request->devoluciones);
             $hoy = Carbon::now();
             $devoluciones->map(function($devolucion) use(&$scratchs, $remision, $entregado_por, &$total_devolucion, $hoy){
-                $unidades_base = $devolucion['unidades_base'];
-                $total_base = $devolucion['total_base'];
+                $unidades_base = (int) $devolucion['unidades_base'];
+                $total_base = (double) $devolucion['total_base'];
+                $defectuosos = (int) $devolucion['defectuosos'];
+                $comentario = $devolucion['comentario'];
 
                 if($unidades_base != 0){
                     // Buscar devolución
@@ -48,6 +51,8 @@ class DevolucioneController extends Controller
                         'fecha_devolucion' => $hoy->format('Y-m-d'),
                         'libro_id' => $d->libro->id,
                         'unidades' => $unidades_base,
+                        'defectuosos' => $defectuosos,
+                        'comentario' => $comentario,
                         'total' => $total_base,
                         'entregado_por' => $entregado_por,
                         'creado_por' => auth()->user()->name,
@@ -71,9 +76,19 @@ class DevolucioneController extends Controller
                     ]);
 
                     // AUMENTAR PIEZAS DE LOS LIBROS DEVUELTOS
-                    \DB::table('libros')->whereId($d->libro->id)
-                        ->increment('piezas', $unidades_base);  
-                    
+                    $l = Libro::whereId($d->libro->id)->first();
+                    $l->update([
+                        'piezas' => $l->piezas + ($unidades_base - $defectuosos),
+                        'defectuosos' => $l->defectuosos + $defectuosos
+                    ]);
+                    if($defectuosos > 0){
+                        Defectuoso::create([
+                            'libro_id' => $d->libro->id, 
+                            'numero' => $defectuosos, 
+                            'comentario' => $comentario
+                        ]);
+                    }
+
                     // DEVOLUCION DE CODIGOS
                     $codes = $d->dato->codes()->whereIn('code_id', $devolucion['code_dato'])->get();
                     $codes->map(function($code){
