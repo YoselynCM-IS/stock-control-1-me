@@ -85,7 +85,7 @@ class DevolucioneController extends Controller
                         Defectuoso::create([
                             'libro_id' => $d->libro->id, 
                             'numero' => $defectuosos, 
-                            'comentario' => $comentario
+                            'comentario' => auth()->user()->name.' / Devolución: '.$comentario
                         ]);
                     }
 

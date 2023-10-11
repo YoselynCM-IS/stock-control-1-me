@@ -128,23 +128,7 @@
             </b-modal>
             <!-- MODAL PARA AGREGAR DEFECTUOSOS -->
             <b-modal id="modal-defectuosos" :title="form.libro" hide-footer size="sm">
-                <b-form @submit.prevent="saveDefectuosos()">
-                    <b-form-group label="Número de piezas con algún defecto">
-                        <b-form-input v-model="form.defectuosos" :disabled="loaded">
-                        </b-form-input>
-                    </b-form-group>
-                    <b-form-group label="Motivo">
-                        <b-form-textarea v-model="form.motivo" :disabled="loaded"
-                            rows="3" max-rows="6" required>
-                        </b-form-textarea>
-                    </b-form-group>
-                    <div class="text-right mt-2">
-                        <b-button :disabled="form.defectuosos <= 0"
-                            variant="success" type="submit" pill>
-                            <i class="fa fa-check"></i> Guardar
-                        </b-button>
-                    </div>
-                </b-form>
+                <add-defectuosos-component @saveDefectuosos="saveDefectuosos"></add-defectuosos-component>
             </b-modal>
         </div>
         <div v-else class="text-center text-info my-2 mt-3">
@@ -191,7 +175,9 @@
 </template>
 
 <script>
+import AddDefectuososComponent from './AddDefectuososComponent.vue';
     export default {
+        components: { AddDefectuososComponent },
         props: ['role_id', 'editoriales'],
         data() {
             return {
@@ -385,10 +371,12 @@
                 this.form.motivo = null;
                 this.$bvModal.show('modal-defectuosos');
             },
-            saveDefectuosos(){
-                if(this.form.defectuosos <= this.form.piezas){
-                    if(this.form.motivo.length > 5){
+            saveDefectuosos(defectuosos){
+                if(defectuosos.defectuosos <= this.form.piezas){
+                    if(defectuosos.motivo.length > 5){
                         this.load = true;
+                        this.form.defectuosos = defectuosos.defectuosos;
+                        this.form.motivo = defectuosos.motivo;
                         axios.put('/libro/save_defectuosos', this.form).then(response => {
                             swal("OK", "El libro se actualizo correctamente.", "success")
                                 .then((value) => { location.reload(); });

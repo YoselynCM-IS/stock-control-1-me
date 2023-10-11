@@ -764,7 +764,6 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                 this.devoluciones[i].total_base = 0;
                 this.devoluciones[i].defectuosos = 0;
                 this.devoluciones[i].comentario = null;
-                console.log(this.devoluciones[i]);
             },
             acumularFinal(){
                 this.total_devolucion = 0;
