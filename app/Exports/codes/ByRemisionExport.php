@@ -34,6 +34,7 @@ class ByRemisionExport implements FromCollection, WithHeadings
                         ->join('datos', 'code_dato.dato_id', '=', 'datos.id')
                         ->join('libros', 'datos.libro_id', '=', 'libros.id')
                         ->where('datos.remisione_id', $this->remisione_id)
+                        ->where('code_dato.devolucion', 0)
                         ->select('libros.ISBN', 'libros.titulo', 'codes.codigo')
                         ->get();
         
