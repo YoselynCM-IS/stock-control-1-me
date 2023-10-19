@@ -830,11 +830,12 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                 this.devolucionD = devolucion;
                 this.$bvModal.show('modal-add-defectuosos');
             },
-            saveDefectuosos(defectuosos) {
+            saveDefectuosos(form) {
+                var d = parseInt(form.defectuosos);
                 if ((this.devolucionD.unidades_base > 0 && this.devolucionD.unidades_base <= this.devolucionD.unidades_resta) &&
-                    (defectuosos.defectuosos > 0 && defectuosos.defectuosos <= this.devolucionD.unidades_base)) {
-                    this.devoluciones[this.posD].defectuosos = defectuosos.defectuosos;
-                    this.devoluciones[this.posD].comentario = defectuosos.motivo;
+                    (d > 0 && d <= this.devolucionD.unidades_base)) {
+                    this.devoluciones[this.posD].defectuosos = d;
+                    this.devoluciones[this.posD].comentario = form.motivo;
                     this.$bvModal.hide('modal-add-defectuosos');
                     this.makeToast('success', 'La unidades de defectuosos se agregaron correctamente.');
                 } else {
