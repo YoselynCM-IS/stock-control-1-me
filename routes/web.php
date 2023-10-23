@@ -637,6 +637,7 @@ Route::name('cortes.')->prefix('cortes')->group(function () {
     Route::put('/edit_payment', 'CorteController@edit_payment')->name('edit_payment');
     Route::delete('/delete_payment', 'CorteController@delete_payment')->name('delete_payment');
     Route::get('/list_bycliente', 'CorteController@list_bycliente')->name('list_bycliente');
+    Route::get('/by_ficticios', 'CorteController@by_ficticios')->name('by_ficticios');
 
     // ABRIR EN PAGINA NUEVA
     Route::get('/details_cliente/{cliente_id}', 'CorteController@details_cliente')->name('details_cliente');

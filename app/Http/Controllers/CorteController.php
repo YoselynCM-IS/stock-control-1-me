@@ -12,6 +12,7 @@ use App\Remisione;
 use App\Deposito;
 use App\Cctotale;
 use App\Reporte;
+use App\Cliente;
 use App\Corte;
 use App\Foto;
 
@@ -389,6 +390,7 @@ class CorteController extends Controller
                 'pago' => $monto,
                 'fecha' => $request->fecha,
                 'nota' => $request->nota,
+                'tipo' => $request->tipo,
                 'ingresado_por' => auth()->user()->name
             ]);
 
@@ -682,6 +684,18 @@ class CorteController extends Controller
             'reporte' => $reporte,
             'name_table' => $tabla, 
             'id_table' => $remdeposito_id
+        ]);
+    }
+
+    public function by_ficticios(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
+        $remdepositos = Remdeposito::where('remcliente_id', $cliente->remcliente->id)
+                            ->where('tipo', 'ficticio')
+                            ->with('corte')
+                            ->orderBy('created_at', 'desc')->get();
+        return response()->json([
+            'remdepositos' => $remdepositos,
+            'total' => $remdepositos->sum('pago')
         ]);
     }
 }

@@ -21,6 +21,7 @@ class Remdeposito extends Model
         'pago',
         'fecha',
         'nota',
+        'tipo',
         'revisado',
         'ingresado_por'
     ];

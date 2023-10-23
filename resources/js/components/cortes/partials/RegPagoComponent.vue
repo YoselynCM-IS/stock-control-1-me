@@ -1,6 +1,15 @@
 <template>
     <div>
         <b-form @submit.prevent="guardarPago()">
+            <b-row>
+                <b-col class="text-right" sm="4">
+                    <label>Tipo de pago</label>
+                </b-col>
+                <b-col sm="7">
+                    <b-form-select v-model="form.tipo" :options="tipos" required
+                        :disabled="load"></b-form-select>
+                </b-col>
+            </b-row>
             <form-pago-component :form="form" :state="state" :load="load"></form-pago-component>
             <check-favor-component v-if="showVerify" @answerCheck="answerCheck"></check-favor-component>
             <div v-if="showYes">
@@ -35,7 +44,12 @@ export default {
             state: null,
             showVerify: false,
             showYes: false,
-            options: []
+            options: [],
+            tipos: [
+                { value: null, text: 'Selecciona una opción', disabled: true },
+                { value: 'real', text: 'Real' },
+                { value: 'ficticio', text: 'Ficticio' }
+            ]
         }
     },
     methods: {

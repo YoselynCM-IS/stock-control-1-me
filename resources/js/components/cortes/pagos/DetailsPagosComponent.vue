@@ -6,13 +6,19 @@
                 <b-col>
                     <h5><b>Cliente: {{ datosCortes.name }}</b></h5>
                 </b-col>
-                <b-col sm="3">
-                    <b-button class="btn btn-dark" pill :href="`/pagos/download_edocuenta/${datosCortes.cliente_id}`">
+                <b-col sm="2">
+                    <b-button class="btn btn-dark" pill block @click="showFicticios()">
+                        <i class="fa fa-money"></i> Ficticios
+                    </b-button>
+                </b-col>
+                <b-col sm="2">
+                    <b-button class="btn btn-dark" pill block
+                        :href="`/pagos/download_edocuenta/${datosCortes.cliente_id}`">
                         <i class="fa fa-download"></i> Edo. Cuenta
                     </b-button>
                 </b-col>
                 <b-col sm="2" class="text-right">
-                    <b-button variant="secondary" pill @click="goBack()">
+                    <b-button variant="secondary" pill block @click="goBack()">
                         <i class="fa fa-arrow-left"></i> Regresar
                     </b-button>
                 </b-col>
@@ -30,11 +36,11 @@
                         <b-col><b>{{ corte.inicio }} - {{ corte.final }}</b></b-col>
                         <b-col sm="2">
                             <b-button v-if="corte.total_pagar > 0" @click="registrarPago(corte)"
-                                pill size="sm" variant="primary">
+                                pill block size="sm" variant="primary">
                                 Realizar pago
                             </b-button>
                         </b-col>
-                        <b-col sm="1" class="text-right">
+                        <b-col sm="2" class="text-right">
                             <b-button :class="corte.visible ? null : 'collapsed'" pill variant="info"
                                 size="sm" :aria-expanded="corte.visible ? 'true' : 'false'"
                                 aria-controls="collapse-1" @click="corte.visible = !corte.visible">
@@ -63,6 +69,22 @@
         <b-modal ref="modal-regPago" title="Registrar pago" hide-footer>
             <reg-pago-component :form="form" :corte="corte" 
                     @savePayment="savePayment" :tipo="1"></reg-pago-component>
+        </b-modal>
+        <b-modal ref="modal-ficticios" title="Pagos pendientes (ficticios)" hide-footer size="xl">
+            <b-table :items="ficticios" :fields="fieldsFic">
+                <template v-slot:cell(pago)="row">
+                    ${{ row.item.pago | formatNumber }}
+                </template>
+                <template v-slot:cell(corte)="row">
+                    Temporada {{ row.item.corte.tipo }}: {{ row.item.corte.inicio }} - {{ row.item.corte.final }}
+                </template>
+                <template #thead-top="row">
+                    <tr>
+                        <th colspan="5"></th>
+                        <th>${{ total_ficticios | formatNumber }}</th>
+                    </tr>
+                </template>
+            </b-table>
         </b-modal>
     </div>
 </template>
@@ -99,9 +121,19 @@ export default {
                 pago: null,
                 fecha: null,
                 nota: null,
+                tipo: null
             },
             corte: {},
-            load: false
+            load: false,
+            ficticios: [],
+            fieldsFic: [
+                { key: 'created_at', label: 'Fecha de registro' },
+                { key: 'ingresado_por', label: 'Ingresado por' },
+                { key: 'corte', label: 'Corte' },
+                { key: 'fecha', label: 'Fecha del pago' },
+                'nota', 'pago',
+            ],
+            total_ficticios: 0
         }
     },
     created: function(){
@@ -144,6 +176,7 @@ export default {
                 pago: null,
                 fecha: null,
                 nota: null,
+                tipo: null
             };
             this.$refs['modal-regPago'].show();
         },
@@ -153,6 +186,23 @@ export default {
             swal("OK", "El pago se guardo correctamente", "success")
             .then((value) => {
                 location.href = `/cortes/details_cliente/${this.datosCortes.cliente_id}`;
+            });
+        },
+        // OBTENER PAGOS FICTICIOS
+        showFicticios() {
+            this.load = true;
+            axios.get('/cortes/by_ficticios', { params: { cliente_id: this.clienteid } }).then(response => {
+                this.ficticios = response.data.remdepositos;
+                if (this.ficticios.length > 0) {
+                    this.total_ficticios = response.data.total;
+                    this.$refs['modal-ficticios'].show();
+                } else {
+                    swal("", "No hay registro de pagos ficticios", "info")
+                }
+                this.load = false;
+            }).catch(error => {
+                this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
+                this.load = false;
             });
         }
     }
