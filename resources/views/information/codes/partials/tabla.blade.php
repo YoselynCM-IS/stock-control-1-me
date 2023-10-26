@@ -3,7 +3,9 @@
         <thead>
             <tr>
                 <th scope="col">N.</th>
-                <th scope="col">ISBN</th>
+                @if(!$diferencia)  
+                    <th scope="col">ISBN</th>
+                @endif
                 <th scope="col">TITULO</th>
                 <th scope="col">EXISTENCIA</th>
             </tr>
@@ -17,9 +19,14 @@
                         <td>{{ $libro->libro->titulo }}</td>  
                         <td>{{ $libro->inventario }}</td>
                     @else
-                        <td>{{ $libro->ISBN }}</td>
-                        <td>PACK: {{ $libro->titulo }}</td>  
-                        <td>{{ $libro->piezas }}</td>
+                        <td>
+                            <b>{{ $libro['titulo'] }}</b>
+                            <ul>
+                                <li>{{$libro['fisico']}}</li>
+                                <li>{{$libro['digital']}}</li>
+                            </ul>
+                        </td>  
+                        <td>{{ $libro['piezas'] }}</td>
                     @endif
                 </tr>
             @endforeach

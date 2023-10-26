@@ -99,11 +99,11 @@ class DevolucioneController extends Controller
                             ]);
                     });
                     
-                    if($devolucion['scratch'] || ($d->libro->type == 'digital' && $d->dato->pack_id != null)){
+                    if(($devolucion['scratch'] && $unidades_base > 0) || ($d->libro->type == 'digital' && $d->dato->pack_id != null)){
                         $scratchs->push([
                             'fecha_id' => $fecha->id,
                             'libro_digital' => $devolucion['libro_id'],
-                            'unidades' => (int) $unidades_base,
+                            'unidades' => $unidades_base,
                         ]);
                     }
                 } 

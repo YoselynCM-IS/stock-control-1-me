@@ -306,11 +306,16 @@
                     </tr>
                 </template>
                 <template v-slot:cell(unidades_base)="row">
-                    <b-input v-if="row.item.libro.type !== 'digital' ||
-                        (row.item.libro.type == 'digital' && row.item.dato.codes.length == 0)"
-                        :id="`inpDev-${row.index}`" type="number" 
-                        v-model="row.item.unidades_base" :disabled="load"
-                        @change="guardarUnidades(row.item, row.index)"/>
+                    <div v-if="row.item.libro.type !== 'digital' ||
+                        (row.item.libro.type == 'digital' && row.item.dato.codes.length == 0)">
+                        <b-input v-if="row.item.status"
+                            :id="`inpDev-${row.index}`" type="number" 
+                            v-model="row.item.unidades_base" :disabled="load"
+                            @change="guardarUnidades(row.item, row.index)"/>
+                        <label v-else>
+                            {{ row.item.unidades_base }}
+                        </label>
+                    </div>
                     <div v-if="row.item.libro.type == 'digital' && row.item.dato.codes.length > 0">
                         <b-input v-if="showSelectUnit && position == row.index" 
                             v-model="row.item.unidades_base" :disabled="load"
@@ -322,7 +327,8 @@
                 </template>
                 <template v-slot:cell(actions)="row">
                     <div v-if="row.item.libro.type == 'digital' && row.item.dato.codes.length > 0">
-                        <b-button pill small block variant="info" @click="selectUnidades(row.index)">
+                        <b-button v-if="row.item.referencia != null" 
+                                pill small block variant="info" @click="selectUnidades(row.item, row.index)">
                             Scratch
                         </b-button>
                         <b-button pill small block variant="info" @click="selectCodigos(row.item, row.index)">
@@ -630,33 +636,34 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                 this.total_devolucion = 0;
                 this.ini_entregado_por();
                 axios.get('/remisiones/obtener_devoluciones', {params: {remisione_id: remision.id}}).then(response => {
-                    response.data.forEach(rd => {
-                        let cs = [];
-                        rd.dato.codes.forEach(c => {
-                            if(!c.pivot.devolucion) cs.push(c);
-                        });
-                        this.devoluciones.push({
-                            created_at: rd.created_at,
-                            dato: rd.dato,
-                            dato_id: rd.dato_id,
-                            id: rd.id,
-                            libro: rd.libro,
-                            libro_id: rd.libro_id,
-                            remisione_id: rd.remisione_id,
-                            total: rd.total,
-                            total_base: rd.total_base,
-                            total_resta: rd.total_resta,
-                            unidades: rd.unidades,
-                            unidades_base: rd.unidades_base,
-                            unidades_resta: rd.unidades_resta,
-                            updated_at: rd.updated_at,
-                            codes: cs,
-                            code_dato: [],
-                            scratch: false,
-                            defectuosos: 0,
-                            comentario: null
-                        });
-                    });
+                    // response.data.forEach(rd => {
+                    //     let cs = [];
+                    //     rd.dato.codes.forEach(c => {
+                    //         if(!c.pivot.devolucion) cs.push(c);
+                    //     });
+                    //     this.devoluciones.push({
+                    //         created_at: rd.created_at,
+                    //         dato: rd.dato,
+                    //         dato_id: rd.dato_id,
+                    //         id: rd.id,
+                    //         libro: rd.libro,
+                    //         libro_id: rd.libro_id,
+                    //         remisione_id: rd.remisione_id,
+                    //         total: rd.total,
+                    //         total_base: rd.total_base,
+                    //         total_resta: rd.total_resta,
+                    //         unidades: rd.unidades,
+                    //         unidades_base: rd.unidades_base,
+                    //         unidades_resta: rd.unidades_resta,
+                    //         updated_at: rd.updated_at,
+                    //         codes: cs,
+                    //         code_dato: [],
+                    //         scratch: false,
+                    //         defectuosos: 0,
+                    //         comentario: null
+                    //     });
+                    // });
+                    this.devoluciones = response.data;
                     this.remision = remision;
                     this.acumularFinal();
                     this.mostrarDevolucion = true;
@@ -742,7 +749,24 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                             this.devoluciones[i].defectuosos = 0;
                             this.devoluciones[i].comentario = null;
                         }
-                        this.devoluciones[i].total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
+
+                        let total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
+                        this.devoluciones[i].total_base = total_base;
+                        this.showSelectUnit = false;
+                        if (devolucion.libro.type == 'digital' && devolucion.referencia != null) {
+                            let pos = this.devoluciones.findIndex(d => d.libro_id == devolucion.referencia);
+                            let d = this.devoluciones[pos];
+                            if (devolucion.unidades_base <= d.unidades_resta) {
+                                d.unidades_base = devolucion.unidades_base;
+                                d.total_base = total_base;
+                            } else {
+                                d.unidades_base = 0;
+                                d.total_base = 0;
+                                this.set_posDev(i);
+                                this.showSelectUnit = true;
+                                this.makeToast('warning', 'Libro físico: Unidades mayores a unidades pendientes.');
+                            }
+                        }
                         // if(i + 1 < this.devoluciones.length){
                         //     document.getElementById('inpDev-'+(i+1)).focus();
                         //     document.getElementById('inpDev-'+(i+1)).select();
@@ -757,7 +781,6 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                     this.set_posDev(i);
                 }
                 this.acumularFinal();
-                this.showSelectUnit = false;
             },
             set_posDev(i) {
                 this.devoluciones[i].unidades_base = 0;
@@ -793,37 +816,48 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                     this.makeToast('danger', 'Ocurrió un problema. Verifica tu conexión a internet y/o vuelve a intentar.');
                 });
             },
-            selectCodigos(devolucion, i){
+            selectCodigos(devolucion, i) {
+                this.set_search(devolucion.referencia, true);
                 this.assignfor_devolucion(i, false, false);
                 this.codes = devolucion.codes;
                 this.$bvModal.show('modal-select-codes');
             },
-            selectUnidades(i){
+            selectUnidades(devolucion, i) {
+                this.set_search(devolucion.referencia, false);
                 this.assignfor_devolucion(i, true, true);
+            },
+            set_search(referencia, st) {
+                let pos = this.devoluciones.findIndex(d => d.libro_id == referencia);
+                this.devoluciones[pos].status = st;  
             },
             assignfor_devolucion(i, ssu, scratch){
                 this.position = i;
                 this.devoluciones[this.position].unidades_base = 0;
                 this.devoluciones[this.position].total_base = 0;
                 this.devoluciones[this.position].scratch = scratch;
+                this.devoluciones[this.position].code_dato = [];
                 this.acumularFinal();
                 this.showSelectUnit = ssu;
             },
             onRowSelected(items) {
                 this.selected = items
             },
-            guardarCodes(){
+            guardarCodes() {
                 this.devoluciones[this.position].code_dato = [];
                 let devolucion = this.devoluciones[this.position];
-                let unidades_base = 0;
-                this.selected.forEach(e => {
-                    devolucion.code_dato.push(e.id);
-                    unidades_base++;
-                });
-                devolucion.total_base = devolucion.dato.costo_unitario * unidades_base;
-                devolucion.unidades_base = unidades_base;
-                this.acumularFinal();
-                this.$bvModal.hide('modal-select-codes');
+                if (this.selected.length <= devolucion.unidades_resta) {
+                    let unidades_base = 0;
+                    this.selected.forEach(e => {
+                        devolucion.code_dato.push(e.id);
+                        unidades_base++;
+                    });
+                    devolucion.total_base = devolucion.dato.costo_unitario * unidades_base;
+                    devolucion.unidades_base = unidades_base;
+                    this.acumularFinal();
+                    this.$bvModal.hide('modal-select-codes');
+                } else {
+                    this.makeToast('warning', 'El número de códigos seleccionados es mayor al número de unidades pendientes.');
+                }
             },
             addDefectuosos(devolucion, i) {
                 this.posD = i;

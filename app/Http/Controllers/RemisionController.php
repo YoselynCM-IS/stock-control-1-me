@@ -519,7 +519,68 @@ class RemisionController extends Controller
                         'libro',
                         'dato.codes'
                     ])->get();
-        return response()->json($devoluciones);
+        
+        $digitales = collect();
+        $fisicos = collect();
+        $devoluciones->map(function($devolucion) use (&$digitales, &$fisicos){
+            if($devolucion->libro->type == 'digital')
+                $digitales->push($devolucion->libro);
+            if($devolucion->libro->type == 'venta')
+                $fisicos->push($devolucion->libro);
+        });
+
+        $packs = collect();
+        if($fisicos->count() > 0 && $digitales->count() > 0){
+            $fisicos->map(function($fisico) use(&$packs, &$digitales){
+                $p = Pack::where('libro_fisico', $fisico['id'])
+                            ->whereIn('libro_digital', $digitales->pluck('id'))->first();
+                $packs->push($p);
+            });
+        }
+
+        $datos = collect();
+        $devoluciones->map(function($devolucion) use (&$datos, $packs){
+            $codes = null;
+            $referencia = null;
+            if($devolucion->libro->type == 'digital'){
+                $codes = \DB::table('code_dato')
+                        ->join('codes', 'code_dato.code_id', '=', 'codes.id')
+                        ->select('codes.*')
+                        ->where('code_dato.dato_id', $devolucion->dato_id)
+                        ->where('code_dato.devolucion', false)->get();
+                $lf = $packs->where('libro_digital', $devolucion->libro_id)->first();
+                $referencia = $lf ? $lf->libro_fisico:null;
+            }
+            if($devolucion->libro->type == 'venta'){
+                $ld = $packs->where('libro_fisico', $devolucion->libro_id)->first();
+                $referencia = $ld ? $ld->libro_digital:null;
+            }
+
+            $datos->push([
+                'created_at' => $devolucion->created_at,
+                'dato' => $devolucion->dato,
+                'dato_id' => $devolucion->dato_id,
+                'id' => $devolucion->id,
+                'libro' => $devolucion->libro,
+                'libro_id' => $devolucion->libro_id,
+                'remisione_id' => $devolucion->remisione_id,
+                'total' => $devolucion->total,
+                'total_base' => $devolucion->total_base,
+                'total_resta' => $devolucion->total_resta,
+                'unidades' => $devolucion->unidades,
+                'unidades_base' => $devolucion->unidades_base,
+                'unidades_resta' => $devolucion->unidades_resta,
+                'updated_at' => $devolucion->updated_at,
+                'codes' => $codes,
+                'code_dato' => [],
+                'scratch' => false,
+                'defectuosos' => 0,
+                'comentario' => null,
+                'referencia' => $referencia,
+                'status' => true
+            ]);
+        });
+        return response()->json($datos);
     }
 
     // CANCELAR REMISIÓN
@@ -1020,8 +1081,7 @@ class RemisionController extends Controller
             if(sizeof($request->editados) > 0){
                 $editados = collect($request->editados);
                 $edatos = collect($request->datos);
-                $prueba = collect();
-                $remision->datos->map(function($d) use(&$prueba, &$editados, &$edatos, &$e_total_devolucion){
+                $remision->datos->map(function($d) use(&$editados, &$edatos, &$e_total_devolucion){
                     if($editados->contains($d->id)){
                         $ed = $edatos->firstWhere('id', $d->id);
                         $e_unidades = (int) $ed['unidades'];
