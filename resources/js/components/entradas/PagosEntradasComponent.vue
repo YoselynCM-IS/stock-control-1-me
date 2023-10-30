@@ -30,8 +30,8 @@
                 ${{ row.item.total_pendiente | formatNumber }}
             </template>
             <template v-slot:cell(pagos)="row">
-                <b-button v-if="row.item.entdepositos_count > 0" target="_blank"
-                    variant="info" pill :href="`/information/entradas/cortes/${row.item.editorial}`">
+                <b-button target="_blank" variant="info" pill 
+                    :href="`/information/entradas/cortes/${row.item.editorial}`">
                     Ver pagos
                 </b-button>
             </template>

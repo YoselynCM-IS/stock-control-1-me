@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 // use Spatie\Dropbox\Client;
 use App\Remdeposito;
 use App\Remcliente;
+use App\Editoriale;
 use App\Remisione;
 use App\Deposito;
 use App\Cctotale;
+use App\Ectotale;
 use App\Reporte;
 use App\Cliente;
 use App\Corte;
@@ -139,11 +141,18 @@ class CorteController extends Controller
 
             $remclientes = Remcliente::orderBy('cliente_id', 'asc')
                             ->where('total', '>', 0)->get();
-            
             $remclientes->map(function($remcliente) use($corte){
                 Cctotale::create([
                     'corte_id' => $corte->id, 
                     'cliente_id' => $remcliente->cliente_id
+                ]);
+            });
+
+            $editoriales = Editoriale::get();
+            $editoriales->map(function($editorial) use($corte){
+                Ectotale::create([
+                    'corte_id' => $corte->id, 
+                    'editoriale_id' => $editorial->id
                 ]);
             });
             \DB::commit();
