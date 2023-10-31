@@ -750,15 +750,15 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                             this.devoluciones[i].comentario = null;
                         }
 
-                        let total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
-                        this.devoluciones[i].total_base = total_base;
+                        // let total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
+                        this.devoluciones[i].total_base = devolucion.dato.costo_unitario * devolucion.unidades_base;
                         this.showSelectUnit = false;
                         if (devolucion.libro.type == 'digital' && devolucion.referencia != null) {
                             let pos = this.devoluciones.findIndex(d => d.libro_id == devolucion.referencia);
                             let d = this.devoluciones[pos];
                             if (devolucion.unidades_base <= d.unidades_resta) {
                                 d.unidades_base = devolucion.unidades_base;
-                                d.total_base = total_base;
+                                d.total_base = d.dato.costo_unitario * d.unidades_base;
                             } else {
                                 d.unidades_base = 0;
                                 d.total_base = 0;
