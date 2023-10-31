@@ -63,6 +63,7 @@ Vue.component('all-libros-component', require('./components/libros/AllLibrosComp
 Vue.component('libros-component', require('./components/libros/LibrosComponent.vue').default);
 Vue.component('editar-libro-component', require('./components/libros/EditarLibroComponent.vue').default);
 Vue.component('new-libro-component', require('./components/libros/NewLibroComponent.vue').default);
+Vue.component('add-pack-component', require('./components/libros/AddPackComponente.vue').default);
 // *** CODIGOS
 Vue.component('entrada-codes-component', require('./components/libros/codigos/EntradaCodesComponent.vue').default);
 Vue.component('upload-codes-component', require('./components/libros/codigos/UploadCodesComponent.vue').default);

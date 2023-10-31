@@ -1406,4 +1406,19 @@ class LibroController extends Controller
                         ->sum('piezas');
         return response()->json($packs);
     }
+
+    public function save_pack(Request $request){
+        $libro_fisico = $request->libro_fisico;
+        $libro_digital = $request->libro_digital;
+        $pack = Pack::where('libro_fisico', $libro_fisico)
+                        ->where('libro_digital', $libro_digital)->first();
+        if(!$pack){
+            Pack::create([
+                'libro_fisico' => $libro_fisico, 
+                'libro_digital' => $libro_digital
+            ]);
+            return response()->json(true);
+        }
+        return response()->json(false);
+    }
 }
