@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\UnidadesExport;
 use App\Exports\ULibrosExport;
@@ -84,8 +83,8 @@ class AdministradorController extends Controller
     }
 
     // MOSTRAR DETALLES DE LAS UNIDADES
-    public function detallesUnidades(){
-        $cliente_id = Input::get('cliente_id');
+    public function detallesUnidades(Request $request){
+        $cliente_id = $request->cliente_id;
         $datos = \DB::table('libros')
                 ->join('datos', 'libros.id', '=', 'datos.libro_id')
                 ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
@@ -234,8 +233,8 @@ class AdministradorController extends Controller
         return response()->json($registros);
     }
 
-    public function detallesULibro(){
-        $libro_id = Input::get('libro_id');
+    public function detallesULibro(Request $request){
+        $libro_id = $request->libro_id;
         $datos = \DB::table('datos')
                     ->join('remisiones', 'datos.remisione_id', '=', 'remisiones.id')
                     ->join('clientes', 'remisiones.cliente_id', '=', 'clientes.id')

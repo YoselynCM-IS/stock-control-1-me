@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\DB;
 use App\Exports\EntradasExport;
 use App\Exports\entradas\EntradaExport;
@@ -57,7 +56,7 @@ class EntradaController extends Controller
         return response()->json($entradas);
     }
 
-    // GUARDAR UNA NUEVA ENTRADA
+    // GUARDAR ENTRADA DE LIBROS FISICOS *CHECK
     // Función utilizada en EntradasComponent
     public function store(Request $request){
         \DB::beginTransaction();
@@ -157,6 +156,7 @@ class EntradaController extends Controller
         );
     }
 
+    // GUARDAR ENTRADA DE CODIGOS *CHECK
     public function store_codes(Request $request){
         \DB::beginTransaction();
         try {
@@ -301,8 +301,8 @@ class EntradaController extends Controller
 
     // MOSTRAR ENTRADAS POR EDITORIAL
     // Función utilizada en EntradasComponent, EditarEntradasComponent, VendidosComponent
-    public function by_editorial(){
-        $editorial = Input::get('editorial');
+    public function by_editorial(Request $request){
+        $editorial = $request->editorial;
         $entradas = Entrada::where('editorial','like','%'.$editorial.'%')
                             ->orderBy('id','desc')->paginate(20);
         return response()->json($entradas);
@@ -310,10 +310,10 @@ class EntradaController extends Controller
 
     // MOSTRAR ENTRADAS POR FECHA
     // Función utilizada en EditarEntradasComponent
-    public function by_fecha(){
-        $editorial 	= Input::get('editorial');
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
+    public function by_fecha(Request $request){
+        $editorial 	= $request->editorial;
+        $inicio = $request->inicio;
+        $final = $request->final;
         $fechas = $this->format_date($inicio, $final);
         $fecha1 = $fechas['inicio'];
         $fecha2 = $fechas['final'];
@@ -331,8 +331,8 @@ class EntradaController extends Controller
 
     // MOSTRAR DETALLES DE UNA ENTRADA
     // Función utilizada en EditarEntradasComponent, EntradasComponent
-    public function detalles_entrada(){
-        $entrada_id = Input::get('entrada_id');
+    public function detalles_entrada(Request $request){
+        $entrada_id = $request->entrada_id;
         $entrada = Entrada::whereId($entrada_id)->with(['repayments', 'registros.libro', 'registros.codes', 'imprenta', 'comprobantes'])->first(); 
         $entdevoluciones = Entdevolucione::where('entrada_id', $entrada_id)->with('registro.libro')->get();
         return response()->json(['entrada' => $entrada, 'entdevoluciones' => $entdevoluciones]);
@@ -426,8 +426,8 @@ class EntradaController extends Controller
 
     // BUSCAR ENTRADA POR FOLIO
     // Función utilizada en EntradasComponent
-    public function buscarFolio(){
-        $folio = Input::get('folio');
+    public function buscarFolio(Request $request){
+        $folio = $request->folio;
         $entrada = Entrada::where('folio', $folio)->first();
         return response()->json($entrada);
     }
@@ -541,6 +541,7 @@ class EntradaController extends Controller
         
     }
 
+    // GUARDAR DEVOLUCIÓN *CHECK
     public function devolucion(Request $request){
         $entrada = Entrada::whereId($request->id)->first();
         \DB::beginTransaction();
@@ -933,8 +934,8 @@ class EntradaController extends Controller
         return response()->json(true);
     }
 
-    public function enteditoriale_pagos(){
-        $id = Input::get('id');
+    public function enteditoriale_pagos(Request $request){
+        $id = $request->id;
         $enteditoriale = Enteditoriale::find($id);
         $entdepositos = Entdeposito::where('enteditoriale_id', $enteditoriale->id)
                                 ->orderBy('created_at', 'desc')->get();

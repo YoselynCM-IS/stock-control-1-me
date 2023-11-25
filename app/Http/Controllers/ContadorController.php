@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Remcliente;
 use App\Remdeposito; 
@@ -26,8 +25,8 @@ class ContadorController extends Controller
         return response()->json($pagos);
     }
 
-    public function pagosFecha(){
-        $mes = Input::get('mes');
+    public function pagosFecha(Request $request){
+        $mes = $request->mes;
         if($mes != 'TODO'){
             $year = Carbon::now()->format('Y');
             $today = $year.'-'.$mes;

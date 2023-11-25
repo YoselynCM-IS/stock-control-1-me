@@ -512,7 +512,7 @@
                 this.position = i;
             },
             // MOSTRAR LIBROS POR COINCIDENCIA
-            mostrarLibros(){
+            mostrarLibros() {
                 this.getLibros(this.temporal.titulo);
             },
             // ASIGNAR DATOS DE LIBRO SELECCIONADO

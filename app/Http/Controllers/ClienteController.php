@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use App\Cliente;
 use App\Remisione;
 use App\Dato;
@@ -57,8 +56,8 @@ class ClienteController extends Controller
     }
 
     // OBTENER UN CLIENTE POR ID
-    public function show(){
-        $cliente_id = Input::get('cliente_id');
+    public function show(Request $request){
+        $cliente_id = $request->cliente_id;
         $cliente = Cliente::whereId($cliente_id)->with('user', 'estado')->first();
         return response()->json($cliente);
     }
@@ -67,8 +66,8 @@ class ClienteController extends Controller
     // Función utilizada en los componentes
     // - AdeudosComponent - ClientesComponent - DevolucionAdeudosComponent
     // - DevolucionComponent - ListadoComponent - PagosComponent - RemisionComponent - RemisionesComponent
-    public function mostrarClientes(){
-        $queryCliente = Input::get('queryCliente');
+    public function mostrarClientes(Request $request){
+        $queryCliente = $request->queryCliente;
         $clientes = $this->get_likename($queryCliente)->get();
         return response()->json($clientes);
     }

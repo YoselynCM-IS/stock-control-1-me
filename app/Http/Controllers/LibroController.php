@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Input;
 use App\Enteditoriale;
 use App\Libro;
 use App\Entrada;
@@ -44,8 +43,8 @@ class LibroController extends Controller
     }
 
     // MOSTRAR COINCIDENCIAS DE TITULO PAGINADO
-    public function by_titulo(){
-        $titulo = Input::get('titulo');
+    public function by_titulo(Request $request){
+        $titulo = $request->titulo;
         $libros = \DB::table('libros')
                     ->where('titulo','like','%'.$titulo.'%')
                     ->where('estado', 'activo')
@@ -54,8 +53,8 @@ class LibroController extends Controller
     }
 
     // MOSTRAR COINCIDENCIAS DE ISBN PAGINADO
-    public function by_isbn(){
-        $isbn = Input::get('isbn');
+    public function by_isbn(Request $request){
+        $isbn = $request->isbn;
         $libros = \DB::table('libros')
                     ->where('ISBN','like','%'.$isbn.'%')
                     ->where('estado', 'activo')
@@ -65,8 +64,8 @@ class LibroController extends Controller
 
     // BUSCAR LIBRO POR EDITORIAL paginado
     // Función utilizada en LibrosComponent
-    public function by_editorial(){
-        $editorial = Input::get('editorial');
+    public function by_editorial(Request $request){
+        $editorial = $request->editorial;
         if($editorial === 'TODO'){
             $libros = $this->all_libros_paginate();
         }
@@ -82,8 +81,8 @@ class LibroController extends Controller
     // Función utilizada en
     // - AdeudosComponent - DevoluciónAdeudosComponent - EntradasComponent
     // - NewNotaComponent - PromocionesComponent - RemisionComponent
-    public function show(){
-        $isbn = Input::get('isbn');
+    public function show(Request $request){
+        $isbn = $request->isbn;
         $libros = \DB::table('libros')
                     ->where('ISBN','like','%'.$isbn.'%')
                     ->where('estado', 'activo')
@@ -102,9 +101,9 @@ class LibroController extends Controller
         return response()->json($libros);
     }
 
-    public function isbn_por_editorial(){
-        $isbn = Input::get('isbn');
-        $editorial = Input::get('editorial');
+    public function isbn_por_editorial(Request $request){
+        $isbn = $request->isbn;
+        $editorial = $request->editorial;
         if($editorial == 'OMEGA BOOK') $editorial = 'MAJESTIC EDUCATION';
         $libros = Libro::where('ISBN','like','%'.$isbn.'%')
                     ->where('editorial', $editorial)
@@ -131,8 +130,8 @@ class LibroController extends Controller
     // Función utilizada en
     // - AdeudosComponent - DevoluciónAdeudosComponent - EntradasComponent
     // - NewNotaComponent - PromocionesComponent - RemisionComponent - LibrosComponent
-    public function buscar(){
-        $queryTitulo = Input::get('queryTitulo');
+    public function buscar(Request $request){
+        $queryTitulo = $request->queryTitulo;
         $libros = \DB::table('libros')
                     ->where('titulo','like','%'.$queryTitulo.'%')
                     ->where('estado', 'activo')
@@ -181,9 +180,9 @@ class LibroController extends Controller
         return response()->json($libros);
     }
 
-    public function libros_por_editorial(){
-        $queryTitulo = Input::get('queryTitulo');
-        $editorial = Input::get('editorial');
+    public function libros_por_editorial(Request $request){
+        $queryTitulo = $request->queryTitulo;
+        $editorial = $request->editorial;
         if($editorial == 'OMEGA BOOK') $editorial = 'MAJESTIC EDUCATION';
         $libros = \DB::table('libros')
                     ->select('id', 'ISBN', 'titulo', 'editorial', 'piezas')
@@ -355,8 +354,8 @@ class LibroController extends Controller
     }
 
     // ELIMINAR LIBRO (FUNCIÓN ELIMINADA DE COMPONENT)
-    public function delete(){
-        $id = Input::get('id');
+    public function delete(Request $request){
+        $id = $request->id;
         
         try {
             \DB::beginTransaction();
@@ -579,8 +578,8 @@ class LibroController extends Controller
 
     
 
-    public function movimientos_por_edit(){
-        $editorial = Input::get('queryEMov');
+    public function movimientos_por_edit(Request $request){
+        $editorial = $request->queryEMov;
         if($editorial === 'TODO'){
             $registros = $this->get_libros();
         } else{
@@ -598,10 +597,10 @@ class LibroController extends Controller
         return Excel::download(new MovFechasExport($inicio, $final, $categoria), $categoria.'.xlsx');
     }
 
-    public function movimientos_por_fecha(){
-        $categoria = Input::get('categoria');
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
+    public function movimientos_por_fecha(Request $request){
+        $categoria = $request->categoria;
+        $inicio = $request->inicio;
+        $final = $request->final;
 
         $fechas = $this->format_date($inicio, $final);
         $fecha1 = $fechas['inicio'];
@@ -725,8 +724,8 @@ class LibroController extends Controller
         return $fechas;
     }
 
-    public function detalles_movimientos(){
-        $titulo = Input::get('titulo');
+    public function detalles_movimientos(Request $request){
+        $titulo = $request->titulo;
         $libro = Libro::where('titulo', $titulo)
                     ->with(['registros.entrada', 'registros.entdevoluciones.entrada','registers.note', 'departures.promotion', 'donaciones.regalo', 'saldevoluciones.salida'])
                     ->first();
@@ -769,8 +768,8 @@ class LibroController extends Controller
         return response()->json($registros);
     }
 
-    public function editorial_movmonto(){
-        $editorial = Input::get('editorial');
+    public function editorial_movmonto(Request $request){
+        $editorial = $request->editorial;
         if($editorial === 'TODO'){
             $libros = $this->get_libros();
         } else{
@@ -781,9 +780,9 @@ class LibroController extends Controller
         return response()->json($registros);
     }
 
-    public function fecha_movmonto(){
-        $editorial = Input::get('editorial');
-        $mes = Input::get('mes');
+    public function fecha_movmonto(Request $request){
+        $editorial = $request->editorial;
+        $mes = $request->mes;
 
         $año = Carbon::now()->format('Y');
         $fecha = $año.'-'.$mes;
@@ -808,8 +807,8 @@ class LibroController extends Controller
         return $registros;
     }
 
-    public function detalles_monto(){
-        $titulo = Input::get('titulo');
+    public function detalles_monto(Request $request){
+        $titulo = $request->titulo;
         $libro = Libro::where('titulo', $titulo)->first();
         $datos = $this->busqueda_por_libro($libro);
         return response()->json($datos);

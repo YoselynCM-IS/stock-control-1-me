@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use App\Exports\EdoCuentaExport;
 use Illuminate\Http\Request;
 use App\Devolucione;
@@ -21,8 +20,8 @@ use PDF;
 
 class PagoController extends Controller
 {
-    public function pagos_remision_cliente(){
-        $cliente_id = Input::get('cliente_id');
+    public function pagos_remision_cliente(Request $request){
+        $cliente_id = $request->cliente_id;
         $remisiones = Remisione::where('cliente_id', $cliente_id)
                     ->where('total_pagar', '>', 0)
                     ->where(function ($query) {
@@ -35,8 +34,8 @@ class PagoController extends Controller
 
     // MOSTRAR DATOS
     // Función utilizada en DevoluciónComponent y PagosComponent
-    public function datos_vendidos(){
-        $remision_id = Input::get('remision_id');
+    public function datos_vendidos(Request $request){
+        $remision_id = $request->remision_id;
         $vendidos = Vendido::where('remisione_id', $remision_id)->with('libro')->with('pagos')->with('dato')->get();
         $depositos = Deposito::where('remisione_id', $remision_id)->get();
         return response()->json(['vendidos' => $vendidos, 'depositos' => $depositos]);
@@ -141,9 +140,9 @@ class PagoController extends Controller
         ]);
     }
 
-    public function depositos_cliente(){
-        $id = Input::get('id');
-        $cliente_id = Input::get('cliente_id');
+    public function depositos_cliente(Request $request){
+        $id = $request->id;
+        $cliente_id = $request->cliente_id;
 
         $remdepositos = Remdeposito::where('remcliente_id', $id)
                                     ->orderBy('created_at', 'desc')->get();

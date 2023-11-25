@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Exports\DonacionesExport;
 use App\Exports\donaciones\DonacionExport;
-use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Donacione;
 use Carbon\Carbon;
@@ -98,23 +97,23 @@ class DonacioneController extends Controller
         return response()->json($regalo);
     }
 
-    public function detalles_donacion(){
-        $regalo_id = Input::get('regalo_id');
+    public function detalles_donacion(Request $request){
+        $regalo_id = $request->regalo_id;
         $regalo = Regalo::whereId($regalo_id)->with('donaciones.libro', 'donaciones.codes')->first();
         return response()->json($regalo);
     }
 
-    public function by_plantel(){
-        $queryPlantel = Input::get('queryPlantel');
+    public function by_plantel(Request $request){
+        $queryPlantel = $request->queryPlantel;
         $regalos = Regalo::where('plantel','like','%'.$queryPlantel.'%')
                     ->orderBy('id','desc')->paginate(20);
         return response()->json($regalos);
     }
 
-    public function by_fecha(){
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
-        $plantel = Input::get('plantel');
+    public function by_fecha(Request $request){
+        $inicio = $request->inicio;
+        $final = $request->final;
+        $plantel = $request->plantel;
 
         $fechas = $this->format_date($inicio, $final);
         $fecha1 = $fechas['inicio'];

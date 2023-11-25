@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use App\Exports\PromotionsExport;
 use App\Exports\promociones\PromotionExport;
 use Illuminate\Http\Request;
@@ -34,16 +33,16 @@ class PromotionController extends Controller
 
     // MOSTRAR PROMOCIONES POR FOLIO
     // Función utilizada en PromocionesComponent
-    public function buscar_folio(){
-        $folio = Input::get('folio');
+    public function buscar_folio(Request $request){
+        $folio = $request->folio;
         $promotion = Promotion::where('folio', $folio)->first();
         return response()->json($promotion);
     }
 
     // MOSTRAR PROMOCIONES POR PLANTEL
     // Función utilizada en PromocionesComponent
-    public function buscar_plantel(){
-        $queryPlantel = Input::get('queryPlantel');
+    public function buscar_plantel(Request $request){
+        $queryPlantel = $request->queryPlantel;
         $promotions = Promotion::where('plantel','like','%'.$queryPlantel.'%')
                 ->orderBy('folio','desc')->paginate(20);
         return response()->json($promotions);
@@ -51,8 +50,8 @@ class PromotionController extends Controller
 
     // MOSTRAR LOS DETALLES DE UNA PROMOCIÓN
     // Función utilizada en PromocionesComponent
-    public function obtener_departures(){
-        $promotion_id = Input::get('promotion_id');
+    public function obtener_departures(Request $request){
+        $promotion_id = $request->promotion_id;
         $promotion = Promotion::whereId($promotion_id)
             ->with('departures.libro', 'prodevoluciones.libro', 'departures.codes')->first();
         // $departures = Departure::where('promotion_id', $promotion_id)->with('libro')->get();
@@ -143,10 +142,10 @@ class PromotionController extends Controller
     }
 
     // BUSCAR PROMOCIÓN POR FECHAS
-    public function buscar_fecha_promo(){
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
-        $plantel = Input::get('plantel');
+    public function buscar_fecha_promo(Request $request){
+        $inicio = $request->inicio;
+        $final = $request->final;
+        $plantel = $request->plantel;
 
         $fechas = $this->format_date($inicio, $final);
         $fecha1 = $fechas['inicio'];
@@ -225,7 +224,7 @@ class PromotionController extends Controller
         return response()->json(true);
     }
 
-    // GUARDAR DEVOLUCION
+    // GUARDAR DEVOLUCION *CHECK
     public function devolucion(Request $request){
         try{
             \DB::beginTransaction();

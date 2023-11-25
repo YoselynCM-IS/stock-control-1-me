@@ -326,7 +326,7 @@
                     </div>
                 </template>
                 <template v-slot:cell(actions)="row">
-                    <div v-if="row.item.libro.type == 'digital' && row.item.dato.codes.length > 0">
+                    <div v-if="row.item.libro.type == 'digital' && row.item.unidades_resta > 0 && row.item.dato.codes.length > 0">
                         <b-button v-if="row.item.referencia != null" 
                                 pill small block variant="info" @click="selectUnidades(row.item, row.index)">
                             Scratch
@@ -827,8 +827,10 @@ import AddDefectuososComponent from '../libros/AddDefectuososComponent.vue';
                 this.assignfor_devolucion(i, true, true);
             },
             set_search(referencia, st) {
-                let pos = this.devoluciones.findIndex(d => d.libro_id == referencia);
-                this.devoluciones[pos].status = st;  
+                if (referencia != null) {
+                    let pos = this.devoluciones.findIndex(d => d.libro_id == referencia);
+                    this.devoluciones[pos].status = st;
+                }
             },
             assignfor_devolucion(i, ssu, scratch){
                 this.position = i;

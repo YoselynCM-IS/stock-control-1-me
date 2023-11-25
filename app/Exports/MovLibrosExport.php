@@ -57,7 +57,7 @@ class MovLibrosExport implements FromView
     public function get_libros_editorial($editorial){
         $libros = \DB::table('libros')
                 ->where('editorial', $editorial)
-                ->select('id', 'ISBN', 'titulo', 'piezas')
+                ->select('id', 'editorial', 'ISBN', 'titulo', 'piezas', 'defectuosos')
                 ->where('estado', 'activo')
                 ->orderBy('titulo', 'asc')->get();
         return $libros;

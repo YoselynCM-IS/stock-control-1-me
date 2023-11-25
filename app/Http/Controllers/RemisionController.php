@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use App\Exports\RemisionesExport;
 use App\Exports\RemisionExport;
 use App\Exports\RemisionesGExport;
@@ -58,16 +57,15 @@ class RemisionController extends Controller
     // --- BUSQUEDAS ---
     // BUSCAR REMISIÓN POR NUMERO
     // Función utilizada en ListadoComponent y RemisionesComponent
-    public function por_numero(){
-        $num_remision = Input::get('num_remision');
-        $remision = Remisione::whereId($num_remision)->with('cliente')->first();
+    public function por_numero(Request $request){
+        $remision = Remisione::whereId($request->num_remision)->with('cliente')->first();
         return response()->json(['remision' => $remision]);
     }
 
     // MOSTRAR REMISIONES POR CLIENTE
     // Función utilizada en ListadoComponent y RemisionesComponent
-    public function buscar_por_cliente(){
-        $id = Input::get('id');
+    public function buscar_por_cliente(Request $request){
+        $id = $request->id;
         $cliente = Cliente::find($id);
 
         // INICIO TOTALES
@@ -110,9 +108,9 @@ class RemisionController extends Controller
 
     // MOSTRAR REMISIONES POR ESTADO
     // Función utilizado en ListadoComponent
-    public function buscar_por_estado(){
-        $estado = Input::get('estado');
-        $cliente_id = Input::get('cliente_id');
+    public function buscar_por_estado(Request $request){
+        $estado = $request->estado;
+        $cliente_id = $request->cliente_id;
 
         if($estado === 'cancelado'){
             $remisiones = $this->pag_estado_SF(4, $cliente_id);
@@ -273,10 +271,10 @@ class RemisionController extends Controller
 
     // MOSTRAR REMISIONES POR FECHAS
     // Función utilizada en ListadoComponent
-    public function buscar_por_fecha(){
-        $cliente_id = Input::get('cliente_id');
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
+    public function buscar_por_fecha(Request $request){
+        $cliente_id = $request->cliente_id;
+        $inicio = $request->inicio;
+        $final = $request->final;
         if($cliente_id === null){
             $remisiones = Remisione::whereBetween('fecha_creacion', [$inicio, $final])
                 ->orderBy('id','desc')
@@ -292,10 +290,10 @@ class RemisionController extends Controller
         return response()->json($remisiones);
     }
 
-    public function get_totales_fecha(){
-        $cliente_id = Input::get('cliente_id');
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
+    public function get_totales_fecha(Request $request){
+        $cliente_id = $request->cliente_id;
+        $inicio = $request->inicio;
+        $final = $request->final;
         if($cliente_id === null){
             // INICIO TOTALES
             $remisiones_ids = Remisione::whereBetween('fecha_creacion', [$inicio, $final])
@@ -994,8 +992,8 @@ class RemisionController extends Controller
     }
 
     // OBTENER REMISIÓN POR ID
-    public function get_remision_id(){
-        $id = Input::get('id');
+    public function get_remision_id(Request $request){
+        $id = $request->id;
         $remision = Remisione::whereId($id)->with(['cliente', 'datos.libro'])->first();
         $clientes = Cliente::orderBy('name', 'asc')->get();
         return response()->json(['remision' => $remision, 'clientes' => $clientes]);
@@ -1230,8 +1228,8 @@ class RemisionController extends Controller
         return response()->json(true);
     }
 
-    public function get_remcliente(){
-        $cliente_id = Input::get('cliente_id');
+    public function get_remcliente(Request $request){
+        $cliente_id = $request->cliente_id;
         $remcliente = Remcliente::where('cliente_id', $cliente_id)->first(); 
         return response()->json($remcliente);
     }
@@ -1336,8 +1334,8 @@ class RemisionController extends Controller
     }
 
     // OBTENER PENDIENTES POR CLIENTE
-    public function by_cliente_pendientes(){
-        $cliente = Cliente::find(Input::get('cliente_id'));
+    public function by_cliente_pendientes(Request $request){
+        $cliente = Cliente::find($request->cliente_id);
         $datos = $this->remisiones_proccess($cliente);
         return response()->json($datos);
     }

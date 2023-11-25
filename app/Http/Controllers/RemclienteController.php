@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Remdeposito;
@@ -26,8 +25,8 @@ class RemclienteController extends Controller
     }
 
     // MOSTRAR PAGOS POR CLIENTE
-    public function by_cliente(){
-        $cliente_id = Input::get('cliente_id');
+    public function by_cliente(Request $request){
+        $cliente_id = $request->cliente_id;
         $remcliente = \DB::table('remclientes')
                         ->join('clientes', 'remclientes.cliente_id', '=', 'clientes.id')
                         ->select('clientes.id as cliente_id', 'clientes.name as name', 'total', 'total_devolucion', 'total_pagos', 'total_pagar')

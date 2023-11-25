@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
 use App\Payment;
 use App\Register;
@@ -18,16 +17,16 @@ class NoteController extends Controller
 {
     // BUSCAR NOTA POR FOLIO
     // Función utilizada en NewNoteComponent
-    public function by_folio(){
-        $folio = Input::get('folio');
+    public function by_folio(Request $request){
+        $folio = $request->folio;
         $note = Note::where('folio', $folio)->first();
         return response()->json($note);
     }
 
     // BUSCAR NOTA POR CLIENTE
     // Función utilizada en NewNoteComponent
-    public function by_cliente(){
-        $queryCliente = Input::get('queryCliente');
+    public function by_cliente(Request $request){
+        $queryCliente = $request->queryCliente;
         $notes = Note::where('cliente','like','%'.$queryCliente.'%')
                     ->orderBy('folio','desc')->paginate(20);
         return response()->json($notes);
@@ -35,8 +34,8 @@ class NoteController extends Controller
 
     // MOSTRAR DETALLES DE NOTA
     // Función utilizada en NewNoteComponent
-    public function detalles_nota(){
-        $note_id = Input::get('note_id');
+    public function detalles_nota(Request $request){
+        $note_id = $request->note_id;
         $note = Note::whereId($note_id)->first();
         $registers = Register::where('note_id', $note->id)->with('libro')->with('payments')->get();
         return response()->json($registers);
@@ -223,10 +222,10 @@ class NoteController extends Controller
         return response()->json($note);
     }
 
-    public function by_fecha(){
-        $inicio = Input::get('inicio');
-        $final = Input::get('final');
-        $cliente = Input::get('cliente');
+    public function by_fecha(Request $request){
+        $inicio = $request->inicio;
+        $final = $request->final;
+        $cliente = $request->cliente;
 
         $fechas = $this->format_date($inicio, $final);
         $fecha1 = $fechas['inicio'];

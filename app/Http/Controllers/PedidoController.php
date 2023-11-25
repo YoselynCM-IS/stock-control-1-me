@@ -71,7 +71,7 @@ class PedidoController extends Controller
             $users = User::whereIn('role_id', [1,2,6])
                             ->whereNotIn('id', [auth()->user()->id])->get();
             foreach($users as $user){
-                $user->notify(new NewPedClienteNotification($pedido, $pedido->user));
+                //$user->notify(new NewPedClienteNotification($pedido, $pedido->user));
             }
 
             \DB::commit();

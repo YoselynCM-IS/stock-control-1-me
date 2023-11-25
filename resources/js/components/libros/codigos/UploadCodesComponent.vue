@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-alert v-if="errorFormat" show variant="warning">
-            <b-icon-info-circle></b-icon-info-circle> Formato de archivo no permitido
+            <i class="fa fa-info-circle"></i> Formato de archivo no permitido
         </b-alert>
         <form @submit="onSubmit" enctype="multipart/form-data">
             <b-form-group label="Libro:">
